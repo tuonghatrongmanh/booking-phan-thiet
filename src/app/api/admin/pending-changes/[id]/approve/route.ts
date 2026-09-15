@@ -16,7 +16,7 @@ async function requireSuperAdmin() {
 
 export async function POST(_req: NextRequest, { params }: Params) {
   const { admin, error } = await requireSuperAdmin();
-  if (error || !admin) return error;
+  if (error || !admin) return error!;
 
   const { id } = await params;
   const change = await prisma.pendingChange.findUnique({ where: { id } });
