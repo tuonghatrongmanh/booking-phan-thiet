@@ -1,0 +1,785 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+/* Cuon muot cho moi lien ket dang "#anchor" toan site (VD: nut "Kham pha ngay" o
+   Hero, dai chon nhanh cua trang Game trung thuong...) - tat khi nguoi dung bat
+   "giam thieu chuyen dong" de ton trong accessibility. */
+html {
+  scroll-behavior: smooth;
+}
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --font-display: "Baloo 2", cursive;
+  --font-body: "Be Vietnam Pro", sans-serif;
+  --font-script: "Caveat", cursive;
+
+  /* Bảng màu lấy từ thiết kế gốc (index.html) */
+  --color-navy-deep: #0b3d6e;
+  --color-navy-DEFAULT: #0f4c8c;
+
+  --color-brand-blue: #1a6fc4;
+  --color-brand-blueLight: #2f8fe0;
+  --color-brand-sky: #eaf6fd;
+  --color-brand-orange: #f5821f;
+  --color-brand-gold: #ffc72c;
+  --color-brand-green: #1ea34c;
+  --color-brand-greenBg: #e7f8ee;
+  --color-brand-red: #e8483a;
+  --color-brand-redBg: #fdeaea;
+  --color-brand-purple: #8b5ce0;
+  --color-brand-purpleBg: #f1eafd;
+  --color-brand-footer: #0a2c52;
+
+  /* Bang mau rieng cho trang Am thuc (food discovery) - theo dung spec duoc cung cap,
+     tach ten rieng (food-*) de khong lam doi mau brand-blue dang dung cho ca site. */
+  --color-food-primary: #087ff5;
+  --color-food-dark: #063b78;
+  --color-food-navy: #062f5f;
+  --color-food-light: #eaf7ff;
+  --color-food-bg: #f7fafc;
+  --color-food-text: #14213d;
+  --color-food-textMuted: #6b7a90;
+  --color-food-rating: #ffb400;
+  --color-food-success: #18a957;
+  --color-food-danger: #ff4d32;
+
+  /* Bang mau rieng cho section "Khuyen mai hot" (PromotionsSection) - phong cach
+     travel/resort cao cap theo spec rieng, tach namespace (promo-*) giong cach lam
+     voi food-* de khong anh huong brand-* dung chung toan site. */
+  --color-promo-oceanPrimary: #0077b6;
+  --color-promo-oceanDeep: #023e8a;
+  --color-promo-navyDark: #061a2e;
+  --color-promo-oceanLight: #e8f7fc;
+  --color-promo-sky: #f3fafd;
+  --color-promo-text: #102a43;
+  --color-promo-textMuted: #6b7c93;
+  --color-promo-accent: #ff6b35;
+
+  --shadow-card: 0 10px 30px -12px rgba(15, 76, 140, 0.18);
+
+  /* Bang mau rieng cho trang Blog (/tin-tuc) - phong cach "Tropical Coastal" theo
+     spec rieng (xanh bien + xanh la + trang, bo goc lon), tach namespace (blog-*)
+     giong cach lam voi food-* va promo-* de khong anh huong brand-* dung chung toan site. */
+  --color-blog-bg: #f5f8fb;
+  --color-blog-badge: #3dbe5a;
+  --color-blog-primary: #22b65b;
+  --color-blog-primaryDark: #1f8a4d;
+  --color-blog-primaryBg: #f3f8f5;
+  --color-blog-featured: #49c253;
+  --color-blog-wood: #7b4b25;
+  --color-blog-cream: #fff7e7;
+  --color-blog-textMuted: #667085;
+  --color-blog-newsletterFrom: #2bcb67;
+  --color-blog-newsletterTo: #159947;
+  --color-blog-ctaFrom: #dff8f5;
+  --color-blog-ctaTo: #f5fffd;
+
+  --shadow-blog-card: 0 8px 30px rgba(0, 0, 0, 0.06);
+
+  /* Bang mau rieng cho trang Game trung thuong (/game-trung-thuong) - theo dung
+     spec duoc cung cap (xanh bien Phan Thiet + vang thuong), tach namespace (game-*)
+     giong cach lam voi food-*, promo-* va blog-* de khong anh huong brand-* dung chung site. */
+  --color-game-primary: #1689d8;
+  --color-game-bright: #25a9e8;
+  --color-game-deep: #07539a;
+  --color-game-navy: #08345f;
+  --color-game-light: #eaf7ff;
+  --color-game-lightest: #f5fbff;
+  --color-game-yellow: #ffc928;
+  --color-game-orange: #ff9f1c;
+  --color-game-textDark: #12345b;
+  --color-game-textGray: #66819f;
+
+  --shadow-game-card: 0 8px 25px rgba(16, 82, 130, 0.08);
+  --shadow-game-cardHover: 0 14px 32px rgba(16, 82, 130, 0.14);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: "Be Vietnam Pro", sans-serif;
+}
+
+.font-display {
+  font-family: "Baloo 2", cursive;
+}
+
+.bg-hero-gradient {
+  background: linear-gradient(180deg, #cdeeff 0%, #eaf6fd 45%, #f7fcff 100%);
+}
+
+/* Nen header/navbar - xanh duong tuoi kieu bien Phan Thiet, mot dai gradient LIEN TUC
+   khong chia vung mau (khong dung nua dau/nua sau lech tong nhu ban cu). */
+.bg-navbar-gradient {
+  background: linear-gradient(120deg, #159be8 0%, #13a7ef 50%, #1689d8 100%);
+}
+
+/* Header: lop anh sang rat nhe mo phong nang phan chieu tren mat bien - dat o z-index
+   am de luon nam DUOI logo/menu/nut bam (header da la positioning context vi sticky),
+   khong lam anh huong den click/hover cua cac phan tu ben tren. */
+/* Khong dat position:relative o day - header da la "sticky" (Tailwind), ban than
+   sticky/fixed/absolute deu la positioned nen da du lam containing block cho lop
+   anh sang ben duoi va cho dropdown mobile-menu; neu set them relative o day se
+   de bi mot class khac (vd class Tailwind them sau) ghi de mat position:sticky. */
+.header-ocean-sheen::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 12% 25%, rgba(255, 255, 255, 0.16) 0%, transparent 30%),
+    radial-gradient(circle at 88% 75%, rgba(255, 255, 255, 0.12) 0%, transparent 32%);
+  animation: oceanShimmer 7s ease-in-out infinite alternate;
+}
+
+@keyframes oceanShimmer {
+  0% {
+    opacity: 0.55;
+    transform: translateX(-1.5%);
+  }
+  100% {
+    opacity: 0.9;
+    transform: translateX(1.5%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .header-ocean-sheen::before {
+    animation: none;
+  }
+}
+
+.scrollbar-none {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge cu */
+}
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+.container-custom {
+  max-width: 1680px;
+  margin: 0 auto;
+  padding-left: 24px;
+  padding-right: 24px;
+}
+
+@media (min-width: 1024px) {
+  .container-custom {
+    padding-left: 50px;
+    padding-right: 50px;
+  }
+}
+
+.shadow-card {
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.04),
+    0 8px 20px -8px rgba(15, 23, 42, 0.1);
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.animate-fade-up {
+  animation: fadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-up {
+    animation: none;
+  }
+}
+
+/* So xu tren header "nay" nhe khi cong xu that (dong xu bay toi xong) - phan hoi
+   ngay lap tuc cho nguoi dung thay so vua thay doi. */
+@keyframes coinBump {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.35); color: #fbbf24; }
+  100% { transform: scale(1); }
+}
+.animate-coin-bump {
+  animation: coinBump 0.45s ease;
+}
+
+/* Cac vat trang tri troi noi nhe (xu/qua/ticket...) o Hero trang Game trung thuong -
+   tat khi nguoi dung bat "giam thieu chuyen dong" (prefers-reduced-motion). */
+@keyframes gameFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+.animate-game-float {
+  animation: gameFloat 4s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-game-float {
+    animation: none;
+  }
+}
+
+/* Vong quay may man: glow "tho" nhe moi khi banh xe dang cho nguoi choi bam (moi
+   nguoi de nhan ra day la thu co the tuong tac), tat khi dang quay hoac het luot. */
+@keyframes wheelPulse {
+  0%, 100% { transform: scale(1); opacity: 0.4; }
+  50% { transform: scale(1.09); opacity: 0.12; }
+}
+.animate-wheel-pulse {
+  animation: wheelPulse 2.4s ease-in-out infinite;
+}
+
+/* Mui ten tren banh xe "giat" nhe lien tuc trong luc quay - mo phong cam giac va
+   qua tung chan (peg) nhu banh xe quay thuong thay. */
+@keyframes pointerTick {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-9deg); }
+  75% { transform: rotate(9deg); }
+}
+.animate-pointer-tick {
+  animation: pointerTick 0.13s ease-in-out infinite;
+}
+
+/* Chum hat confetti ban ra khi co ket qua - moi hat dung bien --dx/--dy rieng (dat
+   qua inline style) de 1 keyframe dung chung cho ca chum, khong can tao nhieu class. */
+@keyframes confettiBurst {
+  0% { transform: translate(0, 0) scale(1) rotate(0deg); opacity: 1; }
+  100% { transform: translate(var(--dx), var(--dy)) scale(0.2) rotate(180deg); opacity: 0; }
+}
+.animate-confetti-burst {
+  animation: confettiBurst 0.9s cubic-bezier(0.15, 0.6, 0.4, 1) forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-wheel-pulse,
+  .animate-pointer-tick,
+  .animate-confetti-burst {
+    animation: none;
+  }
+}
+
+/* Viền trắng phía dưới chữ tiêu đề Hero — hiệu ứng "sticker" nổi bật trên nền ảnh */
+.text-pop-white {
+  text-shadow:
+    0 2px 0 #fff,
+    0 3px 8px rgba(15, 23, 42, 0.18);
+}
+
+/* Vien trang bao quanh 4 huong - dung cho chu mau (khong phai trang) nam de tren anh,
+   dam bao tuong phan du doc du anh nen sang/toi/lon xon the nao. */
+.text-outline-white {
+  text-shadow:
+    -1.5px -1.5px 0 #fff,
+    1.5px -1.5px 0 #fff,
+    -1.5px 1.5px 0 #fff,
+    1.5px 1.5px 0 #fff,
+    0 2px 10px rgba(15, 23, 42, 0.18);
+}
+
+.hover-lift {
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-4px);
+  box-shadow:
+    0 2px 4px rgba(15, 23, 42, 0.05),
+    0 12px 24px -10px rgba(15, 23, 42, 0.14);
+}
+
+/* Game trúng thưởng: nút chuyển động lên xuống + ánh đèn nhấp nháy */
+@keyframes gemBounce {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-8px) scale(1.03);
+  }
+}
+
+.animate-gem-bounce {
+  animation: gemBounce 2.2s ease-in-out infinite;
+}
+
+/* Nhap nho nhe cho nhan "HOT" tren menu - bien do rat nho, khong lam roi mat */
+@keyframes badgeBounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+/* Rieng nhan HOT nay KHONG tat theo prefers-reduced-motion: bien do rat nho (5px),
+   khong gay chong mat/kho chiu nhu cac hieu ung lon (parallax, xoay, scroll-reveal...)
+   - va nguoi dung yeu cau ro rang phai luon thay duoc hieu ung nay. */
+.animate-badge-bounce {
+  animation: badgeBounce 1.2s ease-in-out infinite;
+}
+
+/* Dai logo thuong hieu chay ngang lien tuc (marquee) - noi dung duoc nhan doi trong
+   component, animation dich chuyen tu -50% ve 0% de tao cam giac troi TU TRAI SANG
+   PHAI, lap vo han, dung lai khi hover de nguoi dung xem ky logo neu muon. */
+@keyframes brandMarquee {
+  from {
+    transform: translateX(-50%);
+  }
+  to {
+    transform: translateX(0%);
+  }
+}
+
+.animate-brand-marquee {
+  animation: brandMarquee 28s linear infinite;
+}
+
+.animate-brand-marquee:hover {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-brand-marquee {
+    animation: none;
+  }
+}
+
+@keyframes lightsBlink {
+  0%, 100% {
+    box-shadow:
+      0 0 0 3px rgba(255, 199, 44, 0.55),
+      0 0 25px 8px rgba(255, 199, 44, 0.45);
+  }
+  50% {
+    box-shadow:
+      0 0 0 3px rgba(255, 199, 44, 0.15),
+      0 0 12px 3px rgba(255, 199, 44, 0.2);
+  }
+}
+
+.animate-lights-blink {
+  animation: lightsBlink 1.4s ease-in-out infinite;
+}
+
+@keyframes wheelSpin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-wheel-spin {
+  animation: wheelSpin 9s linear infinite;
+}
+
+@keyframes floatSlow {
+  0%, 100% {
+    transform: translateY(0) rotate(-4deg);
+  }
+  50% {
+    transform: translateY(-10px) rotate(4deg);
+  }
+}
+
+.animate-float-slow {
+  animation: floatSlow 3.4s ease-in-out infinite;
+}
+
+@keyframes popIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.85) translateY(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.animate-pop-in {
+  animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes bobY {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-16px);
+  }
+}
+
+.animate-bob {
+  animation: bobY 3.2s ease-in-out infinite;
+}
+
+@keyframes waveScroll {
+  from {
+    background-position-x: 0;
+  }
+  to {
+    background-position-x: -200px;
+  }
+}
+
+.animate-wave-scroll {
+  animation: waveScroll 7s linear infinite;
+}
+
+.animate-wave-scroll-slow {
+  animation: waveScroll 12s linear infinite reverse;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-lights-blink,
+  .animate-wheel-spin,
+  .animate-float-slow,
+  .animate-pop-in {
+    animation: none;
+  }
+}
+
+/* Style dung chung cho noi dung bai viet dang rich-text (ca trong editor admin va
+   trang cong khai /tin-tuc/[slug]) - dam bao WYSIWYG: admin thay sao, khach xem vay. */
+.prose-editor,
+.article-content {
+  font-family: "Be Vietnam Pro", sans-serif;
+}
+.prose-editor h2,
+.article-content h2 {
+  font-family: "Baloo 2", cursive;
+  font-weight: 700;
+  font-size: 1.375rem;
+  color: #14213d;
+  margin: 1.5rem 0 0.75rem;
+  line-height: 1.3;
+}
+.prose-editor h3,
+.article-content h3 {
+  font-family: "Baloo 2", cursive;
+  font-weight: 700;
+  font-size: 1.15rem;
+  color: #14213d;
+  margin: 1.25rem 0 0.6rem;
+  line-height: 1.3;
+}
+.prose-editor p,
+.article-content p {
+  margin: 0 0 1rem;
+}
+.prose-editor ul,
+.article-content ul {
+  list-style: disc;
+  padding-left: 1.4rem;
+  margin: 0 0 1rem;
+}
+.prose-editor ol,
+.article-content ol {
+  list-style: decimal;
+  padding-left: 1.4rem;
+  margin: 0 0 1rem;
+}
+.prose-editor li,
+.article-content li {
+  margin: 0.25rem 0;
+}
+.prose-editor blockquote,
+.article-content blockquote {
+  border-left: 3px solid #1a6fc4;
+  background: #eaf6fd;
+  padding: 0.75rem 1rem;
+  margin: 0 0 1rem;
+  color: #475569;
+  border-radius: 0 8px 8px 0;
+}
+.prose-editor a,
+.article-content a {
+  color: #1a6fc4;
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-color: #bfe0f7;
+}
+.prose-editor img,
+.article-content img {
+  max-width: 100%;
+  border-radius: 12px;
+  margin: 0.5rem 0 1rem;
+}
+.prose-editor p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  color: #94a3b8;
+  float: left;
+  pointer-events: none;
+  height: 0;
+}
+
+/* Bo cuc anh nhieu tam (2/4 cot) chen tu rich-text editor - dung chung ca trong luc
+   soan (GalleryView) lan khi render that o trang cong khai (dangerouslySetInnerHTML). */
+.img-gallery {
+  display: grid;
+  gap: 0.75rem;
+  margin: 0.5rem 0 1.5rem;
+}
+.img-gallery.cols-2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+.img-gallery.cols-4 {
+  grid-template-columns: repeat(4, 1fr);
+}
+.img-gallery img {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: 14px;
+  border: 1px solid #eef2f7;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+  display: block;
+}
+@media (max-width: 640px) {
+  .img-gallery.cols-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Can chinh anh chen rieng le trong bai viet (data-align tren the <img>). */
+.article-content img[data-align="left"] {
+  float: left;
+  margin: 0.25rem 1.25rem 1rem 0;
+  max-width: 48%;
+}
+.article-content img[data-align="right"] {
+  float: right;
+  margin: 0.25rem 0 1rem 1.25rem;
+  max-width: 48%;
+}
+.article-content img[data-align="center"] {
+  display: block;
+  margin: 0 auto 1.25rem;
+}
+.article-content img[data-align="full"] {
+  width: 100%;
+  margin: 0 0 1.25rem;
+}
+
+/* Bo cuc anh "noi bat" (Pinterest-style) trong bai viet - anh dau tien to, chiem het
+   chieu ngang; cac anh sau xep 2 cot nho ben duoi. */
+.img-gallery.cols-featured {
+  grid-template-columns: repeat(2, 1fr);
+}
+.img-gallery.cols-featured img:first-child {
+  grid-column: 1 / -1;
+  aspect-ratio: 16 / 9;
+}
+
+/* So thu tu lon, mo nhat truoc moi H2 trong bai viet - dung CSS counter (khong can
+   luu so thu tu trong DB), tao cam giac tap chi du lich giong anh tham khao.
+   Reset dat o #noi-dung (bao ngoai CA HAI khoi .article-content bi tach doi de chen
+   CTA giua bai - xem splitBeforeHeading() trong article-content.ts) chu KHONG dat
+   tren .article-content, neu khong so se nhay ve 01 lan thu hai thay vi tiep tuc 03/04. */
+#noi-dung {
+  counter-reset: article-section;
+}
+.article-content h2 {
+  counter-increment: article-section;
+  position: relative;
+  padding-left: 4.25rem;
+  margin-top: 3rem;
+  min-height: 2.5rem;
+  display: flex;
+  align-items: center;
+}
+.article-content h2::before {
+  content: counter(article-section, decimal-leading-zero);
+  position: absolute;
+  left: 0;
+  top: -0.4rem;
+  font-family: "Baloo 2", cursive;
+  font-size: 2.75rem;
+  font-weight: 800;
+  color: #d3e9fb;
+  line-height: 1;
+}
+@media (max-width: 640px) {
+  .article-content h2 {
+    padding-left: 3.25rem;
+  }
+  .article-content h2::before {
+    font-size: 2rem;
+  }
+}
+
+/* Danh sach gach dau dong trong bai viet hien thi dang checklist (dau tick xanh)
+   thay vi cham tron mac dinh - khop voi phong cach "kinh nghiem di" trong anh tham khao. */
+.article-content ul {
+  list-style: none;
+  padding-left: 0;
+}
+.article-content ul li {
+  position: relative;
+  padding-left: 1.75rem;
+  margin: 0.5rem 0;
+}
+.article-content ul li::before {
+  content: "\2713";
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: #1ea34c;
+  font-weight: 700;
+}
+
+/* Khoi "thong tin nhanh" dang 4 box nam ngang co icon - khac voi checklist don gian
+   (ul), dung cho cac diem nhan ngan gon (VD: "Khong khi trong lanh", "Canh quan hoang
+   so"...) giong phong cach tap chi du lich tham khao. Doi tu pill-inline (de bi lac
+   vao mach van ban, nhin "roi") sang luoi box rieng biet, tach hang ro voi doan van. */
+.quick-info-badges {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.625rem;
+  margin: 1.5rem 0 2rem;
+}
+@media (min-width: 640px) {
+  .quick-info-badges {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+.quick-info-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 0.5rem;
+  background: #fff;
+  color: #14213d;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.3;
+  border: 1px solid #e7eef6;
+  border-radius: 16px;
+  padding: 1rem 0.75rem;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+.quick-info-badge i {
+  color: #1a6fc4;
+  font-size: 16px;
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  background: #eaf6fd;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Gallery 3 cot kieu Instagram (dung chung aspect-ratio:1 tu .img-gallery img). */
+.img-gallery.cols-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+/* Khoi FAQ - dung the <details>/<summary> chuan, tu co accordion, khong can JS. */
+.faq-block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  margin: 0 0 1.25rem;
+}
+.faq-item {
+  background: #f7fafc;
+  border: 1px solid #e5edf5;
+  border-radius: 12px;
+  padding: 0.875rem 1.125rem;
+}
+.faq-question {
+  cursor: pointer;
+  font-weight: 700;
+  color: #14213d;
+  list-style: none;
+}
+.faq-question::-webkit-details-marker {
+  display: none;
+}
+.faq-question::after {
+  content: "+";
+  float: right;
+  font-weight: 700;
+  color: #1a6fc4;
+}
+.faq-item[open] .faq-question::after {
+  content: "\2212";
+}
+.faq-answer {
+  margin: 0.75rem 0 0;
+  color: #64748b;
+  line-height: 1.6;
+}
+
+/* Khung video YouTube - iframe that duoc chen boi injectVideoEmbeds() (server-side),
+   khong phai boi rich-text truc tiep - xem article-content.ts. */
+.video-embed {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  border-radius: 12px;
+  overflow: hidden;
+  margin: 0 0 1.25rem;
+  background: #0f172a;
+}
+.video-embed iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+/* Khoi trich dan khach hang (TestimonialBlock.tsx) - the quote co vien trai mau
+   nhan, chu in nghieng, ten nguoi chia se dam ben duoi. */
+.testimonial-block {
+  margin: 0 0 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.testimonial-item {
+  margin: 0;
+  padding: 0.875rem 1.25rem;
+  border-left: 3px solid #1a6fc4;
+  background: #f7fafc;
+  border-radius: 0 12px 12px 0;
+}
+.testimonial-quote {
+  margin: 0;
+  font-style: italic;
+  color: #334155;
+  line-height: 1.6;
+}
+.testimonial-author {
+  display: block;
+  margin-top: 0.5rem;
+  font-weight: 700;
+  font-style: normal;
+  color: #1a6fc4;
+  font-size: 0.875rem;
+}

@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "booking-phan-thiet",
+      "runtimeExecutable": "powershell",
+      "runtimeArgs": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "C:/Users/Admin/AppData/Local/Temp/claude/E--D---A-n-Website---Freelance-booking-phan-thiet/0de3f85c-2f9f-48ae-afba-1eb73b850171/scratchpad/dev-node22.ps1"
+      ],
+      "port": 3000
+    }
+  ]
+}

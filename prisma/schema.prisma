@@ -1,0 +1,1094 @@
+// Prisma schema - Booking Phan Thiết
+// Database: PostgreSQL (Neon/Supabase)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum AdminRole {
+  SUPER_ADMIN
+  ADMIN
+  EDITOR
+}
+
+enum PlaceCategory {
+  HOMESTAY
+  CAR_RENTAL
+  RESTAURANT
+  ATTRACTION
+  SALE
+}
+
+enum PlaceStatus {
+  TRUSTED // Uy tín
+  WARNING // Cần cẩn trọng
+  SCAM // Đã ghi nhận lừa đảo
+}
+
+enum SocialPlatform {
+  FACEBOOK
+  ZALO
+  TIKTOK
+  INSTAGRAM
+  OTHER
+}
+
+// 3 danh mục diễn đàn — Nghỉ Dưỡng gộp chung Homestay + Villa + Khu du lịch
+enum ForumCategory {
+  NGHI_DUONG
+  QUAN_NHAU
+  QUAN_CA_PHE
+}
+
+enum ReactionType {
+  LIKE
+  LOVE
+  HAHA
+  WOW
+  SAD
+  ANGRY
+}
+
+enum ForumPostType {
+  POST // Bài viết
+  REVIEW // Đánh giá
+  QUESTION // Hỏi đáp
+  EXPERIENCE // Kinh nghiệm
+}
+
+enum ForumMediaType {
+  IMAGE
+  VIDEO
+}
+
+model User {
+  id           String    @id @default(cuid())
+  phone        String?   @unique
+  name         String
+  email        String    @unique
+  dob          DateTime?
+  password     String?
+  avatar       String    @default("/images/avatar-world.png")
+  googleId     String?   @unique
+  lastEditedAt DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  points       Int  @default(0) // điểm tương tác — cộng khi bài/bình luận được thả cảm xúc
+  rankOverride Int? // superAdmin có thể ghim thứ hạng thành viên thủ công
+  coins        Int  @default(0) // "xu" tích được từ game trúng thưởng, dùng để đổi thưởng
+
+  // An thay vi xoa (giu nguyen du lieu bai viet/binh luan), va canh cao co ghi chu -
+  // hien "!" do o avatar tren header, bam vao xem noi dung o trang tai khoan.
+  hidden      Boolean   @default(false)
+  warningNote String?   @db.Text
+  warnedAt    DateTime?
+
+  forumPosts       ForumPost[]
+  forumComments    ForumComment[]
+  forumReactions   ForumReaction[]
+  gamePlays        GamePlay[]
+  redemptions      Redemption[]
+  saleApplications SaleApplication[]
+  foodReviews      FoodReview[]
+  placeReviews     PlaceReview[]
+  salePlace        Place?
+}
+
+model Admin {
+  id       String    @id @default(cuid())
+  email    String    @unique
+  password String
+  name     String
+  role     AdminRole @default(EDITOR)
+
+  // active=false = bi superadmin dinh chi, khong dang nhap duoc nua (kiem tra o
+  // authorize() luc dang nhap). permissions=null nghia la khong ap dung (SUPER_ADMIN
+  // luon full quyen, khong can permissions) - voi EDITOR, null se duoc coi la "chua
+  // duoc cap quyen gi" (an toan hon la mac dinh full quyen).
+  active      Boolean   @default(true)
+  permissions Json?
+  lastLoginAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  news                   News[]
+  forumPosts             ForumPost[]
+  pendingChangesMade     PendingChange[] @relation("PendingChangeRequestedBy")
+  pendingChangesReviewed PendingChange[] @relation("PendingChangeReviewedBy")
+  messagesSent           AdminMessage[]  @relation("AdminMessageFrom")
+  messagesReceived       AdminMessage[]  @relation("AdminMessageTo")
+}
+
+enum PendingChangeAction {
+  DELETE
+  HIDE
+  UPDATE
+}
+
+enum PendingChangeStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+// Hang cho duyet chung cho MOI loai thao tac can superadmin dong y (xoa, an, hoac sua
+// 1 vai truong nhay cam). targetType/targetId xac dinh ban ghi thuc te (vd "Place" +
+// id); targetLabel luu san ten/tieu de de hien trong danh sach cho duyet ma khong can
+// join lai (ban ghi co the da bi xoa/doi ten sau khi tao yeu cau). payload chi dung
+// cho UPDATE - cac truong de xuat thay doi; DELETE/HIDE khong can payload.
+model PendingChange {
+  id            String              @id @default(cuid())
+  requestedBy   Admin               @relation("PendingChangeRequestedBy", fields: [requestedById], references: [id], onDelete: Cascade)
+  requestedById String
+  action        PendingChangeAction
+  targetType    String
+  targetId      String?
+  targetLabel   String
+  payload       Json?
+  status        PendingChangeStatus @default(PENDING)
+  reviewNote    String?             @db.Text
+  reviewedBy    Admin?              @relation("PendingChangeReviewedBy", fields: [reviewedById], references: [id])
+  reviewedById  String?
+  createdAt     DateTime            @default(now())
+  reviewedAt    DateTime?
+
+  @@index([status, createdAt])
+  @@index([requestedById])
+}
+
+// Tin nhan/thong bao rieng SuperAdmin gui cho 1 nhan vien cu the (khac AdminNotifications
+// - cai do la thong bao TU DONG tinh tu du lieu, cai nay la tin SuperAdmin CHU DONG go
+// gui, can luu that vi khong the "tinh lai" duoc noi dung tu do).
+model AdminMessage {
+  id          String   @id @default(cuid())
+  fromAdmin   Admin    @relation("AdminMessageFrom", fields: [fromAdminId], references: [id], onDelete: Cascade)
+  fromAdminId String
+  toAdmin     Admin    @relation("AdminMessageTo", fields: [toAdminId], references: [id], onDelete: Cascade)
+  toAdminId   String
+  message     String   @db.Text
+  read        Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  @@index([toAdminId, read])
+}
+
+// Bài đăng diễn đàn — người dùng đã đăng nhập hoặc admin đều có thể đăng
+model ForumPost {
+  id          String        @id @default(cuid())
+  category    ForumCategory
+  postType    ForumPostType @default(POST)
+  title       String
+  content     String        @db.Text
+  locationTag String? // check-in
+  views       Int           @default(0)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  authorUser    User?   @relation(fields: [authorUserId], references: [id], onDelete: Cascade)
+  authorUserId  String?
+  authorAdmin   Admin?  @relation(fields: [authorAdminId], references: [id], onDelete: Cascade)
+  authorAdminId String?
+
+  media     ForumPostMedia[]
+  comments  ForumComment[]
+  reactions ForumReaction[]
+  hashtags  ForumPostHashtag[]
+
+  @@index([category, createdAt])
+  @@index([category, postType, createdAt])
+}
+
+model ForumPostMedia {
+  id     String         @id @default(cuid())
+  url    String
+  type   ForumMediaType @default(IMAGE)
+  post   ForumPost      @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId String
+
+  @@index([postId])
+}
+
+// Hashtag toàn hệ thống — count dùng để xếp hạng chủ đề hot, pinnedRank để superAdmin ghim thứ tự
+model Hashtag {
+  id         String   @id @default(cuid())
+  tag        String   @unique
+  count      Int      @default(0)
+  pinnedRank Int?
+  createdAt  DateTime @default(now())
+
+  posts ForumPostHashtag[]
+
+  @@index([count])
+}
+
+model ForumPostHashtag {
+  id        String    @id @default(cuid())
+  post      ForumPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId    String
+  hashtag   Hashtag   @relation(fields: [hashtagId], references: [id], onDelete: Cascade)
+  hashtagId String
+
+  @@unique([postId, hashtagId])
+  @@index([hashtagId])
+}
+
+model ForumComment {
+  id        String   @id @default(cuid())
+  content   String   @db.VarChar(1000)
+  createdAt DateTime @default(now())
+
+  post     ForumPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId   String
+  author   User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId String
+
+  @@index([postId])
+}
+
+model ForumReaction {
+  id        String       @id @default(cuid())
+  type      ReactionType @default(LIKE)
+  createdAt DateTime     @default(now())
+
+  post   ForumPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId String
+  user   User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+
+  @@unique([postId, userId])
+  @@index([postId])
+}
+
+model News {
+  id              String   @id @default(cuid())
+  title           String
+  slug            String   @unique
+  excerpt         String   @db.VarChar(500)
+  metaTitle       String?  @db.VarChar(70)
+  metaDescription String?  @db.VarChar(160)
+  focusKeyword    String?  @db.VarChar(80)
+  content         String   @db.Text
+  coverImage      String
+  category        String   @default("Kinh nghiệm")
+  views           Int      @default(0)
+  published       Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  author   Admin  @relation(fields: [authorId], references: [id])
+  authorId String
+
+  place   Place?  @relation(fields: [placeId], references: [id], onDelete: SetNull)
+  placeId String?
+
+  @@index([placeId])
+  @@index([authorId])
+  @@index([published, createdAt])
+}
+
+model Sale {
+  id              String        @id @default(cuid())
+  title           String
+  description     String        @db.Text
+  image           String
+  discountPercent Int?
+  placeName       String
+  phone           String?
+  category        PlaceCategory @default(HOMESTAY)
+  startDate       DateTime?
+  endDate         DateTime?
+  active          Boolean       @default(true)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@index([active, category])
+}
+
+// Cac "o" danh muc nhanh o trang chu (Homestay/Villa/Quan nhau/Quan ca phe/...) -
+// truoc day hard-code trong Hero.tsx, gio chuyen thanh du lieu that de admin toan quyen
+// quan ly (anh, nhan, lien ket, mau sac, thu tu hien thi) ma khong can sua code.
+// Bang dich noi dung dung chung (generic) cho moi loai bai viet/mo ta do admin/nguoi
+// dung tao (News, ForumPost, Place...) - dich 1 lan luc luu bai (khong phai luc xem
+// trang), luu san ket qua o day de khach xem trang nao cung nhanh, khong goi API dich
+// moi luot xem. model+recordId+field xac dinh noi dung goc, locale la ngon ngu dich.
+model Translation {
+  id        String   @id @default(cuid())
+  model     String
+  recordId  String
+  field     String
+  locale    String
+  text      String   @db.Text
+  updatedAt DateTime @updatedAt
+
+  @@unique([model, recordId, field, locale])
+  @@index([model, recordId])
+}
+
+model HeroTile {
+  id         String   @id @default(cuid())
+  label      String
+  tagText    String
+  href       String
+  image      String
+  icon       String   @default("fa-solid fa-house")
+  badgeColor String   @default("#1a6fc4")
+  special    Boolean  @default(false) // hieu ung noi bat (nhap nhay) danh cho o "Game trung thuong"
+  sortOrder  Int      @default(0)
+  active     Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([active, sortOrder])
+}
+
+// Banner CTA hien o trang chu (vd "Ban da tung bi lua dao?") - admin quan ly toan bo
+// anh nen, tieu de, mo ta, nut bam. Neu chua co row active nao thi frontend fallback
+// ve noi dung tinh mac dinh (khong de trong trang).
+model CtaBanner {
+  id         String   @id @default(cuid())
+  title      String
+  subtitle   String?  @db.Text
+  buttonText String?
+  buttonHref String?
+  image      String
+  active     Boolean  @default(true)
+  sortOrder  Int      @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([active, sortOrder])
+}
+
+// Logo thuong hieu/doi tac chay carousel o trang chu (thay the mang file tinh
+// nhan-hang01..10.png truoc day) - admin toan quyen them/xoa/sap xep.
+model BrandLogo {
+  id        String   @id @default(cuid())
+  name      String
+  image     String
+  href      String?
+  active    Boolean  @default(true)
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([active, sortOrder])
+}
+
+// Popup anh hien giua man hinh khi khach vao website lan dau (moi phien trinh
+// duyet) - co nut dong. Admin bat/tat bang 1 nut trong danh sach, khong can vao form.
+model Popup {
+  id        String   @id @default(cuid())
+  title     String?
+  image     String
+  href      String?
+  active    Boolean  @default(true)
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([active, sortOrder])
+}
+
+// Ghi lai moi request trang/API that (da loc bo static asset/_next) de thong ke luot
+// truy cap, IP dang online, va phat hien hanh vi bat thuong (ratelimit vuot nguong,
+// duong dan do quet lo hong pho bien nhu .env/.git/wp-login...). Ghi qua server.ts
+// (custom HTTP server co san) thay vi Next middleware vi middleware mac dinh chay
+// Edge Runtime, khong dung truc tiep duoc Prisma/MySQL driver TCP.
+model RequestLog {
+  id         String   @id @default(cuid())
+  ip         String
+  path       String
+  method     String
+  userAgent  String?  @db.Text
+  country    String?
+  city       String?
+  suspicious Boolean  @default(false)
+  reason     String?
+  severity   String? // "high" | "medium" | "low" - danh gia muc do nghiem trong khi bi danh dau bat thuong
+  durationMs Int? // thoi gian xu ly request (do o server.ts qua su kien res "finish")
+  statusCode Int? // HTTP status tra ve - dung tinh ty le loi (>=400)
+  resolved   Boolean  @default(false) // admin da xem xet/xu ly canh bao nay chua
+  adminEmail String? // email admin dang nhap khi request nay duoc ghi (giai ma JWT session trong server.ts) - null neu khong dang nhap/khong phai admin. Dung de admin tu phan biet luu luong CUA CHINH MINH voi ke tan cong an danh, tranh chan nham IP cua minh.
+  adminName  String?
+  createdAt  DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([ip, createdAt])
+  @@index([suspicious, createdAt])
+}
+
+// IP bi admin chan thu cong tu Security Log Drawer - server.ts kiem tra bang nay
+// (cache trong bo nho, lam moi dinh ky) truoc khi xu ly request, tra ve 403 ngay
+// neu trung, khong de lot vao Next.js.
+model BlockedIp {
+  ip        String   @id
+  reason    String?
+  createdAt DateTime @default(now())
+}
+
+// Cache ket qua tra cuu dia ly IP (goi API mien phi ip-api.com) de khong phai goi lai
+// nhieu lan cho cung 1 IP - moi IP chi tra cuu 1 lan, cac request sau doc lai tu day.
+model IpInfo {
+  ip        String   @id
+  country   String?
+  city      String?
+  isp       String?
+  updatedAt DateTime @updatedAt
+}
+
+// Banner hero cho cac trang danh muc (Luu tru, Am thuc...) - "slot" xac dinh trang
+// nao dung banner nao (vd "luu-tru-hero"), moi slot chi lay 1 row active. Neu chua
+// co row active cho slot do thi frontend fallback ve anh/tieu de tinh mac dinh.
+model PageBanner {
+  id        String   @id @default(cuid())
+  slot      String
+  title     String?
+  image     String
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([slot, active])
+}
+
+model Place {
+  id           String        @id @default(cuid())
+  name         String
+  category     PlaceCategory
+  status       PlaceStatus   @default(TRUSTED)
+  hidden       Boolean       @default(false) // an boi nhan vien (can superadmin duyet) - khac PlaceStatus (do la muc do uy tin, khong lien quan an/hien)
+  avatar       String?
+  address      String?
+  phone        String?
+  fanpageUrl   String?
+  zaloUrl      String?
+  description  String?       @db.Text
+  featuredRank Int? // superAdmin ghim thứ hạng ở mục "được yêu thích"
+
+  // Lien ket voi User (chi thuc su co y nghia khi category = SALE) - cho phep chinh
+  // Sale tu dang nhap sua ho so cong khai cua minh. onDelete SetNull: xoa User khong
+  // xoa Place, chi bo lien ket (giu ho so cong khai, tranh mat du lieu bat ngo).
+  userId    String? @unique
+  ownerUser User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  // Cac truong rieng cho ho so "Sale uy tin" (chi thuc su co y nghia khi category = SALE)
+  coverImage         String? // anh banner hero trang chi tiet, tach rieng khoi PlaceImage
+  roleTitle          String? // dong gioi thieu ngan duoi ten, vd "Chuyen tu van Homestay - Villa - Resort..."
+  slogan             String? // cau slogan in nghieng duoi roleTitle
+  workArea           String? // khu vuc hoat dong, vd "Phan Thiet - Mui Ne" - khac voi field address
+  yearsExperience    Int? // so nam kinh nghiem, sale/admin tu nhap tay
+  clientsServedCount Int? // so khach da tu van, sale/admin tu nhap tay (khong tinh tu dong)
+  tiktokUrl          String?
+  youtubeUrl         String?
+  instagramUrl       String?
+
+  // Cac truong rieng cho trang "Luu tru" (chi thuc su co y nghia khi category = HOMESTAY,
+  // de trong (null) voi cac category khac). Deu la optional de khong pha du lieu cu.
+  stayType             StayType? // phan loai hien thi o thanh danh muc (Homestay/Villa/Resort/...)
+  priceFromVnd         Int? // gia khoi diem / dem, don vi VND
+  distanceToBeachM     Int? // khoang cach toi bien, don vi met
+  amenities            Json? // mang chuoi tien ich, vd ["Wi-Fi miễn phí", "Hồ bơi", "Bãi đỗ xe"]
+  petFriendly          Boolean   @default(false)
+  views                Int       @default(0) // luot xem trang chi tiet, tang moi luot vao xem
+  totalRooms           Int? // tong so phong (chi Homestay/Villa/Resort...)
+  availableRooms       Int? // so phong con trong hien tai, admin tu cap nhat thu cong
+  mapEmbedUrl          String?   @db.Text // link nhung Google Maps (Chia se > Nhung ban do > copy src iframe)
+  openingHours         String? // gio mo cua dang tu do, vd "07:00 - 18:00" - hien trong khoi thong tin nhanh cua bai viet gan voi dia diem nay
+  distanceFromCenterKm Float? // khoang cach tu trung tam Phan Thiet, don vi km (khac distanceToBeachM la khoang cach rieng toi bien)
+  videoUrl             String? // YouTube video ID cho tab "Video review" cua trang chi tiet Dia diem tham quan
+  videoCaption         String?
+
+  // Cac truong rieng cho trang "Thue xe" (chi thuc su co y nghia khi category = CAR_RENTAL).
+  vehicleType     String? // "Xe so 50cc" | "Xe tay ga" | "Xe Vision" | "Xe cao cao" | "Xe SH" | tu do
+  priceHolidayVnd Int? // gia thue ngay le/cuoi tuan, don vi VND (priceFromVnd dung lam gia ngay thuong)
+  returnLocation  String? // dia diem tra xe - null nghia la giong dia diem nhan xe (truong address)
+
+  // null = chua noi voi Google Sheets nao, dung logic availableRooms/totalRooms cu nhu
+  // truoc gio. Khac null = da dong bo tu mau o trong sheet cua chu so huu, UU TIEN hien
+  // thi trang thai nay tren cong khai thay vi tinh tu availableRooms.
+  availabilityStatus AvailabilityStatus?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  images         PlaceImage[]
+  socialComments SocialComment[]
+  reviews        Review[]
+  newsArticles   News[]
+  placeReviews   PlaceReview[]
+  sheetMappings  SheetRowMapping[]
+  videos         PlaceVideo[]
+  standing       SaleStanding?
+
+  @@index([category, status])
+}
+
+// Video TikTok gioi thieu cua 1 Sale uy tin (category = SALE) - toi da 6, gioi han xu
+// ly o tang API. thumbnailUrl/title lay tu TikTok oEmbed (endpoint cong khai) luc them
+// video, khong phai nguoi dung tu tai anh len.
+model PlaceVideo {
+  id           String   @id @default(cuid())
+  place        Place    @relation(fields: [placeId], references: [id], onDelete: Cascade)
+  placeId      String
+  sourceUrl    String   @db.Text
+  title        String?
+  thumbnailUrl String?  @db.Text
+  sortOrder    Int      @default(0)
+  createdAt    DateTime @default(now())
+
+  @@index([placeId])
+}
+
+// Video huong dan (cach lay link TikTok, cach dung website, hanh vi cam...) - admin
+// quan ly, chi hien trong khoi "Ho so Sale" o trang tai khoan cho user da duoc duyet
+// la Sale uy tin.
+model GuideVideo {
+  id        String   @id @default(cuid())
+  title     String
+  videoUrl  String // YouTube video ID, cung pattern voi Place.videoUrl
+  caption   String?  @db.Text
+  sortOrder Int      @default(0)
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Mat khau chu - chi SUPER_ADMIN biet, dung de xac nhan lai truoc khi dat lai mat khau
+// Sale/Nhan vien. Luu 1 dong duy nhat (singleton id="singleton"), hash bcrypt - khong
+// ai xem lai duoc gia tri goc, chi so sanh dung/sai.
+model SecuritySettings {
+  id                 String   @id @default("singleton")
+  masterPasswordHash String
+  updatedAt          DateTime @updatedAt
+}
+
+enum SaleStandingAction {
+  SUSPENDED
+  BANNED
+}
+
+enum SaleAppealStatus {
+  PENDING
+  RESOLVED
+}
+
+// Tinh trang dinh chi/cam cua 1 Sale (Place) - 1 dong = tinh trang hien tai. Rieng
+// "canh cao" nhe (khong bat popup) dung lai User.warningNote/warnedAt da co, khong
+// can them o day.
+model SaleStanding {
+  id             String             @id @default(cuid())
+  place          Place              @relation(fields: [placeId], references: [id], onDelete: Cascade)
+  placeId        String             @unique
+  action         SaleStandingAction
+  reason         String             @db.Text
+  suspendedUntil DateTime? // null + SUSPENDED = khong xac dinh thoi han; BANNED luon vinh vien (bo qua truong nay)
+  active         Boolean            @default(true) // nut bat/tat nhanh - tat = tam ngung ap dung, khong xoa han
+  createdById    String
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+
+  appealText       String?           @db.Text
+  appealCreatedAt  DateTime?
+  appealStatus     SaleAppealStatus?
+  appealNote       String?           @db.Text
+  appealResolvedAt DateTime?
+
+  @@index([placeId])
+}
+
+enum StayType {
+  HOMESTAY
+  VILLA
+  RESORT
+  BUNGALOW
+  APARTMENT
+}
+
+enum AvailabilityStatus {
+  AVAILABLE // trang - con phong/xe
+  HOLDING // xanh nuoc bien hoac vang - dang duoc giu cho/phan van
+  UNAVAILABLE // do - het phong/xe
+}
+
+// Ket noi toi 1 file Google Sheets/Excel (tren Drive) cua chu so huu (ho tu to mau o de
+// bao con/het phong hoac xe). Dong bo dinh ky (server.ts) doc mau nen o trang thai va
+// cap nhat Place.availabilityStatus cho cac Place da duoc admin anh xa toi 1 cot cu the.
+// File thuc te thuong la lich theo NGAY (moi dong = 1 ngay trong thang), chia theo nhieu
+// tab/sheet rieng cho tung thang - vi vay can tu dong chon dung tab ung voi thang hien tai
+// dua vao sheetNamePattern (vd "THANG {M}-{YYYY}"), thay {M}/{YYYY} bang thang/nam thuc te.
+model SheetSyncSource {
+  id               String    @id @default(cuid())
+  name             String // ten goi nho de admin phan biet, vd "Sheet chu Anh Tuan"
+  sheetId          String // ID trich tu URL Google Drive/Sheets
+  sheetNamePattern String    @default("THÁNG {M}-{YYYY}") // {M}=thang (1-12), {YYYY}=nam - dung de tim dung tab/sheet cua thang hien tai
+  lastSyncedAt     DateTime?
+  lastSyncError    String?   @db.Text
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  mappings SheetRowMapping[]
+}
+
+// Anh xa 1 villa/xe (1 Place) toi 1 CAP COT trong file: dayColumn la cot chua so ngay
+// (1-31), statusColumn la cot mang mau nen the hien trang thai dat phong cua ngay đó
+// (cung 1 dong voi dayColumn). Vi du villa "Goc Yen" co dayColumn="B", statusColumn="D".
+// Dong doc thuc te duoc tinh dong (dong co gia tri dayColumn == ngay hien tai), khong
+// con dung vi tri dong co dinh nhu truoc, vi lich thay doi theo ngay/thang.
+model SheetRowMapping {
+  id           String          @id @default(cuid())
+  source       SheetSyncSource @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+  sourceId     String
+  dayColumn    String // chu cot chua so ngay trong thang, vd "B"
+  statusColumn String // chu cot mang mau trang thai, vd "D"
+  place        Place           @relation(fields: [placeId], references: [id], onDelete: Cascade)
+  placeId      String
+  label        String? // ten villa/xe luc anh xa, de admin doi chieu lai sau nay
+
+  @@unique([sourceId, placeId])
+  @@index([placeId])
+}
+
+// PlaceReview: danh gia THAT tu nguoi dung da dang nhap (khac han Review o tren - do la
+// danh gia admin nhap ho cho doanh nghiep, khong gan userId that). Dung chung cho moi
+// Place category (truoc mat la Dia diem tham quan/ATTRACTION), mirror dung kien truc
+// FoodReview/FoodReviewImage da lam cho Am thuc.
+model PlaceReview {
+  id        String             @id @default(cuid())
+  place     Place              @relation(fields: [placeId], references: [id], onDelete: Cascade)
+  placeId   String
+  user      User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  rating    Int
+  content   String             @db.VarChar(500)
+  images    PlaceReviewImage[]
+  createdAt DateTime           @default(now())
+
+  @@index([placeId])
+  @@index([userId])
+}
+
+model PlaceReviewImage {
+  id       String      @id @default(cuid())
+  review   PlaceReview @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  reviewId String
+  url      String
+
+  @@index([reviewId])
+}
+
+model PlaceImage {
+  id      String  @id @default(cuid())
+  url     String
+  caption String?
+  place   Place   @relation(fields: [placeId], references: [id], onDelete: Cascade)
+  placeId String
+
+  @@index([placeId])
+}
+
+// Ảnh chụp màn hình bình luận/đánh giá thực tế từ mạng xã hội (bằng chứng uy tín)
+model SocialComment {
+  id         String         @id @default(cuid())
+  imageUrl   String
+  platform   SocialPlatform @default(FACEBOOK)
+  authorName String?
+  note       String?
+  createdAt  DateTime       @default(now())
+
+  place   Place  @relation(fields: [placeId], references: [id], onDelete: Cascade)
+  placeId String
+
+  @@index([placeId])
+}
+
+// Đánh giá hiển thị dạng thẻ ở trang chủ
+model Review {
+  id             String   @id @default(cuid())
+  reviewerName   String
+  reviewerAvatar String?
+  rating         Int      @default(5)
+  content        String   @db.VarChar(500)
+  trustLabel     String   @default("Uy tín")
+  likes          Int      @default(0)
+  createdAt      DateTime @default(now())
+
+  place   Place  @relation(fields: [placeId], references: [id], onDelete: Cascade)
+  placeId String
+
+  images ReviewImage[]
+
+  @@index([placeId])
+}
+
+// Ảnh minh chứng đính kèm theo từng đánh giá (tối đa hiển thị 3 ảnh ở trang chủ)
+model ReviewImage {
+  id  String @id @default(cuid())
+  url String
+
+  review   Review @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  reviewId String
+
+  @@index([reviewId])
+}
+
+// Cau hinh chung toan site - CHI 1 dong duy nhat (singleton, id co dinh "singleton")
+// vi day la du lieu toan cuc (logo/favicon/footer/SEO trang chu), khong phai danh
+// sach. Cac truong deu optional - null nghia la dung fallback cung (anh/text co san
+// trong code) cho toi khi admin vao Cai dat va luu lan dau.
+model SiteSettings {
+  id                 String   @id @default("singleton")
+  logoUrl            String?
+  faviconUrl         String?
+  footerDescription  String?  @db.Text
+  homeSeoTitle       String?
+  homeSeoDescription String?  @db.Text
+  updatedAt          DateTime @updatedAt
+}
+
+model GameBannerSettings {
+  id           String   @id @default("singleton")
+  heroBanner   String? // banner dau trang Game trung thuong (GameHero) - null thi dung anh mac dinh /images/banner-game.png
+  rewardBanner String? // banner CTA "Tich xu hom nay" cuoi trang (RewardBanner) - null thi dung SVG TreasureScene ve san
+  updatedAt    DateTime @updatedAt
+}
+
+// He thong "Am thuc" - danh sach mon an tren trang /am-thuc, thay cho du lieu tinh
+// truoc day trong src/data/foods.ts. content la "bai viet" chi tiet (anh/video/trich
+// dan khach hang deu la block trong content nay, dung chung RichTextEditor voi News).
+model Food {
+  id            String   @id @default(cuid())
+  slug          String   @unique
+  name          String
+  restaurant    String // ten quan/nha hang - text tu do, KHONG lien ket Place
+  categoryId    String // khop voi id trong FOOD_CATEGORIES (xem src/lib/food-categories.ts)
+  image         String? // anh dai dien o card - null thi FoodCard hien icon placeholder theo category
+  description   String   @db.Text // mo ta ngan hien tren card
+  content       String?  @db.Text // bai viet chi tiet o /am-thuc/mon/[slug]
+  rating        Float    @default(4.8)
+  reviewCount   Int      @default(0)
+  priceFrom     Int // VND
+  unit          String   @default("phần")
+  badge         String? // text pill tren goc anh - null thi FoodCard tu dung label cua categoryId
+  mealTime      String? // "Sang" | "Trua" | "Chieu" | "Toi" - null = ca ngay, dung de loc + AI hieu ngu canh khi khach hoi "mon an toi/sang..."
+  featured      Boolean  @default(false) // admin danh dau "mon phai an" - AI uu tien goi y khi khach hoi kieu mo (khong go dung ten mon)
+  verified      Boolean  @default(false) // "duoc kiem duyet boi admin"
+  phone         String?
+  googleMapsUrl String? // null thi tu tinh tu ten restaurant
+  videoUrl      String? // YouTube video ID cho tab "Video review" - luu ID nhu VideoEmbed.tsx da lam, KHONG luu iframe HTML tho
+  videoCaption  String? // text hien duoi video
+  mapEmbedUrl   String?  @db.Text // link nhung Google Maps rieng cho mon nay
+  openingHours  String?  @db.Text // free text nhieu dong, gio mo cua
+  is24h         Boolean  @default(false) // quan mo cua 24/24 - co du lieu, dung de AI/loc biet chac chan thay vi doan tu chuoi tu do openingHours
+  fanpageUrl    String?
+  websiteUrl    String?
+  active        Boolean  @default(true)
+  sortOrder     Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  images  FoodImage[]
+  reviews FoodReview[]
+
+  @@index([active, sortOrder])
+}
+
+// Gallery anh THAT (khac voi field "image" don o card) - hien o gallery lon + tab
+// "Anh thuc te" trang chi tiet mon an.
+model FoodImage {
+  id        String @id @default(cuid())
+  food      Food   @relation(fields: [foodId], references: [id], onDelete: Cascade)
+  foodId    String
+  url       String
+  sortOrder Int    @default(0)
+
+  @@index([foodId])
+}
+
+// Danh gia THAT tu nguoi dung da dang nhap (khac han model Review/ReviewImage hien
+// co - cai do la admin nhap ho cho Place, khong gan userId thuc). Dang cong khai
+// NGAY sau khi gui, giong forum post/comment hien tai cua site.
+model FoodReview {
+  id        String            @id @default(cuid())
+  food      Food              @relation(fields: [foodId], references: [id], onDelete: Cascade)
+  foodId    String
+  user      User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  rating    Int // 1-5
+  content   String            @db.VarChar(500)
+  images    FoodReviewImage[]
+  createdAt DateTime          @default(now())
+
+  @@index([foodId])
+  @@index([userId])
+}
+
+model FoodReviewImage {
+  id       String     @id @default(cuid())
+  review   FoodReview @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  reviewId String
+  url      String
+
+  @@index([reviewId])
+}
+
+model AmThucBannerSettings {
+  id            String  @id @default("singleton")
+  heroBanner    String? // anh nen banner dau trang /am-thuc - null dung /images/banner.png
+  badgeIcon     String? // fontawesome class icon canh badge - null dung "fa-solid fa-utensils"
+  badgeText     String? // text canh icon - null dung "ẨM THỰC PHAN THIẾT"
+  headingTop    String? // dong tren, chu nghieng nhat
+  headingBottom String? // dong duoi, chu dam mau nhan
+  subheading    String? // doan mo ta duoi tieu de
+
+  // Khoi "Combo khuyen mai" o cot phai trang /am-thuc (PromotionBanner.tsx)
+  promoImage      String? // anh nen the - null dung /images/banner.png
+  promoTitle      String? // vd "Combo hải sản siêu hấp dẫn!"
+  promoPrice      String? // vd "Chỉ từ 299.000đ/người"
+  promoFeature1   String?
+  promoFeature2   String?
+  promoFeature3   String?
+  promoButtonText String? // vd "Đặt bàn ngay"
+
+  // Khoi "3 muc tin cay" o cot phai trang /am-thuc (TrustFeatures.tsx)
+  trustIcon1  String?
+  trustTitle1 String?
+  trustDesc1  String?
+  trustIcon2  String?
+  trustTitle2 String?
+  trustDesc2  String?
+  trustIcon3  String?
+  trustTitle3 String?
+  trustDesc3  String?
+
+  // Khoi dung chung cho trang chi tiet mon an /am-thuc/mon/[slug]
+  verifiedStampImage   String? // anh dau "DA KIEM CHUNG" dung chung cho moi mon verified=true
+  crossPromoImage      String?
+  crossPromoTitle      String? // vd "Khám phá thêm Nhà hàng & Quán ăn ngon tại Phan Thiết"
+  crossPromoButtonText String?
+  updatedAt            DateTime @updatedAt
+}
+
+// Khoi "Dac san Phan Thiet" (mang ve) o cuoi trang /am-thuc - thay cho du lieu tinh
+// truoc day trong src/data/foods.ts.
+model LocalSpecialty {
+  id        String   @id @default(cuid())
+  name      String
+  image     String? // null thi LocalSpecialties hien icon placeholder
+  price     Int // VND
+  unit      String   @default("kg")
+  active    Boolean  @default(true)
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([active, sortOrder])
+}
+
+// Danh muc mon an tren trang /am-thuc (Hai san/Dac san/Mon nuong...) - thay cho
+// FOOD_CATEGORIES tinh truoc day. id la slug de doc (vd "hai-san"), Food.categoryId
+// tham chieu toi day bang gia tri chuoi (khong dung @relation cung vi Food da ton
+// tai truoc voi categoryId la string tu do - giu don gian, khong migrate FK).
+model FoodCategory {
+  id        String   @id
+  label     String
+  icon      String // fontawesome class
+  active    Boolean  @default(true)
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([active, sortOrder])
+}
+
+// He thong "Game trung thuong" - choi mini-game de tich xu, dung xu doi thuong.
+// Game/RewardItem la du lieu admin quan ly (bat/tat, chinh xu, chinh gia), GamePlay
+// la lich su choi (dung de tinh gioi han so lan choi/ngay - kiem tra O SERVER, khong
+// tin client), Redemption la yeu cau doi thuong (admin xu ly thu cong, giong cach
+// site nay dang lam voi moi thu khac - khong co cong thanh toan/tu dong giao hang).
+model Game {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  name        String
+  description String   @db.Text
+  icon        String // fontawesome class, VD "fa-solid fa-dharmachakra"
+  image       String? // anh icon o danh sach game (quick picker) - admin upload qua form, null thi dung icon fontawesome
+  coinMin     Int      @default(5)
+  coinMax     Int      @default(50)
+  dailyLimit  Int      @default(1) // so luot choi MIEN PHI moi ngay (kiem tra qua GamePlay, khong luu counter rieng)
+  comingSoon  Boolean  @default(false) // game da hien thi nhung chua choi duoc (dang xay dung)
+  active      Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Khoi "Game noi bat" (poster 4 o) o trang /game-trung-thuong - featuredOrder null
+  // = khong hien trong khoi nay; co gia tri = hien, sap theo thu tu tang dan (lay
+  // toi da 4). featuredImage anh poster THAT admin tu upload qua form - null thi
+  // GameFeaturedStrip tu ve SVG placeholder thay the.
+  featuredImage String?
+  featuredOrder Int?
+
+  plays GamePlay[]
+
+  @@index([active, sortOrder])
+}
+
+model GamePlay {
+  id       String   @id @default(cuid())
+  game     Game     @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  gameId   String
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId   String
+  coinsWon Int
+  playedAt DateTime @default(now())
+
+  @@index([userId, gameId, playedAt])
+}
+
+model RewardItem {
+  id          String   @id @default(cuid())
+  name        String
+  description String   @db.Text
+  image       String? // null = chua co anh thuc, UI se fallback qua icon theo category
+  category    String // "Voucher du lịch" | "Mã giảm giá" | "Quần áo thời trang" | "Đặc sản địa phương"...
+  coinCost    Int
+  stock       Int? // null = khong gioi han
+  active      Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  redemptions Redemption[]
+
+  @@index([active, sortOrder])
+}
+
+enum RedemptionStatus {
+  PENDING
+  FULFILLED
+  CANCELLED
+}
+
+model Redemption {
+  id         String           @id @default(cuid())
+  user       User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     String
+  reward     RewardItem       @relation(fields: [rewardId], references: [id], onDelete: Cascade)
+  rewardId   String
+  coinsSpent Int
+  status     RedemptionStatus @default(PENDING)
+  note       String?          @db.Text // admin ghi lai khi xu ly, VD "da goi dien xac nhan"
+
+  // Thong tin nguoi nhan - thu thap luc doi thuong (giong luong checkout TikTok):
+  // ten/sdt lien he + dia chi dang text (nguoi dung tu go) + toa do da "xac nhan"
+  // qua ban do (lay tu geocode dia chi phia client, khong dung GPS thiet bi).
+  recipientName  String?
+  recipientPhone String?
+  addressText    String? @db.Text
+  addressLat     Float?
+  addressLng     Float?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([status])
+}
+
+enum SaleApplicationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+// Don dang ky tro thanh "Sale uy tin" (Place category=SALE) tu trang ca nhan - anh
+// nop len la anh MINH CHUNG (chup fanpage/tiktok/group), KHONG phai anh dai dien cong
+// khai. Duyet don KHONG tu tao Place - admin tu tay tao ho so cong khai rieng sau khi
+// duyet (giu dung triet ly "xu ly thu cong" nhu Redemption).
+model SaleApplication {
+  id        String                 @id @default(cuid())
+  user      User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  reason    String                 @db.Text
+  dob       DateTime
+  phone     String
+  tiktokUrl String?
+  images    SaleApplicationImage[]
+  status    SaleApplicationStatus  @default(PENDING)
+  note      String?                @db.Text // admin ghi chu khi duyet/tu choi
+  createdAt DateTime               @default(now())
+  updatedAt DateTime               @updatedAt
+
+  @@index([userId])
+  @@index([status])
+}
+
+model SaleApplicationImage {
+  id            String          @id @default(cuid())
+  application   SaleApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  applicationId String
+  url           String
+
+  @@index([applicationId])
+}
+
+// Danh muc "Khu vuc" o trang /luu-tru (Mui Ne/Ham Tien/Phu Thuy/Tien Thanh...) - thay
+// cho hang so STAY_AREAS tinh truoc day. label dung truc tiep lam id vi Place.address
+// dang so khop "contains" theo chuoi hien thi nay, khong co id rieng - giu nguyen de
+// khong phai migrate du lieu Place da co.
+model StayArea {
+  label     String   @id
+  active    Boolean  @default(true)
+  sortOrder Int      @default(0)
+  updatedAt DateTime @updatedAt
+
+  @@index([active, sortOrder])
+}
+
+// Danh muc "Tien ich" o trang /luu-tru - thay cho AMENITY_OPTIONS tinh truoc day
+// trong PlaceForm.tsx. label dung truc tiep lam id vi Place.amenities (Json) dang
+// luu chuoi hien thi nay truc tiep, khong co id rieng.
+model StayAmenity {
+  label     String   @id
+  icon      String
+  subtitle  String? // mo ta ngan hien o khoi "Tien ich duoc yeu thich"
+  active    Boolean  @default(true)
+  sortOrder Int      @default(0)
+  updatedAt DateTime @updatedAt
+
+  @@index([active, sortOrder])
+}
+
+// Nhan/icon tuy bien cho 5 gia tri co dinh cua enum StayType - KHONG them duoc loai
+// moi (enum co dinh trong schema), chi doi ten/icon/thu tu/an-hien.
+model StayTypeSetting {
+  id        String   @id
+  label     String
+  icon      String
+  active    Boolean  @default(true)
+  sortOrder Int      @default(0)
+  updatedAt DateTime @updatedAt
+}
+
+// Cau hinh trang /luu-tru: link nhung Google Maps TONG THE thanh pho Phan Thiet
+// (khac mapEmbedUrl cua tung Place) + noi dung banner khuyen mai cuoi sidebar.
+model LuuTruPageSettings {
+  id                   String   @id @default("singleton")
+  mapEmbedUrl          String?  @db.Text
+  promoTitle           String?
+  promoSubtitle        String?
+  promoButtonText      String?
+  // Khoi dung chung cho trang chi tiet Dia diem tham quan /nghi-duong/[id], giong het
+  // AmThucBannerSettings da lam cho Am thuc.
+  verifiedStampImage   String?
+  crossPromoImage      String?
+  crossPromoTitle      String?
+  crossPromoButtonText String?
+  updatedAt            DateTime @updatedAt
+}
