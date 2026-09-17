@@ -41,7 +41,8 @@ export default function RentalFAQ() {
   const [openIdx, setOpenIdx] = useState<number | null>(0);
 
   return (
-    <section className="max-w-[900px] mx-auto px-4 py-10 sm:py-14">
+    <section className="container-custom py-10 sm:py-14">
+      <div className="max-w-[900px] mx-auto">
       <h2 className="font-display font-bold text-2xl sm:text-3xl text-slate-800 text-center mb-8">Câu hỏi thường gặp</h2>
       <div className="space-y-3">
         {FAQ.map((item, idx) => {
@@ -61,6 +62,7 @@ export default function RentalFAQ() {
             </div>
           );
         })}
+      </div>
       </div>
     </section>
   );

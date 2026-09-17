@@ -117,20 +117,30 @@ export default function VehicleCard({
           )}
         </div>
 
-        <div className="flex items-center justify-between mt-3 pt-3 border-t border-[#EDF1F5]">
-          <p>
+        <div className="mt-3 pt-3 border-t border-[#EDF1F5]">
+          <p className="mb-2.5">
             <span className="font-extrabold text-[20px] text-[#087FD8]">{formatVnd(vehicle.priceFromVnd)}</span>
             {vehicle.priceFromVnd != null && <span className="text-[13px] text-[#8293A5]"> /ngày</span>}
           </p>
-          <button
-            type="button"
-            onClick={onBook}
-            disabled={!isAvailable}
-            className="flex items-center gap-1.5 bg-[#1689E8] hover:bg-[#087FD8] transition text-white font-bold text-[13px] h-[42px] px-4 rounded-xl disabled:bg-slate-300 disabled:cursor-not-allowed"
-          >
-            <i className="fa-regular fa-calendar-check" aria-hidden="true" />
-            {isAvailable ? "Đặt thuê" : "Đã hết xe"}
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={onQuickView}
+              className="flex-1 flex items-center justify-center gap-1.5 border border-[#D7E4F0] hover:bg-[#F4F9FE] transition text-[#33475B] font-bold text-[13px] h-[42px] px-3 rounded-xl"
+            >
+              <i className="fa-regular fa-eye" aria-hidden="true" />
+              Xem chi tiết
+            </button>
+            <button
+              type="button"
+              onClick={onBook}
+              disabled={!isAvailable}
+              className="flex-1 flex items-center justify-center gap-1.5 bg-[#1689E8] hover:bg-[#087FD8] transition text-white font-bold text-[13px] h-[42px] px-3 rounded-xl disabled:bg-slate-300 disabled:cursor-not-allowed"
+            >
+              <i className="fa-regular fa-calendar-check" aria-hidden="true" />
+              {isAvailable ? "Đặt thuê" : "Đã hết xe"}
+            </button>
+          </div>
         </div>
       </div>
     </div>

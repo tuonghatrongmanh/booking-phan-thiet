@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import VehicleCard from "./VehicleCard";
 import VehicleQuickViewModal from "./VehicleQuickViewModal";
 import VehicleBookingModal from "./VehicleBookingModal";
@@ -73,7 +74,7 @@ export default function VehicleListClient({ vehicles }: { vehicles: VehicleData[
 
   const [sortBy, setSortBy] = useState("popular");
   const [page, setPage] = useState(1);
-  const PAGE_SIZE = 9;
+  const PAGE_SIZE = 6;
 
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [quickViewId, setQuickViewId] = useState<string | null>(null);
@@ -266,184 +267,192 @@ export default function VehicleListClient({ vehicles }: { vehicles: VehicleData[
     </div>
   );
 
+
   return (
-    <div id="danh-sach-xe">
-      <div className="bg-white rounded-2xl shadow-card p-4 sm:p-5 mb-6">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[1.2fr_1fr_1fr_auto] gap-3">
-          <div className="relative">
-            <i className="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" aria-hidden="true" />
-            <input
-              value={search}
+    <>
+      <div className="container-custom">
+        <div className="relative z-10 -mt-[110px] sm:-mt-[60px] bg-white rounded-[20px] shadow-[0_20px_50px_-18px_rgba(2,60,120,0.28)] p-4 sm:p-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[1.2fr_1fr_1fr_auto] gap-3">
+            <div className="relative">
+              <i className="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" aria-hidden="true" />
+              <input
+                value={search}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  handleFilterChange();
+                }}
+                placeholder="Tìm theo tên xe, loại xe..."
+                className="w-full border border-slate-200 rounded-xl pl-11 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-blue/40"
+              />
+            </div>
+
+            <select
+              value={area}
               onChange={(e) => {
-                setSearch(e.target.value);
+                setArea(e.target.value);
                 handleFilterChange();
               }}
-              placeholder="Tìm theo tên xe, loại xe..."
-              className="w-full border border-slate-200 rounded-xl pl-11 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-blue/40"
-            />
-          </div>
-
-          <select
-            value={area}
-            onChange={(e) => {
-              setArea(e.target.value);
-              handleFilterChange();
-            }}
-            className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-blue/40"
-          >
-            {AREA_OPTIONS.map((a) => (
-              <option key={a} value={a}>
-                {a}
-              </option>
-            ))}
-          </select>
-
-          <div className="grid grid-cols-2 gap-2">
-            <input
-              type="date"
-              value={pickupDate}
-              min={todayStr()}
-              onChange={(e) => setPickupDate(e.target.value)}
-              aria-label="Ngày nhận xe"
-              className="w-full border border-slate-200 rounded-xl px-2.5 py-2.5 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-blue/40"
-            />
-            <input
-              type="date"
-              value={returnDate}
-              min={pickupDate}
-              onChange={(e) => setReturnDate(e.target.value)}
-              aria-label="Ngày trả xe"
-              className="w-full border border-slate-200 rounded-xl px-2.5 py-2.5 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-blue/40"
-            />
-          </div>
-
-          <button
-            type="button"
-            onClick={() => handleFilterChange()}
-            className="bg-brand-blue hover:brightness-95 transition text-white font-bold rounded-xl px-5 py-2.5 text-sm flex items-center justify-center gap-2"
-          >
-            <i className="fa-solid fa-magnifying-glass" aria-hidden="true" />
-            Tìm xe
-          </button>
-        </div>
-      </div>
-
-      <div className="flex items-center justify-between mb-4 gap-3">
-        <p className="text-sm text-slate-500">
-          Tìm thấy <span className="font-bold text-slate-700">{sorted.length}</span> xe
-        </p>
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => setMobileFilterOpen(true)}
-            className="lg:hidden flex items-center gap-1.5 text-sm font-bold text-slate-600 border border-slate-200 rounded-xl px-3.5 py-2"
-          >
-            <i className="fa-solid fa-sliders" aria-hidden="true" />
-            Bộ lọc
-          </button>
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value)}
-            className="border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-blue/40"
-          >
-            {SORT_OPTIONS.map((o) => (
-              <option key={o.value} value={o.value}>
-                {o.label}
-              </option>
-            ))}
-          </select>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-[240px_1fr] gap-6">
-        <aside className="hidden lg:block bg-white rounded-2xl shadow-card p-5 h-fit">{filterPanel}</aside>
-
-        <div>
-          {sorted.length === 0 ? (
-            <div className="bg-white rounded-2xl shadow-card p-10 text-center text-slate-400">
-              <i className="fa-solid fa-magnifying-glass text-3xl mb-3 text-slate-300" aria-hidden="true" />
-              <p>Không tìm thấy xe phù hợp. Thử từ khóa hoặc bộ lọc khác nhé.</p>
-              <button type="button" onClick={resetFilters} className="mt-4 text-sm font-bold text-brand-blue hover:underline">
-                Xóa bộ lọc
-              </button>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {pageItems.map((v) => (
-                <VehicleCard
-                  key={v.id}
-                  vehicle={v}
-                  isFavorite={favorites.has(v.id)}
-                  onToggleFavorite={() => toggleFavorite(v.id)}
-                  onQuickView={() => setQuickViewId(v.id)}
-                  onBook={() => setBookingId(v.id)}
-                />
+              className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-blue/40"
+            >
+              {AREA_OPTIONS.map((a) => (
+                <option key={a} value={a}>
+                  {a}
+                </option>
               ))}
-            </div>
-          )}
+            </select>
 
-          {totalPages > 1 && (
-            <nav className="flex items-center justify-center gap-1.5 mt-6" aria-label="Phan trang">
-              <button
-                type="button"
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                disabled={currentPage === 1}
-                aria-label="Trang trước"
-                className="w-9 h-9 flex items-center justify-center rounded-lg text-sm font-semibold border border-slate-200 text-slate-500 hover:bg-slate-50 transition disabled:opacity-40 disabled:pointer-events-none"
-              >
-                <i className="fa-solid fa-chevron-left text-xs" aria-hidden="true" />
-              </button>
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
-                <button
-                  key={p}
-                  type="button"
-                  onClick={() => setPage(p)}
-                  aria-current={p === currentPage ? "page" : undefined}
-                  className={`w-9 h-9 flex items-center justify-center rounded-lg text-sm font-semibold transition ${
-                    p === currentPage ? "bg-brand-blue text-white" : "border border-slate-200 text-slate-600 hover:bg-slate-50"
-                  }`}
-                >
-                  {p}
-                </button>
-              ))}
-              <button
-                type="button"
-                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                disabled={currentPage === totalPages}
-                aria-label="Trang sau"
-                className="w-9 h-9 flex items-center justify-center rounded-lg text-sm font-semibold border border-slate-200 text-slate-500 hover:bg-slate-50 transition disabled:opacity-40 disabled:pointer-events-none"
-              >
-                <i className="fa-solid fa-chevron-right text-xs" aria-hidden="true" />
-              </button>
-            </nav>
-          )}
-        </div>
-      </div>
-
-      {mobileFilterOpen && (
-        <div className="fixed inset-0 z-[200] lg:hidden">
-          <div className="absolute inset-0 bg-black/50" onClick={() => setMobileFilterOpen(false)} />
-          <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl max-h-[85vh] overflow-y-auto p-5">
-            <div className="flex items-center justify-between mb-4">
-              <p className="font-display font-bold text-lg text-slate-800">Bộ lọc</p>
-              <button type="button" onClick={() => setMobileFilterOpen(false)} aria-label="Đóng" className="text-slate-400 hover:text-slate-600">
-                <i className="fa-solid fa-xmark text-lg" aria-hidden="true" />
-              </button>
+            <div className="grid grid-cols-2 gap-2">
+              <input
+                type="date"
+                value={pickupDate}
+                min={todayStr()}
+                onChange={(e) => setPickupDate(e.target.value)}
+                aria-label="Ngày nhận xe"
+                className="w-full border border-slate-200 rounded-xl px-2.5 py-2.5 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-blue/40"
+              />
+              <input
+                type="date"
+                value={returnDate}
+                min={pickupDate}
+                onChange={(e) => setReturnDate(e.target.value)}
+                aria-label="Ngày trả xe"
+                className="w-full border border-slate-200 rounded-xl px-2.5 py-2.5 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-blue/40"
+              />
             </div>
-            {filterPanel}
+
             <button
               type="button"
-              onClick={() => setMobileFilterOpen(false)}
-              className="w-full bg-brand-blue text-white font-bold rounded-xl py-3 mt-5"
+              onClick={() => handleFilterChange()}
+              className="bg-brand-blue hover:brightness-95 transition text-white font-bold rounded-xl px-5 py-2.5 text-sm flex items-center justify-center gap-2"
             >
-              Xem {sorted.length} kết quả
+              <i className="fa-solid fa-magnifying-glass" aria-hidden="true" />
+              Tìm xe
             </button>
           </div>
         </div>
-      )}
+      </div>
+
+      <div id="danh-sach-xe" className="container-custom pt-6 sm:pt-8 pb-8 sm:pb-10 scroll-mt-24">
+        <div className="flex items-center justify-between mb-4 gap-3">
+          <p className="text-sm text-slate-500">
+            Tìm thấy <span className="font-bold text-slate-700">{sorted.length}</span> xe
+          </p>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setMobileFilterOpen(true)}
+              className="lg:hidden flex items-center gap-1.5 text-sm font-bold text-slate-600 border border-slate-200 rounded-xl px-3.5 py-2"
+            >
+              <i className="fa-solid fa-sliders" aria-hidden="true" />
+              Bộ lọc
+            </button>
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className="border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-blue/40"
+            >
+              {SORT_OPTIONS.map((o) => (
+                <option key={o.value} value={o.value}>
+                  {o.label}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-[240px_1fr] gap-6">
+          <aside className="hidden lg:block bg-white rounded-2xl shadow-card p-5 h-fit">{filterPanel}</aside>
+
+          <div>
+            {sorted.length === 0 ? (
+              <div className="bg-white rounded-2xl shadow-card p-10 text-center text-slate-400">
+                <i className="fa-solid fa-magnifying-glass text-3xl mb-3 text-slate-300" aria-hidden="true" />
+                <p>Không tìm thấy xe phù hợp. Thử từ khóa hoặc bộ lọc khác nhé.</p>
+                <button type="button" onClick={resetFilters} className="mt-4 text-sm font-bold text-brand-blue hover:underline">
+                  Xóa bộ lọc
+                </button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {pageItems.map((v) => (
+                  <VehicleCard
+                    key={v.id}
+                    vehicle={v}
+                    isFavorite={favorites.has(v.id)}
+                    onToggleFavorite={() => toggleFavorite(v.id)}
+                    onQuickView={() => setQuickViewId(v.id)}
+                    onBook={() => setBookingId(v.id)}
+                  />
+                ))}
+              </div>
+            )}
+
+            {totalPages > 1 && (
+              <nav className="flex items-center justify-center gap-1.5 mt-6" aria-label="Phân trang">
+                <button
+                  type="button"
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                  aria-label="Trang trước"
+                  className="w-9 h-9 flex items-center justify-center rounded-lg text-sm font-semibold border border-slate-200 text-slate-500 hover:bg-slate-50 transition disabled:opacity-40 disabled:pointer-events-none"
+                >
+                  <i className="fa-solid fa-chevron-left text-xs" aria-hidden="true" />
+                </button>
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+                  <button
+                    key={p}
+                    type="button"
+                    onClick={() => setPage(p)}
+                    aria-current={p === currentPage ? "page" : undefined}
+                    className={`w-9 h-9 flex items-center justify-center rounded-lg text-sm font-semibold transition ${
+                      p === currentPage ? "bg-brand-blue text-white" : "border border-slate-200 text-slate-600 hover:bg-slate-50"
+                    }`}
+                  >
+                    {p}
+                  </button>
+                ))}
+                <button
+                  type="button"
+                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages}
+                  aria-label="Trang sau"
+                  className="w-9 h-9 flex items-center justify-center rounded-lg text-sm font-semibold border border-slate-200 text-slate-500 hover:bg-slate-50 transition disabled:opacity-40 disabled:pointer-events-none"
+                >
+                  <i className="fa-solid fa-chevron-right text-xs" aria-hidden="true" />
+                </button>
+              </nav>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {mobileFilterOpen &&
+        typeof document !== "undefined" &&
+        createPortal(
+          <div className="fixed inset-0 z-[200] lg:hidden">
+            <div className="absolute inset-0 bg-black/50" onClick={() => setMobileFilterOpen(false)} />
+            <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl max-h-[85vh] overflow-y-auto p-5">
+              <div className="flex items-center justify-between mb-4">
+                <p className="font-display font-bold text-lg text-slate-800">Bộ lọc</p>
+                <button type="button" onClick={() => setMobileFilterOpen(false)} aria-label="Đóng" className="text-slate-400 hover:text-slate-600">
+                  <i className="fa-solid fa-xmark text-lg" aria-hidden="true" />
+                </button>
+              </div>
+              {filterPanel}
+              <button
+                type="button"
+                onClick={() => setMobileFilterOpen(false)}
+                className="w-full bg-brand-blue text-white font-bold rounded-xl py-3 mt-5"
+              >
+                Xem {sorted.length} kết quả
+              </button>
+            </div>
+          </div>,
+          document.body
+        )}
 
       {quickViewVehicle && <VehicleQuickViewModal vehicle={quickViewVehicle} onClose={() => setQuickViewId(null)} />}
       {bookingVehicle && <VehicleBookingModal vehicle={bookingVehicle} onClose={() => setBookingId(null)} />}
-    </div>
+    </>
   );
 }

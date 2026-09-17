@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import Image from "next/image";
 import type { VehicleData } from "./VehicleListClient";
 
@@ -88,7 +89,9 @@ export default function VehicleBookingModal({ vehicle, onClose }: { vehicle: Veh
     setDone(true);
   }
 
-  return (
+  if (typeof document === "undefined") return null;
+
+  return createPortal(
     <div className="fixed inset-0 z-[200] bg-black/50 flex items-center justify-center p-4" onClick={onClose}>
       <div
         role="dialog"
@@ -234,6 +237,7 @@ export default function VehicleBookingModal({ vehicle, onClose }: { vehicle: Veh
           </form>
         )}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

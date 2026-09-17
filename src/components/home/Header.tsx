@@ -3,6 +3,7 @@ import Link from "next/link";
 import HeaderNav from "./HeaderNav";
 import MobileNavToggle from "./MobileNavToggle";
 import HeaderCoinBadge from "./HeaderCoinBadge";
+import UserNotificationBell from "./UserNotificationBell";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getSiteSettings } from "@/lib/settings";
@@ -42,23 +43,7 @@ export default async function Header() {
             <span className="hidden xl:block w-px h-7 bg-white/25" aria-hidden="true" />
             {user && <HeaderCoinBadge initialCoins={user.coins} avatar={user.avatar || "/images/avatar-world.png"} name={user.name} />}
             {user ? (
-              <Link href="/tai-khoan" className="relative flex items-center shrink-0" aria-label="Tài khoản của bạn">
-                <Image
-                  src={user.avatar || "/images/avatar-world.png"}
-                  alt={user.name || "Tài khoản"}
-                  width={40}
-                  height={40}
-                  className="w-9 h-9 sm:w-10 sm:h-10 rounded-full object-cover ring-2 ring-white/70 hover:ring-white transition"
-                />
-                {user.warnedAt && (
-                  <span
-                    className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-brand-red text-white text-[10px] font-extrabold flex items-center justify-center ring-2 ring-white"
-                    aria-label="Tài khoản có cảnh báo từ quản trị viên"
-                  >
-                    !
-                  </span>
-                )}
-              </Link>
+              <UserNotificationBell avatar={user.avatar || "/images/avatar-world.png"} name={user.name} warned={Boolean(user.warnedAt)} />
             ) : (
               <Link
                 href="/dang-nhap"

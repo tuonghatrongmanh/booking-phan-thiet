@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import type { VehicleData } from "./VehicleListClient";
 
 function formatVnd(n: number | null) {
@@ -28,7 +29,9 @@ export default function VehicleQuickViewModal({ vehicle, onClose }: { vehicle: V
   const pickupLocation = vehicle.address || "Liên hệ để biết địa điểm";
   const returnLocation = vehicle.returnLocation || pickupLocation;
 
-  return (
+  if (typeof document === "undefined") return null;
+
+  return createPortal(
     <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-3 sm:p-6" onClick={onClose}>
       <div
         className="bg-white rounded-2xl w-full max-w-5xl max-h-[90vh] overflow-hidden flex flex-col"
@@ -167,6 +170,7 @@ export default function VehicleQuickViewModal({ vehicle, onClose }: { vehicle: V
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

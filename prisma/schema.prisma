@@ -97,6 +97,7 @@ model User {
   foodReviews      FoodReview[]
   placeReviews     PlaceReview[]
   salePlace        Place?
+  rentalInquiries RentalInquiry[]
 }
 
 model Admin {
@@ -545,6 +546,8 @@ model RentalInquiry {
   id             String   @id @default(cuid())
   place          Place    @relation(fields: [placeId], references: [id], onDelete: Cascade)
   placeId        String
+  user           User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userId         String?
   customerName   String
   customerPhone  String
   pickupDate     DateTime
@@ -553,8 +556,10 @@ model RentalInquiry {
   note           String?  @db.Text
   status         RentalInquiryStatus @default(PENDING)
   createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
   @@index([placeId])
+  @@index([userId])
   @@index([status])
 }
 

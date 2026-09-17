@@ -58,15 +58,11 @@ export default async function ThueXePage() {
 
       <RentalHero />
 
-      <Reveal>
-        <section className="max-w-[1200px] mx-auto px-4 py-8 sm:py-10">
-          {vehicleData.length === 0 ? (
-            <p className="text-center text-slate-400 py-16">Chưa có xe cho thuê nào.</p>
-          ) : (
-            <VehicleListClient vehicles={vehicleData} />
-          )}
-        </section>
-      </Reveal>
+      {vehicleData.length === 0 ? (
+        <p className="text-center text-slate-400 py-16">Chưa có xe cho thuê nào.</p>
+      ) : (
+        <VehicleListClient vehicles={vehicleData} />
+      )}
 
       <Reveal>
         <RentalBenefits />

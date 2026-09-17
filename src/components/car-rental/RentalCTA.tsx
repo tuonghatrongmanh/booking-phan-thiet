@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export default function RentalCTA() {
   return (
-    <section className="max-w-[1200px] mx-auto px-4 pb-10 sm:pb-14">
+    <section className="container-custom pb-10 sm:pb-14">
       <div className="relative bg-gradient-to-br from-brand-blue to-sky-600 rounded-3xl px-6 sm:px-10 py-10 sm:py-14 text-center overflow-hidden">
         <div className="absolute -top-10 -right-10 w-48 h-48 rounded-full bg-white/10" />
         <div className="absolute -bottom-14 -left-10 w-56 h-56 rounded-full bg-white/10" />

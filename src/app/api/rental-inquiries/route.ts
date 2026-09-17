@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { rateLimit } from "@/lib/rate-limit";
 import { getClientIp } from "@/lib/request-log";
+import { getActor } from "@/lib/auth-actor";
 import { z } from "zod";
 
 const schema = z.object({
@@ -42,9 +43,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Không tìm thấy xe" }, { status: 404 });
   }
 
+  const actor = await getActor();
+  const userId = actor?.type === "user" ? actor.id : undefined;
+
   const inquiry = await prisma.rentalInquiry.create({
     data: {
       placeId,
+      userId,
       customerName,
       customerPhone,
       pickupDate: pickup,

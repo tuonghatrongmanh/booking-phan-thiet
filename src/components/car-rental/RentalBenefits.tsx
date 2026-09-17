@@ -23,7 +23,7 @@ const BENEFITS = [
 
 export default function RentalBenefits() {
   return (
-    <section className="max-w-[1200px] mx-auto px-4 py-10 sm:py-14">
+    <section className="container-custom py-10 sm:py-14">
       <h2 className="font-display font-bold text-2xl sm:text-3xl text-slate-800 text-center mb-8">Vì sao nên thuê xe tại đây</h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         {BENEFITS.map((b) => (

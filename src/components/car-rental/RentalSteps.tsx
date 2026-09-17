@@ -22,7 +22,7 @@ const STEPS = [
 export default function RentalSteps() {
   return (
     <section className="bg-brand-sky/20 py-10 sm:py-14">
-      <div className="max-w-[1200px] mx-auto px-4">
+      <div className="container-custom">
         <h2 className="font-display font-bold text-2xl sm:text-3xl text-slate-800 text-center mb-8">Thuê xe chỉ với 3 bước</h2>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
           {STEPS.map((s) => (
