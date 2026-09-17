@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAdminSession } from "@/lib/admin-action";
 import { z } from "zod";
+import { recalcSalePoints } from "@/lib/sale-points-server";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -30,6 +31,7 @@ export async function POST(req: NextRequest, { params }: Params) {
 
   if (parsed.data.approve) {
     await prisma.saleStanding.delete({ where: { placeId: id } });
+    void recalcSalePoints(id).catch(() => {});
     return NextResponse.json({ ok: true, lifted: true });
   }
 

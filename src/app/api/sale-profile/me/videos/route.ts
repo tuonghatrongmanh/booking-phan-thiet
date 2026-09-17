@@ -4,6 +4,7 @@ import { getActor } from "@/lib/auth-actor";
 import { rateLimit } from "@/lib/rate-limit";
 import { fetchTiktokOembed } from "@/lib/tiktok-oembed";
 import { z } from "zod";
+import { recalcSalePoints } from "@/lib/sale-points-server";
 
 const MAX_VIDEOS = 6;
 
@@ -46,5 +47,6 @@ export async function POST(req: NextRequest) {
       sortOrder: count,
     },
   });
+  void recalcSalePoints(place.id).catch(() => {});
   return NextResponse.json(video, { status: 201 });
 }

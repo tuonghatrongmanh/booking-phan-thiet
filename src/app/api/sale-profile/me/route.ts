@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getActor } from "@/lib/auth-actor";
 import { z } from "zod";
 import { imagePathSchema } from "@/lib/validation";
+import { recalcSalePoints } from "@/lib/sale-points-server";
 
 // Ho so Sale uy tin (Place category SALE) cua chinh nguoi dung dang dang nhap - tim
 // qua Place.userId (khong can id trong URL, luon la "cua toi"). 404 neu chua duoc
@@ -66,5 +67,6 @@ export async function PATCH(req: NextRequest) {
   );
 
   const updated = await prisma.place.update({ where: { id: place.id }, data });
+  void recalcSalePoints(updated.id).catch(() => {});
   return NextResponse.json(updated);
 }

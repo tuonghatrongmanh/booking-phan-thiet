@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getActor } from "@/lib/auth-actor";
+import { recalcSalePoints } from "@/lib/sale-points-server";
 
 type Params = { params: Promise<{ videoId: string }> };
 
@@ -17,5 +18,6 @@ export async function DELETE(_req: NextRequest, { params }: Params) {
   }
 
   await prisma.placeVideo.delete({ where: { id: videoId } });
+  void recalcSalePoints(video.place.id).catch(() => {});
   return NextResponse.json({ ok: true });
 }

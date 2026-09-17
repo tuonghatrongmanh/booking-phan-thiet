@@ -8,6 +8,8 @@ import PlaceVideosManager from "@/components/admin/PlaceVideosManager";
 import PasswordResetCard from "@/components/admin/PasswordResetCard";
 import SaleWarningCard from "@/components/admin/SaleWarningCard";
 import SaleStandingManager from "@/components/admin/SaleStandingManager";
+import SaleMissionsCard from "@/components/account/SaleMissionsCard";
+import { computeSalePoints } from "@/lib/sale-points";
 
 export default async function EditSaleAgentPage({ params }: { params: Promise<{ id: string }> }) {
   const currentAdmin = await getCurrentAdmin();
@@ -19,16 +21,20 @@ export default async function EditSaleAgentPage({ params }: { params: Promise<{ 
   const { id } = await params;
   const agent = await prisma.place.findUnique({
     where: { id },
-    include: { videos: { orderBy: { sortOrder: "asc" } }, socialComments: true, standing: true },
+    include: { videos: { orderBy: { sortOrder: "asc" } }, socialComments: true, standing: true, reviews: { select: { rating: true } } },
   });
   if (!agent || agent.category !== "SALE") notFound();
 
   const owner = agent.userId ? await prisma.user.findUnique({ where: { id: agent.userId } }) : null;
+  const { points, missions } = computeSalePoints(agent);
 
   return (
     <div className="space-y-6">
       <div>
         <h1 className="font-display font-bold text-2xl text-slate-800 mb-6">Sửa Sale uy tín</h1>
+        <SaleMissionsCard points={points} missions={missions} />
+      </div>
+      <div>
         <PlaceForm
           lockCategory="SALE"
           initial={{ ...agent, amenities: Array.isArray(agent.amenities) ? (agent.amenities as string[]) : [] }}

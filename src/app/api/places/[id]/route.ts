@@ -6,6 +6,7 @@ import { z } from "zod";
 import { PlaceCategory, PlaceStatus, StayType } from "@prisma/client";
 import { imagePathSchema } from "@/lib/validation";
 import { saveTranslations } from "@/lib/content-translation";
+import { recalcSalePoints } from "@/lib/sale-points-server";
 
 const updateSchema = z.object({
   name: z.string().min(2).optional(),
@@ -129,6 +130,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
     if (parsed.data.name || parsed.data.description) {
       void saveTranslations("Place", place.id, { name: place.name, description: place.description });
     }
+    void recalcSalePoints(place.id).catch(() => {});
     return NextResponse.json(place);
   } catch {
     return NextResponse.json({ error: "Không tìm thấy" }, { status: 404 });

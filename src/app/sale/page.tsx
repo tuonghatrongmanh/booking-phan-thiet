@@ -18,7 +18,7 @@ function avgOf(nums: number[]) {
 export default async function SaleAgentsListingPage() {
   const places = await prisma.place.findMany({
     where: { category: "SALE", hidden: false },
-    orderBy: { createdAt: "desc" },
+    orderBy: [{ salePoints: "desc" }, { createdAt: "desc" }],
     include: {
       reviews: { select: { rating: true } },
       images: { take: 1, orderBy: { id: "asc" }, select: { url: true } },
@@ -35,6 +35,7 @@ export default async function SaleAgentsListingPage() {
     fanpageUrl: p.fanpageUrl,
     avgRating: avgOf(p.reviews.map((r) => r.rating)),
     reviewCount: p.reviews.length,
+    salePoints: p.salePoints,
   }));
 
   return (

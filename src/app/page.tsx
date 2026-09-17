@@ -40,7 +40,7 @@ export default async function HomePage() {
     }),
     prisma.place.findMany({
       where: { category: "SALE" },
-      orderBy: { createdAt: "desc" },
+      orderBy: [{ salePoints: "desc" }, { createdAt: "desc" }],
       take: 5,
       include: {
         reviews: { select: { rating: true } },
@@ -67,6 +67,7 @@ export default async function HomePage() {
     fanpageUrl: p.fanpageUrl,
     avgRating: avgOf(p.reviews.map((r) => r.rating)),
     reviewCount: p.reviews.length,
+    salePoints: p.salePoints,
   }));
 
   const [homestay, carRental, restaurant, attraction] = categoryCounts;

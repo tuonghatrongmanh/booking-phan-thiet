@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { getActor } from "@/lib/auth-actor";
 import { prisma } from "@/lib/prisma";
 import SaleProfileEditor from "@/components/account/SaleProfileEditor";
+import { computeSalePoints } from "@/lib/sale-points";
 
 export const dynamic = "force-dynamic";
 
@@ -18,6 +19,8 @@ export default async function SaleProfilePage() {
       include: {
         videos: { orderBy: { sortOrder: "asc" } },
         socialComments: { orderBy: { createdAt: "desc" } },
+        reviews: { select: { rating: true } },
+        standing: { select: { action: true, active: true } },
       },
     }),
     prisma.guideVideo.findMany({ where: { active: true }, orderBy: { sortOrder: "asc" } }),
@@ -26,6 +29,8 @@ export default async function SaleProfilePage() {
   if (!saleApplication || saleApplication.status !== "APPROVED" || !place) {
     redirect("/tai-khoan");
   }
+
+  const { points, missions } = computeSalePoints(place);
 
   return (
     <SaleProfileEditor
@@ -49,6 +54,8 @@ export default async function SaleProfilePage() {
       videos={place.videos}
       testimonials={place.socialComments}
       guideVideos={guideVideos}
+      points={points}
+      missions={missions}
     />
   );
 }

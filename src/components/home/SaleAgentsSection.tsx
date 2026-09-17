@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import T from "@/lib/i18n/T";
+import SaleRankBadge from "@/components/sale/SaleRankBadge";
 
 export type SaleAgent = {
   id: string;
@@ -12,6 +13,7 @@ export type SaleAgent = {
   fanpageUrl: string | null;
   avgRating: number;
   reviewCount: number;
+  salePoints: number;
 };
 
 export default function SaleAgentsSection({ agents }: { agents: SaleAgent[] }) {
@@ -86,7 +88,10 @@ export default function SaleAgentsSection({ agents }: { agents: SaleAgent[] }) {
                         </svg>
                       </span>
                     </p>
-                    <p className="text-xs text-slate-400">Sale du lịch Phan Thiết</p>
+                    <div className="flex items-center gap-1.5 mt-0.5">
+                      <p className="text-xs text-slate-400">Sale du lịch Phan Thiết</p>
+                      <SaleRankBadge points={agent.salePoints} size="sm" />
+                    </div>
                   </div>
                 </Link>
 

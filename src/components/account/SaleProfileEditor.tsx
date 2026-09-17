@@ -7,6 +7,7 @@ import Image from "next/image";
 import { useDialog } from "@/components/ui/DialogProvider";
 import ImageUploader from "@/components/admin/ImageUploader";
 import MediaUploader, { type MediaItem } from "@/components/forum/MediaUploader";
+import SaleMissionsCard from "@/components/account/SaleMissionsCard";
 
 const MAX_VIDEOS = 6;
 const MAX_TESTIMONIALS = 6;
@@ -38,11 +39,15 @@ export default function SaleProfileEditor({
   videos,
   testimonials,
   guideVideos,
+  points,
+  missions,
 }: {
   place: PlaceInfo;
   videos: PlaceVideo[];
   testimonials: Testimonial[];
   guideVideos: GuideVideo[];
+  points: number;
+  missions: { mission: { id: string; title: string; description: string; points: number }; done: boolean }[];
 }) {
   return (
     <div className="min-h-screen bg-slate-50 py-8">
@@ -54,6 +59,7 @@ export default function SaleProfileEditor({
           </Link>
         </div>
 
+        <SaleMissionsCard points={points} missions={missions} />
         <BasicFieldsCard place={place} />
         <VideosCard videos={videos} />
         <TestimonialsCard testimonials={testimonials} />

@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getActor } from "@/lib/auth-actor";
 import { rateLimit } from "@/lib/rate-limit";
 import { z } from "zod";
+import { recalcSalePoints } from "@/lib/sale-points-server";
 
 const schema = z.object({
   rating: z.number().int().min(1).max(5),
@@ -46,5 +47,6 @@ export async function POST(req: NextRequest, { params }: Params) {
     include: { user: { select: { name: true, avatar: true } }, images: true },
   });
 
+  void recalcSalePoints(id).catch(() => {});
   return NextResponse.json(review, { status: 201 });
 }

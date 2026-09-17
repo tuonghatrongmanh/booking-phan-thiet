@@ -5,6 +5,7 @@ import type { SectionKey } from "@/lib/admin-permissions";
 import { z } from "zod";
 import { PlaceCategory, SocialPlatform } from "@prisma/client";
 import { imagePathSchema } from "@/lib/validation";
+import { recalcSalePoints } from "@/lib/sale-points-server";
 
 const schema = z.object({
   imageUrl: imagePathSchema,
@@ -49,5 +50,6 @@ export async function POST(req: NextRequest, { params }: Params) {
   const comment = await prisma.socialComment.create({
     data: { ...parsed.data, placeId: id },
   });
+  void recalcSalePoints(id).catch(() => {});
   return NextResponse.json(comment, { status: 201 });
 }

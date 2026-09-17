@@ -5,6 +5,7 @@ import type { SectionKey } from "@/lib/admin-permissions";
 import { PlaceCategory } from "@prisma/client";
 import { fetchTiktokOembed } from "@/lib/tiktok-oembed";
 import { z } from "zod";
+import { recalcSalePoints } from "@/lib/sale-points-server";
 
 const MAX_VIDEOS = 6;
 
@@ -54,5 +55,6 @@ export async function POST(req: NextRequest, { params }: Params) {
   const video = await prisma.placeVideo.create({
     data: { placeId: id, sourceUrl: parsed.data.sourceUrl, title, thumbnailUrl, sortOrder: count },
   });
+  void recalcSalePoints(id).catch(() => {});
   return NextResponse.json(video, { status: 201 });
 }

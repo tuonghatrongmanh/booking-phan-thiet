@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import Header from "@/components/home/Header";
 import Footer from "@/components/home/Footer";
 import ScrollCarousel from "@/components/home/ScrollCarousel";
+import SaleRankBadge from "@/components/sale/SaleRankBadge";
 
 export const dynamic = "force-dynamic";
 
@@ -161,6 +162,8 @@ export default async function SaleAgentDetailPage({ params }: Params) {
                     </span>
                   </div>
                 )}
+
+                <SaleRankBadge points={place.salePoints} size="md" />
               </div>
 
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center border-t border-slate-100 pt-4">

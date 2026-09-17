@@ -484,6 +484,7 @@ model Place {
   workArea           String? // khu vuc hoat dong, vd "Phan Thiet - Mui Ne" - khac voi field address
   yearsExperience    Int? // so nam kinh nghiem, sale/admin tu nhap tay
   clientsServedCount Int? // so khach da tu van, sale/admin tu nhap tay (khong tinh tu dong)
+  salePoints         Int      @default(0) // diem xep hang tu dong (xem src/lib/sale-points.ts), tinh lai moi khi ho so/video/testimonial/danh gia/dinh chi thay doi
   tiktokUrl          String?
   youtubeUrl         String?
   instagramUrl       String?

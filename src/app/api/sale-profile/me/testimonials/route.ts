@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getActor } from "@/lib/auth-actor";
 import { imagePathSchema } from "@/lib/validation";
 import { z } from "zod";
+import { recalcSalePoints } from "@/lib/sale-points-server";
 
 const MAX_TESTIMONIALS = 6;
 
@@ -43,5 +44,6 @@ export async function POST(req: NextRequest) {
       note: parsed.data.note,
     },
   });
+  void recalcSalePoints(place.id).catch(() => {});
   return NextResponse.json(comment, { status: 201 });
 }

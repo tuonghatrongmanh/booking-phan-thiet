@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { requireAdminSession, requireCreateOrEdit } from "@/lib/admin-action";
 import type { SectionKey } from "@/lib/admin-permissions";
 import { PlaceCategory } from "@prisma/client";
+import { recalcSalePoints } from "@/lib/sale-points-server";
 
 type Params = { params: Promise<{ id: string; commentId: string }> };
 
@@ -31,6 +32,7 @@ export async function DELETE(_req: NextRequest, { params }: Params) {
 
   try {
     await prisma.socialComment.delete({ where: { id: commentId } });
+    void recalcSalePoints(comment.place.id).catch(() => {});
     return NextResponse.json({ ok: true });
   } catch {
     return NextResponse.json({ error: "Không tìm thấy" }, { status: 404 });

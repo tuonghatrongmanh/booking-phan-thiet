@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { requireAdminSession, requireCreateOrEdit } from "@/lib/admin-action";
 import type { SectionKey } from "@/lib/admin-permissions";
 import { PlaceCategory } from "@prisma/client";
+import { recalcSalePoints } from "@/lib/sale-points-server";
 
 const CATEGORY_SECTION: Partial<Record<PlaceCategory, SectionKey>> = {
   HOMESTAY: "homestay",
@@ -30,5 +31,6 @@ export async function DELETE(_req: NextRequest, { params }: Params) {
   }
 
   await prisma.placeVideo.delete({ where: { id: videoId } });
+  void recalcSalePoints(video.place.id).catch(() => {});
   return NextResponse.json({ ok: true });
 }
