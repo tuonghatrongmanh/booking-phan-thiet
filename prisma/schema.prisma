@@ -313,23 +313,6 @@ model Sale {
 // Cac "o" danh muc nhanh o trang chu (Homestay/Villa/Quan nhau/Quan ca phe/...) -
 // truoc day hard-code trong Hero.tsx, gio chuyen thanh du lieu that de admin toan quyen
 // quan ly (anh, nhan, lien ket, mau sac, thu tu hien thi) ma khong can sua code.
-// Bang dich noi dung dung chung (generic) cho moi loai bai viet/mo ta do admin/nguoi
-// dung tao (News, ForumPost, Place...) - dich 1 lan luc luu bai (khong phai luc xem
-// trang), luu san ket qua o day de khach xem trang nao cung nhanh, khong goi API dich
-// moi luot xem. model+recordId+field xac dinh noi dung goc, locale la ngon ngu dich.
-model Translation {
-  id        String   @id @default(cuid())
-  model     String
-  recordId  String
-  field     String
-  locale    String
-  text      String   @db.Text
-  updatedAt DateTime @updatedAt
-
-  @@unique([model, recordId, field, locale])
-  @@index([model, recordId])
-}
-
 model HeroTile {
   id         String   @id @default(cuid())
   label      String

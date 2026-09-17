@@ -2,15 +2,15 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useLanguage } from "@/lib/i18n/LanguageProvider";
 
 export const NAV_LINKS = [
-  { id: "nav.home", label: "Trang chủ", href: "/", icon: "fa-solid fa-house", exact: true },
-  { id: "nav.community", label: "Cộng Đồng Phan Thiết", href: "/nghi-duong", icon: "fa-solid fa-people-group", hot: true },
-  { id: "nav.stay", label: "Lưu trú", href: "/luu-tru", icon: "fa-solid fa-bed" },
-  { id: "nav.food", label: "Ẩm Thực", href: "/am-thuc", icon: "fa-solid fa-utensils" },
-  { id: "nav.game", label: "Game trúng thưởng", href: "/game-trung-thuong", icon: "fa-solid fa-gamepad", hot: true },
-  { id: "nav.blog", label: "Blog", href: "/tin-tuc", icon: "fa-solid fa-blog" },
+  { label: "Trang chủ", href: "/", icon: "fa-solid fa-house", exact: true },
+  { label: "Cộng Đồng Phan Thiết", href: "/nghi-duong", icon: "fa-solid fa-people-group", hot: true },
+  { label: "Lưu trú", href: "/luu-tru", icon: "fa-solid fa-bed" },
+  { label: "Ẩm Thực", href: "/am-thuc", icon: "fa-solid fa-utensils" },
+  { label: "Thuê xe", href: "/thue-xe", icon: "fa-solid fa-car" },
+  { label: "Game trúng thưởng", href: "/game-trung-thuong", icon: "fa-solid fa-gamepad", hot: true },
+  { label: "Blog", href: "/tin-tuc", icon: "fa-solid fa-blog" },
 ];
 
 // Cac muc menu nam TRUC TIEP tren nen gradient cua header - khong boc trong container
@@ -18,13 +18,11 @@ export const NAV_LINKS = [
 // Chi muc dang active moi co nen phu nhe (rgba trang mo), giong nhu spec yeu cau.
 export default function HeaderNav() {
   const pathname = usePathname();
-  const { translate } = useLanguage();
 
   return (
     <nav className="hidden xl:flex items-center gap-1 2xl:gap-2">
       {NAV_LINKS.map((link) => {
         const isActive = link.exact ? pathname === link.href : pathname.startsWith(link.href);
-        const label = translate(link.id, link.label);
 
         return (
           <Link
@@ -37,10 +35,10 @@ export default function HeaderNav() {
             }`}
           >
             <i className={`${link.icon} text-[18px]`} aria-hidden="true" />
-            {label}
+            {link.label}
             {link.hot && (
               <span className="animate-badge-bounce absolute -top-1.5 -right-1.5 bg-[#FF4D4F] text-white text-[10px] font-extrabold px-[6px] py-[1px] rounded-[5px] leading-[14px] shadow-sm">
-                {translate("common.hot", "HOT")}
+                HOT
               </span>
             )}
           </Link>

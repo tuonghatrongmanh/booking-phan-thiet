@@ -1,6 +1,5 @@
 import Link from "next/link";
 import Image from "next/image";
-import T from "@/lib/i18n/T";
 import FooterNewsletterInput from "./FooterNewsletterInput";
 import { getSiteSettings } from "@/lib/settings";
 
@@ -34,7 +33,7 @@ export default async function Footer() {
               </div>
             </div>
             <p className="text-sm leading-relaxed mb-5">
-              <T id="footer.tagline">{settings.footerDescription}</T>
+              {settings.footerDescription}
             </p>
             <div className="flex items-center gap-2.5">
               {SOCIAL_LINKS.map((s) => (
@@ -52,54 +51,54 @@ export default async function Footer() {
 
           <div>
             <p className="font-display font-bold text-white mb-4 text-sm tracking-wide relative inline-block after:absolute after:-bottom-2 after:left-0 after:w-6 after:h-[2px] after:bg-brand-gold">
-              <T id="footer.col.category">DANH MỤC</T>
+              DANH MỤC
             </p>
             <ul className="space-y-2.5 text-sm">
-              <li><Link href="/luu-tru" className="hover:text-brand-gold hover:pl-1 transition-all inline-block"><T id="footer.cat.homestay">Homestay</T></Link></li>
-              <li><Link href="/thue-xe" className="hover:text-brand-gold hover:pl-1 transition-all inline-block"><T id="footer.cat.carRental">Thuê xe</T></Link></li>
-              <li><Link href="/#sale-uy-tin" className="hover:text-brand-gold hover:pl-1 transition-all inline-block"><T id="footer.cat.sale">Sale uy tín</T></Link></li>
-              <li><Link href="/am-thuc" className="hover:text-brand-gold hover:pl-1 transition-all inline-block"><T id="footer.cat.restaurant">Quán ăn ngon</T></Link></li>
-              <li><Link href="/diem-tham-quan" className="hover:text-brand-gold hover:pl-1 transition-all inline-block"><T id="footer.cat.attraction">Điểm tham quan</T></Link></li>
+              <li><Link href="/luu-tru" className="hover:text-brand-gold hover:pl-1 transition-all inline-block">Homestay</Link></li>
+              <li><Link href="/thue-xe" className="hover:text-brand-gold hover:pl-1 transition-all inline-block">Thuê xe</Link></li>
+              <li><Link href="/#sale-uy-tin" className="hover:text-brand-gold hover:pl-1 transition-all inline-block">Sale uy tín</Link></li>
+              <li><Link href="/am-thuc" className="hover:text-brand-gold hover:pl-1 transition-all inline-block">Quán ăn ngon</Link></li>
+              <li><Link href="/diem-tham-quan" className="hover:text-brand-gold hover:pl-1 transition-all inline-block">Điểm tham quan</Link></li>
             </ul>
           </div>
 
           <div>
             <p className="font-display font-bold text-white mb-4 text-sm tracking-wide relative inline-block after:absolute after:-bottom-2 after:left-0 after:w-6 after:h-[2px] after:bg-brand-gold">
-              <T id="footer.col.support">HỖ TRỢ</T>
+              HỖ TRỢ
             </p>
             <ul className="space-y-2.5 text-sm">
-              <li><a href="#" className="hover:text-brand-gold hover:pl-1 transition-all inline-block"><T id="footer.support.guide">Hướng dẫn sử dụng</T></a></li>
-              <li><a href="#" className="hover:text-brand-gold hover:pl-1 transition-all inline-block"><T id="footer.support.faq">Câu hỏi thường gặp</T></a></li>
-              <li><a href="#" className="hover:text-brand-gold hover:pl-1 transition-all inline-block"><T id="footer.support.privacy">Chính sách bảo mật</T></a></li>
-              <li><a href="#" className="hover:text-brand-gold hover:pl-1 transition-all inline-block"><T id="footer.support.terms">Điều khoản sử dụng</T></a></li>
-              <li><a href="#" className="hover:text-brand-gold hover:pl-1 transition-all inline-block"><T id="footer.support.contact">Liên hệ hỗ trợ</T></a></li>
+              <li><a href="#" className="hover:text-brand-gold hover:pl-1 transition-all inline-block">Hướng dẫn sử dụng</a></li>
+              <li><a href="#" className="hover:text-brand-gold hover:pl-1 transition-all inline-block">Câu hỏi thường gặp</a></li>
+              <li><a href="#" className="hover:text-brand-gold hover:pl-1 transition-all inline-block">Chính sách bảo mật</a></li>
+              <li><a href="#" className="hover:text-brand-gold hover:pl-1 transition-all inline-block">Điều khoản sử dụng</a></li>
+              <li><a href="#" className="hover:text-brand-gold hover:pl-1 transition-all inline-block">Liên hệ hỗ trợ</a></li>
             </ul>
           </div>
 
           <div>
             <p className="font-display font-bold text-white mb-4 text-sm tracking-wide relative inline-block after:absolute after:-bottom-2 after:left-0 after:w-6 after:h-[2px] after:bg-brand-gold">
-              <T id="footer.col.community">CỘNG ĐỒNG</T>
+              CỘNG ĐỒNG
             </p>
             <ul className="space-y-2.5 text-sm">
-              <li><a href="#" className="hover:text-brand-gold hover:pl-1 transition-all inline-block"><T id="footer.community.recentReviews">Đánh giá gần đây</T></a></li>
-              <li><a href="#" className="hover:text-brand-gold hover:pl-1 transition-all inline-block"><T id="footer.community.leaderboard">Bảng xếp hạng</T></a></li>
-              <li><a href="#" className="hover:text-brand-gold hover:pl-1 transition-all inline-block"><T id="footer.community.scamReports">Chia sẻ lừa đảo</T></a></li>
-              <li><Link href="/tin-tuc" className="hover:text-brand-gold hover:pl-1 transition-all inline-block"><T id="footer.community.news">Tin tức du lịch</T></Link></li>
-              <li><a href="#" className="hover:text-brand-gold hover:pl-1 transition-all inline-block"><T id="footer.community.events">Sự kiện &amp; khuyến mãi</T></a></li>
+              <li><a href="#" className="hover:text-brand-gold hover:pl-1 transition-all inline-block">Đánh giá gần đây</a></li>
+              <li><a href="#" className="hover:text-brand-gold hover:pl-1 transition-all inline-block">Bảng xếp hạng</a></li>
+              <li><a href="#" className="hover:text-brand-gold hover:pl-1 transition-all inline-block">Chia sẻ lừa đảo</a></li>
+              <li><Link href="/tin-tuc" className="hover:text-brand-gold hover:pl-1 transition-all inline-block">Tin tức du lịch</Link></li>
+              <li><a href="#" className="hover:text-brand-gold hover:pl-1 transition-all inline-block">Sự kiện &amp; khuyến mãi</a></li>
             </ul>
           </div>
 
           <div>
             <p className="font-display font-bold text-white mb-4 text-sm tracking-wide relative inline-block after:absolute after:-bottom-2 after:left-0 after:w-6 after:h-[2px] after:bg-brand-gold">
-              <T id="footer.col.newsletter">NHẬN TIN TỨC &amp; ƯU ĐÃI</T>
+              NHẬN TIN TỨC &amp; ƯU ĐÃI
             </p>
             <p className="text-sm leading-relaxed mb-3.5">
-              <T id="footer.newsletter.desc">Đăng ký để nhận thông tin du lịch Phan Thiết mới nhất!</T>
+              Đăng ký để nhận thông tin du lịch Phan Thiết mới nhất!
             </p>
             <div className="flex rounded-xl overflow-hidden shadow-lg shadow-black/20">
               <FooterNewsletterInput />
               <button className="bg-brand-gold hover:brightness-95 transition text-brand-footer text-sm font-bold px-4 shrink-0">
-                <T id="footer.newsletter.button">Đăng ký</T>
+                Đăng ký
               </button>
             </div>
             <div className="flex items-center gap-2 mt-4 text-xs text-white/50">
@@ -113,14 +112,14 @@ export default async function Footer() {
       <div className="border-t border-white/10">
         <div className="container-custom py-5 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-white/50">
           <p>
-            &copy; {new Date().getFullYear()} Booking Phan Thiết. <T id="footer.rights">All rights reserved.</T>
+            &copy; {new Date().getFullYear()} Booking Phan Thiết. All rights reserved.
           </p>
           <p className="flex items-center gap-1">
             Made with
             <svg width="12" height="12" viewBox="0 0 24 24" fill="#e8483a">
               <path d="M12 21s-7-4.5-9.5-9C1 8 3 4 7 4c2.2 0 3.7 1.3 5 3 1.3-1.7 2.8-3 5-3 4 0 6 4 4.5 8-2.5 4.5-9.5 9-9.5 9z" />
             </svg>
-            <T id="footer.madeFor">for Phan Thiết</T>
+            for Phan Thiết
           </p>
         </div>
       </div>

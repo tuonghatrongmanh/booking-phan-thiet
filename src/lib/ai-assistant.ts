@@ -1,43 +1,13 @@
-import type { Locale } from "@/lib/i18n/translations";
-
 // Goi Gemini API (free tier, chi can API key mien phi tu Google AI Studio) lam "fallback"
 // khi tim kiem trong he thong khong ra ket qua nao - AI tro chuyen tu nhien voi khach,
 // nhung PHAI trung thuc: khong duoc bia ra ten quan/homestay/gia cu the khong co that
 // trong he thong, chi tu van chung hoac huong dan khach lien he/quay lai sau.
 const GEMINI_MODEL = "gemini-3.5-flash-lite";
 
-const LOCALE_NAME: Record<Locale, string> = {
-  vi: "Tiếng Việt",
-  en: "English",
-  es: "Español",
-  fr: "Français",
-  zh: "中文",
-  ja: "日本語",
-  ko: "한국어",
-};
+const NO_KEY_MESSAGE = "Xin lỗi, trợ lý AI hiện chưa sẵn sàng. Bạn vui lòng thử từ khóa khác hoặc liên hệ bộ phận hỗ trợ nhé.";
+const ERROR_MESSAGE = "Trợ lý AI đang tạm thời gián đoạn, bạn vui lòng thử lại sau ít phút nhé.";
 
-const NO_KEY_MESSAGE: Record<Locale, string> = {
-  vi: "Xin lỗi, trợ lý AI hiện chưa sẵn sàng. Bạn vui lòng thử từ khóa khác hoặc liên hệ bộ phận hỗ trợ nhé.",
-  en: "Sorry, the AI assistant isn't ready yet. Please try a different keyword or contact support.",
-  es: "Lo sentimos, el asistente de IA aún no está listo. Prueba otra palabra clave o contacta con soporte.",
-  fr: "Désolé, l'assistant IA n'est pas encore prêt. Essayez un autre mot-clé ou contactez le support.",
-  zh: "抱歉，AI助手暂未就绪，请换个关键词或联系客服。",
-  ja: "申し訳ございません、AIアシスタントはまだ準備中です。別のキーワードをお試しいただくか、サポートにご連絡ください。",
-  ko: "죄송합니다. AI 어시스턴트가 아직 준비되지 않았습니다. 다른 키워드를 시도하거나 고객센터로 문의해 주세요.",
-};
-
-const ERROR_MESSAGE: Record<Locale, string> = {
-  vi: "Trợ lý AI đang tạm thời gián đoạn, bạn vui lòng thử lại sau ít phút nhé.",
-  en: "The AI assistant is temporarily unavailable, please try again in a few minutes.",
-  es: "El asistente de IA no está disponible temporalmente, inténtalo de nuevo en unos minutos.",
-  fr: "L'assistant IA est temporairement indisponible, veuillez réessayer dans quelques minutes.",
-  zh: "AI助手暂时不可用，请稍后再试。",
-  ja: "AIアシスタントは一時的にご利用いただけません。数分後にもう一度お試しください。",
-  ko: "AI 어시스턴트를 일시적으로 사용할 수 없습니다. 잠시 후 다시 시도해 주세요.",
-};
-
-function buildSystemPrompt(locale: Locale): string {
-  return `Bạn là trợ lý AI của Booking Phan Thiết (bookingphanthiet.com) - trang web tra cứu & đánh giá uy tín về homestay/villa/khu du lịch, thuê xe máy, quán ăn và điểm tham quan tại Phan Thiết, Việt Nam.
+const SYSTEM_PROMPT = `Bạn là trợ lý AI của Booking Phan Thiết (bookingphanthiet.com) - trang web tra cứu & đánh giá uy tín về homestay/villa/khu du lịch, thuê xe máy, quán ăn và điểm tham quan tại Phan Thiết, Việt Nam.
 
 Khách vừa tìm kiếm một từ khóa nhưng hệ thống KHÔNG tìm thấy kết quả phù hợp trong dữ liệu thật của trang. Nhiệm vụ của bạn là trò chuyện, tư vấn hữu ích thay cho kết quả tìm kiếm.
 
@@ -46,12 +16,11 @@ QUY TẮC BẮT BUỘC:
 - Nếu khách hỏi về một địa điểm/dịch vụ cụ thể mà bạn không chắc có thật trong hệ thống, hãy nói rõ là chưa tìm thấy trong hệ thống, gợi ý khách thử từ khóa khác, duyệt các danh mục (Lưu trú, Ẩm thực, Cộng đồng), hoặc liên hệ hỗ trợ.
 - Có thể chia sẻ kiến thức chung, hữu ích về du lịch Phan Thiết (thời tiết, kinh nghiệm, địa danh nổi tiếng công khai) nếu phù hợp với câu hỏi.
 - Trả lời ngắn gọn, thân thiện, tối đa khoảng 4-5 câu.
-- Luôn trả lời bằng ngôn ngữ: ${LOCALE_NAME[locale]}.`;
-}
+- Luôn trả lời bằng Tiếng Việt.`;
 
-export async function askAI(question: string, locale: Locale): Promise<string> {
+export async function askAI(question: string): Promise<string> {
   const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) return NO_KEY_MESSAGE[locale];
+  if (!apiKey) return NO_KEY_MESSAGE;
 
   try {
     const res = await fetch(
@@ -60,7 +29,7 @@ export async function askAI(question: string, locale: Locale): Promise<string> {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          systemInstruction: { parts: [{ text: buildSystemPrompt(locale) }] },
+          systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
           contents: [{ role: "user", parts: [{ text: question }] }],
           generationConfig: { temperature: 0.6, maxOutputTokens: 400 },
         }),
@@ -73,10 +42,10 @@ export async function askAI(question: string, locale: Locale): Promise<string> {
       candidates?: { content?: { parts?: { text?: string }[] } }[];
     };
     const text = data.candidates?.[0]?.content?.parts?.map((p) => p.text ?? "").join("") ?? "";
-    return text.trim() || ERROR_MESSAGE[locale];
+    return text.trim() || ERROR_MESSAGE;
   } catch (err) {
     console.error("[ai-assistant] Lỗi gọi Gemini:", err);
-    return ERROR_MESSAGE[locale];
+    return ERROR_MESSAGE;
   }
 }
 

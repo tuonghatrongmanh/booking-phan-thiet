@@ -3,7 +3,6 @@ import { prisma } from "@/lib/prisma";
 import { requireAdminSession, requireCreateOrEdit, requestDeleteOrHide } from "@/lib/admin-action";
 import { z } from "zod";
 import { imagePathSchema } from "@/lib/validation";
-import { saveTranslations } from "@/lib/content-translation";
 
 const updateSchema = z.object({
   reviewerName: z.string().min(1).optional(),
@@ -58,7 +57,6 @@ export async function PATCH(req: NextRequest, { params }: Params) {
     });
 
     if (data.content) {
-      void saveTranslations("Review", review.id, { content: review.content });
     }
 
     return NextResponse.json(review);

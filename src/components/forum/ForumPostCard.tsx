@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import TranslatedField from "@/components/i18n/TranslatedField";
 import Image from "next/image";
 import { POST_TYPES, type PostTypeKey } from "@/lib/forum";
 import TimeAgo from "./TimeAgo";
@@ -99,12 +98,8 @@ export default function ForumPostCard({
             </div>
           </div>
 
-          <TranslatedField as="p" model="ForumPost" recordId={post.id} field="title" className="font-display font-bold text-slate-800 mb-1.5">
-            {post.title}
-          </TranslatedField>
-          <TranslatedField as="p" model="ForumPost" recordId={post.id} field="content" className="text-sm text-slate-500 line-clamp-3 mb-3">
-            {post.content}
-          </TranslatedField>
+          <p className="font-display font-bold text-slate-800 mb-1.5">{post.title}</p>
+          <p className="text-sm text-slate-500 line-clamp-3 mb-3">{post.content}</p>
 
           {visibleMedia.length > 0 && (
             <div className={`grid gap-2 mb-3 ${visibleMedia.length === 1 ? "grid-cols-1" : "grid-cols-3"}`}>

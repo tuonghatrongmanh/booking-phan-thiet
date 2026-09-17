@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { Flame, ArrowRight } from "lucide-react";
-import T from "@/lib/i18n/T";
 import PromotionCard from "./PromotionCard";
 import type { Sale } from "@prisma/client";
 
@@ -63,24 +62,24 @@ export default function SaleSection({ sales }: { sales: Sale[] }) {
             <span className="flex items-center justify-center w-9 h-9 rounded-[10px] bg-promo-oceanLight shrink-0">
               <Flame size={20} strokeWidth={2} className="text-promo-oceanPrimary" aria-hidden="true" />
             </span>
-            <T id="section.sale.title">Khuyến mãi hot tại Phan Thiết</T>
+            Khuyến mãi hot tại Phan Thiết
           </h2>
           <p className="text-base text-promo-textMuted mt-2">
-            <T id="section.sale.subtitle">Ưu đãi hấp dẫn – Tiết kiệm chi phí cho chuyến đi của bạn</T>
+            Ưu đãi hấp dẫn – Tiết kiệm chi phí cho chuyến đi của bạn
           </p>
         </div>
         <Link
           href="/khuyen-mai"
           className="inline-flex items-center gap-2 text-[15px] font-semibold text-promo-oceanPrimary border border-[#B7DDEC] rounded-full px-5 py-3 hover:bg-promo-oceanLight hover:border-promo-oceanPrimary transition-colors duration-200 shrink-0"
         >
-          <T id="common.viewAll">Xem tất cả</T>
+          Xem tất cả
           <ArrowRight size={16} strokeWidth={2} aria-hidden="true" />
         </Link>
       </div>
 
       {visibleSales.length === 0 ? (
         <div className="bg-white rounded-2xl shadow-card p-8 text-center text-promo-textMuted">
-          <T id="section.sale.empty">Chưa có chương trình sale nào được đăng. Vào trang quản trị để thêm mới.</T>
+          Chưa có chương trình sale nào được đăng. Vào trang quản trị để thêm mới.
         </div>
       ) : (
         <>

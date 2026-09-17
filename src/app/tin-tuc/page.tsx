@@ -4,7 +4,6 @@ import Header from "@/components/home/Header";
 import Footer from "@/components/home/Footer";
 import NewsCoverImage from "@/components/home/NewsCoverImage";
 import Pagination from "@/components/places/Pagination";
-import TranslatedField from "@/components/i18n/TranslatedField";
 import BlogHero from "@/components/blog/BlogHero";
 import BlogCategorySidebar from "@/components/blog/BlogCategorySidebar";
 import BlogFeaturedCard from "@/components/blog/BlogFeaturedCard";
@@ -189,18 +188,8 @@ export default async function TinTucPage({
                   </span>
                 </div>
                 <div className="p-4">
-                  <TranslatedField
-                    as="p"
-                    model="News"
-                    recordId={item.id}
-                    field="title"
-                    className="font-display font-bold text-slate-800 mb-1.5 line-clamp-2 leading-snug"
-                  >
-                    {item.title}
-                  </TranslatedField>
-                  <TranslatedField as="p" model="News" recordId={item.id} field="excerpt" className="text-sm text-slate-500 line-clamp-2 mb-3">
-                    {item.excerpt}
-                  </TranslatedField>
+                  <p className="font-display font-bold text-slate-800 mb-1.5 line-clamp-2 leading-snug">{item.title}</p>
+                  <p className="text-sm text-slate-500 line-clamp-2 mb-3">{item.excerpt}</p>
                   <div className="flex items-center justify-between text-xs text-slate-400">
                     <span>{formatDate(item.createdAt)}</span>
                     <span className="flex items-center gap-1">

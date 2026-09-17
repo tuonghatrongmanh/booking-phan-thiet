@@ -7,7 +7,6 @@ import Footer from "@/components/home/Footer";
 import ScrollTopButton from "@/components/home/ScrollTopButton";
 import NewsCoverImage from "@/components/home/NewsCoverImage";
 import PromotionCard from "@/components/home/PromotionCard";
-import TranslatedField from "@/components/i18n/TranslatedField";
 import TableOfContents from "@/components/news/TableOfContents";
 import SaveArticleButton from "@/components/news/SaveArticleButton";
 import ShareButtons from "@/components/news/ShareButtons";
@@ -159,15 +158,7 @@ export default async function NewsDetailPage({ params }: { params: Promise<{ slu
               Khám phá Phan Thiết
             </span>
 
-            <TranslatedField
-              as="h1"
-              model="News"
-              recordId={article.id}
-              field="title"
-              className="font-display font-bold text-[28px] sm:text-[34px] leading-[1.2] text-slate-800 mb-3"
-            >
-              {article.title}
-            </TranslatedField>
+            <h1 className="font-display font-bold text-[28px] sm:text-[34px] leading-[1.2] text-slate-800 mb-3">{article.title}</h1>
 
             <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm text-slate-400 mb-4">
               <span className="flex items-center gap-1.5">
@@ -185,9 +176,7 @@ export default async function NewsDetailPage({ params }: { params: Promise<{ slu
               <SaveArticleButton articleId={article.id} compact />
             </div>
 
-            <TranslatedField as="p" model="News" recordId={article.id} field="excerpt" className="text-slate-600 text-[15px] sm:text-base leading-relaxed mb-6">
-              {article.excerpt}
-            </TranslatedField>
+            <p className="text-slate-600 text-[15px] sm:text-base leading-relaxed mb-6">{article.excerpt}</p>
 
             <div className="relative aspect-[2/1] rounded-3xl overflow-hidden shadow-lg mb-6">
               <NewsCoverImage src={article.coverImage} alt={article.title} fit="cover" />

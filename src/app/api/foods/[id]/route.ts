@@ -3,7 +3,6 @@ import { prisma } from "@/lib/prisma";
 import { requireAdminSession, requireCreateOrEdit, requestDeleteOrHide } from "@/lib/admin-action";
 import { z } from "zod";
 import { sanitizeArticleHtml } from "@/lib/sanitize-html";
-import { saveTranslations } from "@/lib/content-translation";
 
 const updateSchema = z.object({
   name: z.string().trim().min(2).optional(),
@@ -60,7 +59,6 @@ export async function PATCH(req: NextRequest, { params }: Params) {
   try {
     const food = await prisma.food.update({ where: { id }, data });
     if (parsed.data.name || parsed.data.description) {
-      void saveTranslations("Food", food.id, { name: food.name, description: food.description });
     }
     return NextResponse.json(food);
   } catch {

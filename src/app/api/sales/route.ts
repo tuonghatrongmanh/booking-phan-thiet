@@ -4,7 +4,6 @@ import { requireAdminSession, requireCreateOrEdit, requestDeleteOrHide } from "@
 import { z } from "zod";
 import { PlaceCategory } from "@prisma/client";
 import { imagePathSchema } from "@/lib/validation";
-import { saveTranslations } from "@/lib/content-translation";
 
 const saleSchema = z.object({
   title: z.string().min(3),
@@ -60,7 +59,6 @@ export async function POST(req: NextRequest) {
     },
   });
 
-  void saveTranslations("Sale", sale.id, { title: sale.title });
 
   return NextResponse.json(sale, { status: 201 });
 }

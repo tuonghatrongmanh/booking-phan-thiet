@@ -3,7 +3,6 @@ import { prisma } from "@/lib/prisma";
 import { requireAdminSession, requireCreateOrEdit, requestDeleteOrHide } from "@/lib/admin-action";
 import { z } from "zod";
 import { imagePathSchema } from "@/lib/validation";
-import { saveTranslations } from "@/lib/content-translation";
 import { sanitizeArticleHtml } from "@/lib/sanitize-html";
 import { slugifyBase, ensureUniqueSlug } from "@/lib/slug";
 
@@ -59,12 +58,6 @@ export async function PATCH(req: NextRequest, { params }: Params) {
 
   try {
     const news = await prisma.news.update({ where: { id }, data });
-    if (parsed.data.title || parsed.data.excerpt) {
-      void saveTranslations("News", news.id, {
-        title: news.title,
-        excerpt: news.excerpt,
-      });
-    }
     return NextResponse.json(news);
   } catch {
     return NextResponse.json({ error: "Không tìm thấy" }, { status: 404 });

@@ -1,7 +1,6 @@
 import Image from "next/image";
 import { prisma } from "@/lib/prisma";
 import AISearchBox from "./AISearchBox";
-import T from "@/lib/i18n/T";
 
 const TRUST_BADGES = [
   { id: "hero.badge1", icon: "fa-solid fa-location-dot", label: "Mã thật – Giảm thật", badge: "bg-blue-500" },
@@ -104,14 +103,14 @@ export default async function Hero() {
               <div className="absolute -inset-x-10 -inset-y-10 bg-white/70 blur-2xl rounded-[50%] -z-10" />
               <div className="absolute -inset-x-4 -inset-y-4 bg-white/55 blur-lg rounded-[50%] -z-10" />
               <p className="text-pop-white text-brand-blue font-extrabold italic text-lg sm:text-3xl lg:text-[34px] mb-3 sm:mb-4">
-                <T id="hero.tagline">Săn ưu đãi – Trải nghiệm tuyệt vời</T>
+                Săn ưu đãi – Trải nghiệm tuyệt vời
               </p>
               <h1 className="font-display font-extrabold text-[1.5rem] sm:text-[3.1rem] lg:text-[3.5rem] leading-[1.25] tracking-tight mb-4 sm:mb-5 lg:whitespace-nowrap">
-                <span className="text-pop-white block text-brand-blue"><T id="hero.title1">Homestay, Villa, Quán nhậu,</T></span>
-                <span className="text-pop-white block text-brand-orange"><T id="hero.title2">Quán cà phê, Khu du lịch</T></span>
+                <span className="text-pop-white block text-brand-blue">Homestay, Villa, Quán nhậu,</span>
+                <span className="text-pop-white block text-brand-orange">Quán cà phê, Khu du lịch</span>
               </h1>
               <p className="text-pop-white italic text-brand-blue font-bold text-base sm:text-2xl">
-                <T id="hero.cta">Đặt qua BookingPhanThiet.com</T>
+                Đặt qua BookingPhanThiet.com
               </p>
             </div>
 
@@ -125,7 +124,7 @@ export default async function Hero() {
                   <span className={`w-7 h-7 rounded-full ${b.badge} text-white flex items-center justify-center text-xs shrink-0`}>
                     <i className={b.icon} aria-hidden="true" />
                   </span>
-                  <T id={b.id}>{b.label}</T>
+                  {b.label}
                 </span>
               ))}
             </div>

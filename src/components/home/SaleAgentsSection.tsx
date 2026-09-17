@@ -1,6 +1,5 @@
 import Image from "next/image";
 import Link from "next/link";
-import T from "@/lib/i18n/T";
 import SaleRankBadge from "@/components/sale/SaleRankBadge";
 
 export type SaleAgent = {
@@ -26,15 +25,15 @@ export default function SaleAgentsSection({ agents }: { agents: SaleAgent[] }) {
               <path d="M12 2.5l7.5 3.2v5.4c0 5.2-3.2 8.9-7.5 10.4-4.3-1.5-7.5-5.2-7.5-10.4V5.7L12 2.5z" fill="#1ea34c" />
               <path d="M8.3 12.2l2.6 2.6 5-5.6" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" fill="none" />
             </svg>
-            <T id="section.sale.title">SALE UY TÍN TẠI PHAN THIẾT</T>
+            SALE UY TÍN TẠI PHAN THIẾT
           </h2>
-          <p className="text-sm text-slate-400 mt-0.5"><T id="section.sale.subtitle">Những đơn vị được đánh giá cao bởi cộng đồng du lịch</T></p>
+          <p className="text-sm text-slate-400 mt-0.5">Những đơn vị được đánh giá cao bởi cộng đồng du lịch</p>
         </div>
         <Link
           href="/sale"
           className="flex items-center gap-1 text-sm font-bold text-brand-blue border border-sky-200 rounded-full px-4 py-1.5 hover:bg-sky-50 transition-colors shrink-0"
         >
-          <T id="common.viewAll">Xem tất cả</T>
+          Xem tất cả
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4">
             <path d="M5 12h14M13 6l6 6-6 6" />
           </svg>

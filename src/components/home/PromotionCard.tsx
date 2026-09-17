@@ -4,7 +4,6 @@ import Image from "next/image";
 import { useState } from "react";
 import { Flame, MapPin, CalendarDays, ArrowUpRight } from "lucide-react";
 import type { Sale } from "@prisma/client";
-import TranslatedField from "@/components/i18n/TranslatedField";
 
 const FALLBACK_SRC = "/images/khuyen-mai.png";
 
@@ -68,17 +67,13 @@ export default function PromotionCard({
       </span>
 
       <div className="absolute inset-x-0 bottom-0 p-4 sm:p-6 pr-16">
-        <TranslatedField
-          as="p"
-          model="Sale"
-          recordId={sale.id}
-          field="title"
+        <p
           className={`text-white font-bold drop-shadow-sm line-clamp-2 leading-[1.25] ${
             isFeatured ? "text-[20px] sm:text-[22px] xl:text-2xl" : "text-base sm:text-lg"
           }`}
         >
           {sale.title}
-        </TranslatedField>
+        </p>
         <p className="text-white/85 text-sm mt-1 line-clamp-1">{sale.placeName}</p>
         <div className="flex items-center gap-1.5 text-white/85 text-[13px] mt-2">
           <MapPin size={15} strokeWidth={2} aria-hidden="true" />

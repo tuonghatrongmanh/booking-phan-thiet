@@ -2,7 +2,6 @@ import Link from "next/link";
 import type { News } from "@prisma/client";
 import NewsCoverImage from "@/components/home/NewsCoverImage";
 import ScrollCarousel from "@/components/home/ScrollCarousel";
-import TranslatedField from "@/components/i18n/TranslatedField";
 
 const CATEGORY_BADGE: Record<string, string> = {
   "Kinh nghiệm": "bg-brand-blue",
@@ -45,15 +44,7 @@ export default function BlogLatestCarousel({ items }: { items: News[] }) {
               </span>
             </div>
             <div className="p-3.5">
-              <TranslatedField
-                as="p"
-                model="News"
-                recordId={item.id}
-                field="title"
-                className="text-sm font-bold text-slate-800 line-clamp-2 leading-snug mb-2 group-hover:text-blog-primaryDark transition-colors"
-              >
-                {item.title}
-              </TranslatedField>
+              <p className="text-sm font-bold text-slate-800 line-clamp-2 leading-snug mb-2 group-hover:text-blog-primaryDark transition-colors">{item.title}</p>
               <div className="flex items-center gap-2.5 text-[11px] text-slate-400">
                 <span>{formatDate(item.createdAt)}</span>
                 <span className="flex items-center gap-1">

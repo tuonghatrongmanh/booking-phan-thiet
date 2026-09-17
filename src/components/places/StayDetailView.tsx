@@ -14,7 +14,6 @@ import StayAmenityIconRow from "@/components/places/StayAmenityIconRow";
 import StaySubNav from "@/components/places/StaySubNav";
 import StayQuickInfoBoxes from "@/components/places/StayQuickInfoBoxes";
 import StayOverviewDescription from "@/components/places/StayOverviewDescription";
-import TranslatedField from "@/components/i18n/TranslatedField";
 import StayAmenitiesPreview from "@/components/places/StayAmenitiesPreview";
 import StayOverviewSidebar from "@/components/places/StayOverviewSidebar";
 import StayRoomCard from "@/components/places/StayRoomCard";
@@ -23,7 +22,6 @@ import StayFAQ from "@/components/places/StayFAQ";
 import RelatedStays from "@/components/places/RelatedStays";
 import ExplorePhanThiet from "@/components/places/ExplorePhanThiet";
 import Reveal from "@/components/home/Reveal";
-import T from "@/lib/i18n/T";
 import { SITE_URL, absoluteUrl } from "@/lib/site-url";
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
@@ -133,9 +131,7 @@ export default async function StayDetailView({ placeId }: { placeId: string }) {
               )}
 
               <h1 className="text-[28px] sm:text-[32px] font-extrabold text-[#102F4F] leading-[1.2] max-w-[700px] flex items-center gap-2">
-                <TranslatedField model="Place" recordId={place.id} field="name">
-                  {place.name}
-                </TranslatedField>
+                {place.name}
                 {isTrusted && <i className="fa-solid fa-circle-check text-[#1685D7] text-xl shrink-0" aria-hidden="true" />}
               </h1>
 
@@ -180,15 +176,15 @@ export default async function StayDetailView({ placeId }: { placeId: string }) {
         <section id="tong-quan" className="scroll-mt-[140px] grid lg:grid-cols-[1fr_320px] gap-6 items-start">
           <div className="space-y-6">
             <Section>
-              <SectionTitle><T id="stay.detail.overview">Về chỗ nghỉ này</T></SectionTitle>
-              <StayOverviewDescription placeId={place.id} description={place.description} />
+              <SectionTitle>Về chỗ nghỉ này</SectionTitle>
+              <StayOverviewDescription description={place.description} />
               <div className="mt-5">
                 <StayQuickInfoBoxes petFriendly={place.petFriendly} />
               </div>
             </Section>
 
             <Section>
-              <SectionTitle><T id="stay.detail.amenities">Tiện nghi nổi bật</T></SectionTitle>
+              <SectionTitle>Tiện nghi nổi bật</SectionTitle>
               <StayAmenitiesPreview amenities={amenities} />
             </Section>
           </div>
@@ -198,7 +194,7 @@ export default async function StayDetailView({ placeId }: { placeId: string }) {
 
         <section id="phong-gia" className="scroll-mt-[140px] space-y-6">
           <Section>
-            <SectionTitle><T id="stay.detail.rooms">Phòng & Giá</T></SectionTitle>
+            <SectionTitle>Phòng & Giá</SectionTitle>
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
               <StayRoomCard
                 name={place.name}
@@ -215,7 +211,7 @@ export default async function StayDetailView({ placeId }: { placeId: string }) {
 
           <div id="danh-gia" className="scroll-mt-[140px]">
             <Section>
-              <SectionTitle><T id="stay.detail.reviews">Đánh giá từ khách hàng</T></SectionTitle>
+              <SectionTitle>Đánh giá từ khách hàng</SectionTitle>
               <StayReviewsSection reviews={place.reviews} avgRating={rating} />
             </Section>
           </div>
@@ -223,7 +219,7 @@ export default async function StayDetailView({ placeId }: { placeId: string }) {
 
         <Reveal>
           <Section>
-            <SectionTitle><T id="stay.detail.faq">Câu hỏi thường gặp</T></SectionTitle>
+            <SectionTitle>Câu hỏi thường gặp</SectionTitle>
             <StayFAQ nearBeach={nearBeach} distanceToBeachM={place.distanceToBeachM} petFriendly={place.petFriendly} />
           </Section>
         </Reveal>
@@ -231,7 +227,7 @@ export default async function StayDetailView({ placeId }: { placeId: string }) {
         {related.length > 0 && (
           <Reveal>
             <section>
-              <SectionTitle><T id="stay.detail.related">Có thể bạn cũng thích</T></SectionTitle>
+              <SectionTitle>Có thể bạn cũng thích</SectionTitle>
               <RelatedStays items={related} />
             </section>
           </Reveal>
@@ -240,7 +236,7 @@ export default async function StayDetailView({ placeId }: { placeId: string }) {
         <Reveal>
           <section>
             <div className="text-center max-w-lg mx-auto mb-6">
-              <h2 className="text-2xl sm:text-[28px] font-extrabold text-[#102F4F]"><T id="stay.detail.explore">Khám phá Phan Thiết</T></h2>
+              <h2 className="text-2xl sm:text-[28px] font-extrabold text-[#102F4F]">Khám phá Phan Thiết</h2>
               <p className="text-sm text-[#8297AC] mt-2">Những trải nghiệm và địa điểm không thể bỏ lỡ</p>
             </div>
             <ExplorePhanThiet />

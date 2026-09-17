@@ -24,14 +24,6 @@ export const ICONS = {
   star: twemojiUrl("2b50"), // ⭐
   coin: twemojiUrl("1fa99"), // 🪙
   wave: twemojiUrl("1f44b"), // 👋
-  vnFlag: twemojiUrl("1f1fb-1f1f3"), // 🇻🇳
-  usFlag: twemojiUrl("1f1fa-1f1f8"), // 🇺🇸
-  esFlag: twemojiUrl("1f1ea-1f1f8"), // 🇪🇸
-  frFlag: twemojiUrl("1f1eb-1f1f7"), // 🇫🇷
-  cnFlag: twemojiUrl("1f1e8-1f1f3"), // 🇨🇳
-  jpFlag: twemojiUrl("1f1ef-1f1f5"), // 🇯🇵
-  krFlag: twemojiUrl("1f1f0-1f1f7"), // 🇰🇷
-  globe: twemojiUrl("1f310"), // 🌐
   sun: twemojiUrl("1f31e"), // 🌞
   person: twemojiUrl("1f464"), // 👤
 } as const;

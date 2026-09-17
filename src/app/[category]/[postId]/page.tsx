@@ -1,7 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import TranslatedField from "@/components/i18n/TranslatedField";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { isForumSlug, FORUM_CATEGORIES, POST_TYPES, type PostTypeKey } from "@/lib/forum";
@@ -105,12 +104,8 @@ export default async function ForumPostPage({
             </span>
           </div>
 
-          <TranslatedField as="h1" model="ForumPost" recordId={post.id} field="title" className="font-display font-bold text-xl text-slate-800 mb-2">
-            {post.title}
-          </TranslatedField>
-          <TranslatedField as="p" model="ForumPost" recordId={post.id} field="content" className="text-[15px] text-slate-600 whitespace-pre-line mb-4">
-            {post.content}
-          </TranslatedField>
+          <h1 className="font-display font-bold text-xl text-slate-800 mb-2">{post.title}</h1>
+          <p className="text-[15px] text-slate-600 whitespace-pre-line mb-4">{post.content}</p>
 
           {post.media.length > 0 && (
             <div className={`grid gap-2 mb-3 ${post.media.length === 1 ? "grid-cols-1" : "grid-cols-2"}`}>

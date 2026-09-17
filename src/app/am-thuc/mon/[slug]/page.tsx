@@ -12,7 +12,6 @@ import Footer from "@/components/home/Footer";
 import FoodGallery from "@/components/food/FoodGallery";
 import FoodSaveShareButtons from "@/components/food/FoodSaveShareButtons";
 import FoodDetailTabs from "@/components/food/FoodDetailTabs";
-import TranslatedField from "@/components/i18n/TranslatedField";
 
 export const dynamic = "force-dynamic";
 
@@ -107,7 +106,7 @@ export default async function FoodDetailPage({ params }: Params) {
           <i className="fa-solid fa-chevron-right text-[9px]" aria-hidden="true" />
           <span className="hover:text-food-primary transition-colors">{food.restaurant}</span>
           <i className="fa-solid fa-chevron-right text-[9px]" aria-hidden="true" />
-          <TranslatedField as="span" model="Food" recordId={food.id} field="name" className="text-food-text">{food.name}</TranslatedField>
+          {food.name}
         </nav>
 
         <div className="grid lg:grid-cols-[1fr_360px] gap-6 items-start">
@@ -149,7 +148,7 @@ export default async function FoodDetailPage({ params }: Params) {
 
           <aside className="space-y-4 lg:sticky lg:top-[90px]">
             <div className="bg-white rounded-2xl shadow-game-card p-5">
-              <h1 className="font-display font-extrabold text-food-text text-xl leading-snug mb-2"><TranslatedField model="Food" recordId={food.id} field="name">{food.name}</TranslatedField></h1>
+              <h1 className="font-display font-extrabold text-food-text text-xl leading-snug mb-2">{food.name}</h1>
 
               <div className="flex items-center gap-2 flex-wrap mb-2">
                 <span className="flex items-center gap-1 text-sm">

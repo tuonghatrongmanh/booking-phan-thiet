@@ -4,7 +4,6 @@ import { requireAdminSession, requireCreateOrEdit, requestDeleteOrHide } from "@
 import { z } from "zod";
 import { PlaceCategory } from "@prisma/client";
 import { imagePathSchema } from "@/lib/validation";
-import { saveTranslations } from "@/lib/content-translation";
 
 const updateSchema = z.object({
   title: z.string().min(3).optional(),
@@ -53,7 +52,6 @@ export async function PATCH(req: NextRequest, { params }: Params) {
       },
     });
     if (parsed.data.title) {
-      void saveTranslations("Sale", sale.id, { title: sale.title });
     }
     return NextResponse.json(sale);
   } catch {

@@ -5,7 +5,6 @@ import type { SectionKey } from "@/lib/admin-permissions";
 import { z } from "zod";
 import { PlaceCategory, PlaceStatus, StayType } from "@prisma/client";
 import { imagePathSchema } from "@/lib/validation";
-import { saveTranslations } from "@/lib/content-translation";
 import { recalcSalePoints } from "@/lib/sale-points-server";
 
 const updateSchema = z.object({
@@ -128,8 +127,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
   try {
     const place = await prisma.place.update({ where: { id }, data: parsed.data });
     if (parsed.data.name || parsed.data.description) {
-      void saveTranslations("Place", place.id, { name: place.name, description: place.description });
-    }
+      }
     void recalcSalePoints(place.id).catch(() => {});
     return NextResponse.json(place);
   } catch {

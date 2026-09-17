@@ -14,7 +14,6 @@ import MobileFilterDrawer from "@/components/places/MobileFilterDrawer";
 import ScrollToResults from "@/components/places/ScrollToResults";
 import Pagination from "@/components/places/Pagination";
 import type { FilterListItem } from "@/components/places/ExpandableFilterList";
-import T from "@/lib/i18n/T";
 import Reveal from "@/components/home/Reveal";
 
 export const dynamic = "force-dynamic";
@@ -260,7 +259,7 @@ export default async function LuuTruPage({ searchParams }: { searchParams: Promi
                 type="submit"
                 className="w-full h-full bg-brand-blue hover:brightness-95 transition text-white font-bold rounded-[16px] px-4 py-3 flex items-center justify-center gap-2"
               >
-                <i className="fa-solid fa-magnifying-glass" aria-hidden="true" /> <T id="stay.search.button">Tìm kiếm</T>
+                <i className="fa-solid fa-magnifying-glass" aria-hidden="true" /> Tìm kiếm
               </button>
             </div>
           </div>
@@ -457,7 +456,7 @@ export default async function LuuTruPage({ searchParams }: { searchParams: Promi
       <Reveal><section id="kham-pha-phan-thiet" className="bg-brand-sky/40 py-12 scroll-mt-24">
         <div className="container-custom">
           <div className="text-center max-w-xl mx-auto mb-8">
-            <h2 className="font-display font-bold text-2xl sm:text-3xl text-slate-800"><T id="stay.experience.title">Trải nghiệm tuyệt vời tại Phan Thiết</T></h2>
+            <h2 className="font-display font-bold text-2xl sm:text-3xl text-slate-800">Trải nghiệm tuyệt vời tại Phan Thiết</h2>
             <p className="text-slate-500 text-sm mt-2">Khám phá những hoạt động và địa điểm hấp dẫn không thể bỏ lỡ</p>
           </div>
 

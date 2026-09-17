@@ -6,7 +6,6 @@ import { isForumSlug, slugToEnum, extractHashtags } from "@/lib/forum";
 import { rateLimit } from "@/lib/rate-limit";
 import { getIO } from "@/lib/socket-server";
 import { forumCategoryRoom } from "@/lib/socket-rooms";
-import { saveTranslations } from "@/lib/content-translation";
 
 // reactions loc theo userId ("" -> khong bao gio khop) de client biet minh da tha cam
 // xuc loai gi cho tung bai ngay tu du lieu dau, khong phai doan mo hinh o feed.
@@ -107,7 +106,6 @@ export async function POST(req: Request) {
     ?.to(forumCategoryRoom(slug))
     .emit("post:new", { ...fullPost, createdAt: fullPost!.createdAt.toISOString() });
 
-  void saveTranslations("ForumPost", post.id, { title: post.title, content: post.content });
 
   return NextResponse.json(post, { status: 201 });
 }

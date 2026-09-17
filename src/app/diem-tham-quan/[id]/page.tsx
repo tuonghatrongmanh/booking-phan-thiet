@@ -10,7 +10,6 @@ import Footer from "@/components/home/Footer";
 import PlaceGallery from "@/components/places-detail/PlaceGallery";
 import PlaceSaveShareButtons from "@/components/places-detail/PlaceSaveShareButtons";
 import PlaceDetailTabs from "@/components/places-detail/PlaceDetailTabs";
-import TranslatedField from "@/components/i18n/TranslatedField";
 import { SITE_URL, absoluteUrl } from "@/lib/site-url";
 
 export const dynamic = "force-dynamic";
@@ -104,7 +103,7 @@ export default async function AttractionDetailPage({ params }: Params) {
             Trải nghiệm
           </Link>
           <i className="fa-solid fa-chevron-right text-[9px]" aria-hidden="true" />
-          <TranslatedField as="span" model="Place" recordId={place.id} field="name" className="text-food-text">{place.name}</TranslatedField>
+          {place.name}
         </nav>
 
         <div className="grid lg:grid-cols-[1fr_360px] gap-6 items-start">
@@ -145,7 +144,7 @@ export default async function AttractionDetailPage({ params }: Params) {
 
           <aside className="space-y-4 lg:sticky lg:top-[90px]">
             <div className="bg-white rounded-2xl shadow-game-card p-5">
-              <h1 className="font-display font-extrabold text-food-text text-xl leading-snug mb-2"><TranslatedField model="Place" recordId={place.id} field="name">{place.name}</TranslatedField></h1>
+              <h1 className="font-display font-extrabold text-food-text text-xl leading-snug mb-2">{place.name}</h1>
 
               <div className="flex items-center gap-2 flex-wrap mb-2">
                 <span className="flex items-center gap-1 text-sm">

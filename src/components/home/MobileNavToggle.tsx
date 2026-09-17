@@ -4,27 +4,13 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useLanguage } from "@/lib/i18n/LanguageProvider";
-import { LOCALES, LOCALE_INFO, type Locale } from "@/lib/i18n/translations";
-import { ICONS } from "@/lib/emoji";
 import { NAV_LINKS } from "./HeaderNav";
-
-const FLAG_ICON: Record<Locale, string> = {
-  vi: ICONS.vnFlag,
-  en: ICONS.usFlag,
-  es: ICONS.esFlag,
-  fr: ICONS.frFlag,
-  zh: ICONS.cnFlag,
-  ja: ICONS.jpFlag,
-  ko: ICONS.krFlag,
-};
 
 // Menu mobile dang drawer truot tu TRAI SANG PHAI (khong phai do xuong tu tren), chi
 // chiem mot nua man hinh, luon nam trong DOM (khong unmount) de transition transform
 // muot ma; dung chung mau gradient cua header cho drawer.
 export default function MobileNavToggle() {
   const pathname = usePathname();
-  const { locale, translate, setLocale } = useLanguage();
   const [open, setOpen] = useState(false);
 
   useEffect(() => setOpen(false), [pathname]);
@@ -36,10 +22,6 @@ export default function MobileNavToggle() {
       document.body.style.overflow = "";
     };
   }, [open]);
-
-  function pickLocale(code: Locale) {
-    setLocale(code);
-  }
 
   return (
     <div className="xl:hidden">
@@ -92,7 +74,6 @@ export default function MobileNavToggle() {
         <nav className="flex-1 overflow-y-auto px-3 py-3 flex flex-col gap-1">
           {NAV_LINKS.map((link) => {
             const isActive = link.exact ? pathname === link.href : pathname.startsWith(link.href);
-            const label = translate(link.id, link.label);
             return (
               <Link
                 key={link.href}
@@ -102,44 +83,16 @@ export default function MobileNavToggle() {
                 }`}
               >
                 <i className={`${link.icon} text-[18px] w-5 text-center`} aria-hidden="true" />
-                {label}
+                {link.label}
                 {link.hot && (
                   <span className="animate-badge-bounce ml-auto bg-[#FF4D4F] text-white text-[10px] font-extrabold px-[6px] py-[1px] rounded-[5px] leading-[14px]">
-                    {translate("common.hot", "HOT")}
+                    HOT
                   </span>
                 )}
               </Link>
             );
           })}
         </nav>
-
-        {/* Doi ngon ngu (Google dich toan trang) - chi hien o day vi header an
-            LanguageSwitcher duoi breakpoint sm, drawer nay la noi duy nhat man hinh
-            nho co the doi ngon ngu. */}
-        <div className="shrink-0 border-t border-white/15 px-3 py-3">
-          <p className="text-[11px] font-bold text-white/50 uppercase tracking-wide px-2 mb-1.5">
-            {translate("common.language", "Ngôn ngữ")}
-          </p>
-          <div className="grid grid-cols-2 gap-1.5">
-            {LOCALES.map((code) => {
-              const info = LOCALE_INFO[code];
-              const active = code === locale;
-              return (
-                <button
-                  key={code}
-                  type="button"
-                  onClick={() => pickLocale(code)}
-                  className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition ${
-                    active ? "bg-white/20 text-white" : "text-white/75 hover:bg-white/10"
-                  }`}
-                >
-                  <img src={FLAG_ICON[code]} alt="" width={14} height={14} />
-                  {info.label}
-                </button>
-              );
-            })}
-          </div>
-        </div>
       </div>
     </div>
   );

@@ -1,4 +1,3 @@
-import T from "@/lib/i18n/T";
 
 type CategoryItem = {
   id: string;
@@ -93,13 +92,13 @@ export default function CategorySection({
           <svg width="24" height="24" viewBox="0 0 24 24" fill="#1a6fc4">
             <path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z" />
           </svg>
-          <T id="section.category.title">DANH MỤC TRA CỨU PHỔ BIẾN</T>
+          DANH MỤC TRA CỨU PHỔ BIẾN
         </h2>
         <a
           href="#"
           className="text-sm font-bold text-brand-blue border border-sky-200 rounded-full px-4 py-1.5 hover:bg-sky-50 transition-colors"
         >
-          <T id="section.category.viewAll">Xem tất cả danh mục</T>
+          Xem tất cả danh mục
         </a>
       </div>
 
@@ -124,10 +123,10 @@ export default function CategorySection({
                 </span>
                 <div className="min-w-0">
                   <p className="font-display font-bold text-white text-base leading-tight truncate">
-                    <T id={`category.${c.id}.label`}>{c.label}</T>
+                    {c.label}
                   </p>
                   <p className="text-white/80 text-xs truncate">
-                    <T id={`category.${c.id}.desc`}>{c.desc}</T>
+                    {c.desc}
                   </p>
                   <p className="text-white/90 text-xs font-semibold mt-0.5">
                     {c.count.toLocaleString("vi-VN")} địa điểm

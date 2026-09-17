@@ -3,7 +3,6 @@ import { prisma } from "@/lib/prisma";
 import { requireAdminSession, requireCreateOrEdit } from "@/lib/admin-action";
 import { z } from "zod";
 import { imagePathSchema } from "@/lib/validation";
-import { saveTranslations } from "@/lib/content-translation";
 
 // GET /api/reviews?limit=4 - danh sách đánh giá mới nhất (mọi địa điểm), dùng cho trang chủ
 export async function GET(req: NextRequest) {
@@ -52,7 +51,6 @@ export async function POST(req: NextRequest) {
     },
   });
 
-  void saveTranslations("Review", review.id, { content: review.content });
 
   return NextResponse.json(review, { status: 201 });
 }

@@ -1,12 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { useTranslatedFields } from "@/components/i18n/TranslatedField";
 
-export default function StayOverviewDescription({ placeId, description }: { placeId: string; description: string | null }) {
+export default function StayOverviewDescription({ description }: { description: string | null }) {
   const [expanded, setExpanded] = useState(false);
-  const translated = useTranslatedFields("Place", placeId);
-  const text = translated.description ?? description;
+  const text = description;
 
   if (!text) {
     return <p className="text-base text-[#8297AC]">Chủ nhà chưa cập nhật mô tả chi tiết cho chỗ nghỉ này.</p>;

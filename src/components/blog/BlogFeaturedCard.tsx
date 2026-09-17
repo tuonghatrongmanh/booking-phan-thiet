@@ -1,7 +1,6 @@
 import Link from "next/link";
 import type { News } from "@prisma/client";
 import NewsCoverImage from "@/components/home/NewsCoverImage";
-import TranslatedField from "@/components/i18n/TranslatedField";
 
 function formatDate(date: Date) {
   return new Date(date).toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" });
@@ -27,18 +26,8 @@ export default function BlogFeaturedCard({ article, readingTime }: { article: Ne
         <p className="flex items-center gap-1.5 text-amber-500 font-bold text-sm mb-2.5">
           <i className="fa-solid fa-crown" aria-hidden="true" /> Bài viết nổi bật
         </p>
-        <TranslatedField
-          as="p"
-          model="News"
-          recordId={article.id}
-          field="title"
-          className="font-display font-extrabold text-2xl sm:text-[38px] leading-[1.15] text-slate-800 mb-3 line-clamp-3 group-hover:text-blog-primaryDark transition-colors"
-        >
-          {article.title}
-        </TranslatedField>
-        <TranslatedField as="p" model="News" recordId={article.id} field="excerpt" className="text-blog-textMuted leading-relaxed mb-5 line-clamp-3">
-          {article.excerpt}
-        </TranslatedField>
+        <p className="font-display font-extrabold text-2xl sm:text-[38px] leading-[1.15] text-slate-800 mb-3 line-clamp-3 group-hover:text-blog-primaryDark transition-colors">{article.title}</p>
+        <p className="text-blog-textMuted leading-relaxed mb-5 line-clamp-3">{article.excerpt}</p>
 
         <div className="flex items-center gap-4 text-xs text-slate-400 mb-6">
           <span className="flex items-center gap-1.5">

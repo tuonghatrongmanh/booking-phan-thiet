@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import TranslatedField from "@/components/i18n/TranslatedField";
 import Image from "next/image";
 import { POST_TYPES, type PostTypeKey } from "@/lib/forum";
 import ForumReactionBar from "./ForumReactionBar";
@@ -128,12 +127,8 @@ export default function ForumPostModal({
                 )}
               </div>
 
-              <TranslatedField as="p" model="ForumPost" recordId={post.id} field="title" className="font-display font-bold text-slate-800 mt-3">
-                {post.title}
-              </TranslatedField>
-              <TranslatedField as="p" model="ForumPost" recordId={post.id} field="content" className="text-[15px] text-slate-600 whitespace-pre-line mt-1">
-                {post.content}
-              </TranslatedField>
+              <p className="font-display font-bold text-slate-800 mt-3">{post.title}</p>
+              <p className="text-[15px] text-slate-600 whitespace-pre-line mt-1">{post.content}</p>
               {post.locationTag && (
                 <p className="text-xs text-slate-400 mt-1.5 flex items-center gap-1">
                   <i className="fa-solid fa-location-dot" aria-hidden="true" /> {post.locationTag}

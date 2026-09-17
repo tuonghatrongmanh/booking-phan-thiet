@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import MediaUploader from "@/components/forum/MediaUploader";
-import TranslatedField from "@/components/i18n/TranslatedField";
 
 type ReviewItem = {
   id: string;
@@ -197,7 +196,7 @@ export default function PlaceDetailTabs({
             <p className="font-display font-bold text-lg text-food-text mb-2 flex items-center gap-2">
               <i className="fa-solid fa-mountain-sun text-food-primary" aria-hidden="true" /> Giới thiệu địa điểm
             </p>
-            <TranslatedField as="p" model="Place" recordId={placeId} field="description" className="text-food-textGray leading-relaxed mb-4">{description}</TranslatedField>
+            <p className="text-food-textGray leading-relaxed mb-4">{description}</p>
             {contentHtml && (
               <div className="article-content text-[15px] text-food-textGray leading-relaxed" dangerouslySetInnerHTML={{ __html: contentHtml }} />
             )}

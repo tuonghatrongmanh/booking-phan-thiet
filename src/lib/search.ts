@@ -1,6 +1,4 @@
 import { prisma } from "@/lib/prisma";
-import { getTranslation } from "@/lib/content-translation";
-import type { Locale } from "@/lib/i18n/translations";
 import { enumToSlug } from "@/lib/forum";
 import { matchFoodByIntent, type FoodIntentCandidate } from "@/lib/ai-assistant";
 import type { Food } from "@prisma/client";
@@ -22,27 +20,21 @@ const PLACE_BASE_PATH: Partial<Record<string, string>> = {
   RESTAURANT: "/am-thuc",
 };
 
-async function mapFoodToResult(f: Food, locale: Locale): Promise<SearchResultItem> {
-  const [name, description] = await Promise.all([
-    getTranslation("Food", f.id, "name", locale),
-    getTranslation("Food", f.id, "description", locale),
-  ]);
+function mapFoodToResult(f: Food): SearchResultItem {
   return {
     type: "restaurant",
     id: f.id,
-    title: name ?? f.name,
-    subtitle: (description ?? f.description)?.slice(0, 100) ?? f.restaurant,
+    title: f.name,
+    subtitle: f.description?.slice(0, 100) ?? f.restaurant,
     image: f.image,
     href: `/am-thuc/mon/${f.slug}`,
   };
 }
 
 // Tim toan dien tren cac loai noi dung that cua he thong (Place, Food, tin tuc, bai
-// cong dong). Neu co ket qua, dich tieu de/mo ta sang locale hien tai (dung lai ban
-// dich da luu san luc admin/nguoi dung tao noi dung - khong goi API dich moi luot tim
-// kiem). Food dung chung nhan "restaurant" (Am thuc) voi Place category RESTAURANT vi
-// ca 2 cung thuoc khu Am thuc duoi mat khach, tranh phai them 1 loai nhan dich moi.
-export async function searchSite(query: string, locale: Locale = "vi"): Promise<SearchResultItem[]> {
+// cong dong). Food dung chung nhan "restaurant" (Am thuc) voi Place category
+// RESTAURANT vi ca 2 cung thuoc khu Am thuc duoi mat khach.
+export async function searchSite(query: string): Promise<SearchResultItem[]> {
   // Chuan hoa Unicode ve NFC truoc khi so khop: ban phim tieng Viet tren nhieu he
   // dieu hanh/IME (vd Unikey tren Windows) co the go ra chu co dau o dang NFD (to hop
   // nhieu ky tu, vd "o" + dau mu rieng) trong khi du lieu luu trong DB la NFC (1 ky tu
@@ -85,61 +77,39 @@ export async function searchSite(query: string, locale: Locale = "vi"): Promise<
     }),
   ]);
 
-  const placeResults = await Promise.all(
-    places
-      .filter((p) => PLACE_BASE_PATH[p.category])
-      .map(async (p) => {
-        const [name, description] = await Promise.all([
-          getTranslation("Place", p.id, "name", locale),
-          getTranslation("Place", p.id, "description", locale),
-        ]);
-        const type: SearchResultItem["type"] = p.category === "HOMESTAY" ? "homestay" : "restaurant";
-        return {
-          type,
-          id: p.id,
-          title: name ?? p.name,
-          subtitle: (description ?? p.description)?.slice(0, 100) ?? p.address,
-          image: p.avatar ?? p.images[0]?.url ?? null,
-          href: `${PLACE_BASE_PATH[p.category]}/${p.id}`,
-        };
-      })
-  );
-
-  const foodResults = await Promise.all(foods.map((f) => mapFoodToResult(f, locale)));
-
-  const newsResults = await Promise.all(
-    news.map(async (n) => {
-      const [title, excerpt] = await Promise.all([
-        getTranslation("News", n.id, "title", locale),
-        getTranslation("News", n.id, "excerpt", locale),
-      ]);
+  const placeResults = places
+    .filter((p) => PLACE_BASE_PATH[p.category])
+    .map((p) => {
+      const type: SearchResultItem["type"] = p.category === "HOMESTAY" ? "homestay" : "restaurant";
       return {
-        type: "news" as const,
-        id: n.id,
-        title: title ?? n.title,
-        subtitle: excerpt ?? n.excerpt,
-        image: n.coverImage,
-        href: `/tin-tuc/${n.slug}`,
+        type,
+        id: p.id,
+        title: p.name,
+        subtitle: p.description?.slice(0, 100) ?? p.address,
+        image: p.avatar ?? p.images[0]?.url ?? null,
+        href: `${PLACE_BASE_PATH[p.category]}/${p.id}`,
       };
-    })
-  );
+    });
 
-  const forumResults = await Promise.all(
-    posts.map(async (post) => {
-      const [title, content] = await Promise.all([
-        getTranslation("ForumPost", post.id, "title", locale),
-        getTranslation("ForumPost", post.id, "content", locale),
-      ]);
-      return {
-        type: "forum" as const,
-        id: post.id,
-        title: title ?? post.title,
-        subtitle: (content ?? post.content)?.slice(0, 100) ?? null,
-        image: post.media[0]?.url ?? null,
-        href: `/${enumToSlug(post.category)}/${post.id}`,
-      };
-    })
-  );
+  const foodResults = foods.map(mapFoodToResult);
+
+  const newsResults = news.map((n) => ({
+    type: "news" as const,
+    id: n.id,
+    title: n.title,
+    subtitle: n.excerpt,
+    image: n.coverImage,
+    href: `/tin-tuc/${n.slug}`,
+  }));
+
+  const forumResults = posts.map((post) => ({
+    type: "forum" as const,
+    id: post.id,
+    title: post.title,
+    subtitle: post.content?.slice(0, 100) ?? null,
+    image: post.media[0]?.url ?? null,
+    href: `/${enumToSlug(post.category)}/${post.id}`,
+  }));
 
   return [...placeResults, ...foodResults, ...newsResults, ...forumResults];
 }
@@ -152,7 +122,7 @@ export async function searchSite(query: string, locale: Locale = "vi"): Promise<
 // gui cho Gemini de kiem soat token/chi phi khi du lieu mon an nhieu len sau nay.
 const AI_INTENT_CANDIDATE_LIMIT = 80;
 
-export async function searchFoodByAiIntent(query: string, locale: Locale = "vi"): Promise<SearchResultItem[]> {
+export async function searchFoodByAiIntent(query: string): Promise<SearchResultItem[]> {
   const q = query.trim();
   if (!q) return [];
 
@@ -179,5 +149,5 @@ export async function searchFoodByAiIntent(query: string, locale: Locale = "vi")
 
   const byId = new Map(candidates.map((f) => [f.id, f]));
   const matched = matchIds.map((id) => byId.get(id)).filter((f): f is Food => Boolean(f));
-  return Promise.all(matched.map((f) => mapFoodToResult(f, locale)));
+  return matched.map(mapFoodToResult);
 }

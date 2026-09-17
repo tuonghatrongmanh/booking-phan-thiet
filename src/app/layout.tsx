@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { LanguageProvider } from "@/lib/i18n/LanguageProvider";
 import PopupModal from "@/components/home/PopupModal";
 import SaleStandingGate from "@/components/home/SaleStandingGate";
 import RapidNavGuard from "@/components/ui/RapidNavGuard";
@@ -40,12 +39,10 @@ export default function RootLayout({
       </head>
       <body className="bg-slate-50 text-slate-800 antialiased">
         <DialogProvider>
-          <LanguageProvider>
-            {children}
-            <PopupModal />
-            <SaleStandingGate />
-            <RapidNavGuard />
-          </LanguageProvider>
+          {children}
+          <PopupModal />
+          <SaleStandingGate />
+          <RapidNavGuard />
         </DialogProvider>
       </body>
     </html>

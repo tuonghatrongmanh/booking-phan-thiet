@@ -1,7 +1,6 @@
 import Link from "next/link";
 import type { Food, FoodCategory } from "@prisma/client";
 import { BADGE_COLOR, categoryIcon, categoryLabel, formatFoodPrice } from "@/lib/food-categories";
-import TranslatedField from "@/components/i18n/TranslatedField";
 
 export default function FoodCard({
   food,
@@ -62,9 +61,7 @@ export default function FoodCard({
 
       <div className="p-3.5">
         <Link href={href} className="text-left w-full block">
-          <TranslatedField as="p" model="Food" recordId={food.id} field="name" className="font-bold text-[15px] text-food-text leading-snug line-clamp-2 group-hover:text-food-primary transition-colors">
-            {food.name}
-          </TranslatedField>
+          <p className="font-bold text-[15px] text-food-text leading-snug line-clamp-2 group-hover:text-food-primary transition-colors">{food.name}</p>
         </Link>
 
         <p className="text-xs text-food-textMuted mt-1.5 flex items-center gap-1 w-fit">

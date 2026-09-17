@@ -4,7 +4,6 @@ import { requireAdminSession, requireCreateOrEdit } from "@/lib/admin-action";
 import { z } from "zod";
 import { sanitizeArticleHtml } from "@/lib/sanitize-html";
 import { slugifyBase, ensureUniqueSlug } from "@/lib/slug";
-import { saveTranslations } from "@/lib/content-translation";
 
 const foodSchema = z.object({
   name: z.string().trim().min(2),
@@ -65,6 +64,5 @@ export async function POST(req: NextRequest) {
     },
   });
 
-  void saveTranslations("Food", food.id, { name: food.name, description: food.description });
   return NextResponse.json(food, { status: 201 });
 }

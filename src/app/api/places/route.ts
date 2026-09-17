@@ -5,7 +5,6 @@ import type { SectionKey } from "@/lib/admin-permissions";
 import { z } from "zod";
 import { PlaceCategory, PlaceStatus, StayType } from "@prisma/client";
 import { imagePathSchema } from "@/lib/validation";
-import { saveTranslations } from "@/lib/content-translation";
 
 const placeSchema = z.object({
   name: z.string().min(2),
@@ -96,7 +95,6 @@ export async function POST(req: NextRequest) {
   const place = await prisma.place.create({ data: parsed.data });
 
   if (place.description) {
-    void saveTranslations("Place", place.id, { name: place.name, description: place.description });
   }
 
   return NextResponse.json(place, { status: 201 });

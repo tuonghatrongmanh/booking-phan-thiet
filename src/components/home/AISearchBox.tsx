@@ -3,8 +3,6 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { useLanguage } from "@/lib/i18n/LanguageProvider";
-import T from "@/lib/i18n/T";
 import type { SearchResultItem } from "@/lib/search";
 
 const SUGGESTED_QUESTIONS = [
@@ -15,10 +13,10 @@ const SUGGESTED_QUESTIONS = [
 ];
 
 const TYPE_LABEL: Record<SearchResultItem["type"], string> = {
-  homestay: "search.type.homestay",
-  restaurant: "search.type.restaurant",
-  news: "search.type.news",
-  forum: "search.type.forum",
+  homestay: "Lưu trú",
+  restaurant: "Ẩm thực",
+  news: "Tin tức",
+  forum: "Diễn đàn",
 };
 
 type SearchState =
@@ -32,7 +30,6 @@ export default function AISearchBox() {
   const [visible, setVisible] = useState(true);
   const [value, setValue] = useState("");
   const [state, setState] = useState<SearchState>({ status: "idle" });
-  const { locale } = useLanguage();
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -50,7 +47,7 @@ export default function AISearchBox() {
     if (!q) return;
     setState({ status: "loading" });
     try {
-      const res = await fetch(`/api/search?q=${encodeURIComponent(q)}&locale=${locale}`);
+      const res = await fetch(`/api/search?q=${encodeURIComponent(q)}`);
       const data = await res.json();
       if (data.mode === "results") {
         setState({ status: "results", query: q, results: data.results });
@@ -138,7 +135,7 @@ export default function AISearchBox() {
         {state.status === "loading" && (
           <div className="mt-4 flex items-center gap-2 text-sm text-slate-400">
             <i className="fa-solid fa-spinner fa-spin" aria-hidden="true" />
-            <T id="search.loading">Đang tìm kiếm...</T>
+            Đang tìm kiếm...
           </div>
         )}
 
@@ -146,7 +143,7 @@ export default function AISearchBox() {
           <div className="mt-4 border-t border-slate-100 pt-4">
             <div className="flex items-center justify-between mb-3">
               <p className="text-xs font-bold text-slate-500 uppercase tracking-wide">
-                <T id="search.resultsTitle">Kết quả tìm kiếm</T>
+                Kết quả tìm kiếm
               </p>
               <button
                 type="button"
@@ -169,7 +166,7 @@ export default function AISearchBox() {
                   </div>
                   <div className="min-w-0 flex-1">
                     <span className="inline-block text-[10px] font-bold text-brand-blue bg-brand-sky/60 rounded-full px-2 py-0.5 mb-0.5">
-                      <T id={TYPE_LABEL[r.type]}>{r.type}</T>
+                      {TYPE_LABEL[r.type]}
                     </span>
                     <p className="font-semibold text-sm text-slate-800 truncate group-hover:text-brand-blue transition-colors">{r.title}</p>
                     {r.subtitle && <p className="text-xs text-slate-400 truncate">{r.subtitle}</p>}
@@ -185,7 +182,7 @@ export default function AISearchBox() {
             <div className="flex items-center justify-between mb-2">
               <p className="flex items-center gap-1.5 text-xs font-bold text-brand-blue uppercase tracking-wide">
                 <i className="fa-solid fa-robot" aria-hidden="true" />
-                <T id="search.aiLabel">Trợ lý AI</T>
+                Trợ lý AI
               </p>
               <button
                 type="button"

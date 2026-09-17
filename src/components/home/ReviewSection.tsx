@@ -1,8 +1,6 @@
 import Image from "next/image";
 import SafeImage from "@/components/places/SafeImage";
 import ScrollCarousel from "./ScrollCarousel";
-import TranslatedField from "@/components/i18n/TranslatedField";
-import T from "@/lib/i18n/T";
 
 type ReviewWithPlace = {
   id: string;
@@ -59,17 +57,17 @@ export default function ReviewSection({
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1a6fc4" strokeWidth="1.8">
               <path d="M12 21s-7-4.5-9.5-9C1 8 3 4 7 4c2.2 0 3.7 1.3 5 3 1.3-1.7 2.8-3 5-3 4 0 6 4 4.5 8-2.5 4.5-9.5 9-9.5 9z" />
             </svg>
-            <T id="section.review.title">ĐÁNH GIÁ TỪ CỘNG ĐỒNG</T>
+            ĐÁNH GIÁ TỪ CỘNG ĐỒNG
           </h2>
           <p className="text-sm text-slate-400 mt-0.5">
-            <T id="section.review.subtitle">Những chia sẻ chân thực từ cộng đồng đã trải nghiệm du lịch Phan Thiết.</T>
+            Những chia sẻ chân thực từ cộng đồng đã trải nghiệm du lịch Phan Thiết.
           </p>
         </div>
         <a
           href="#"
           className="flex items-center gap-1 text-sm font-bold text-brand-blue border border-sky-200 rounded-full px-4 py-1.5 hover:bg-sky-50 transition-colors shrink-0"
         >
-          <T id="section.review.viewAll">Xem tất cả đánh giá</T>
+          Xem tất cả đánh giá
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4">
             <path d="M5 12h14M13 6l6 6-6 6" />
           </svg>
@@ -78,7 +76,7 @@ export default function ReviewSection({
 
       {reviews.length === 0 ? (
         <div className="bg-white rounded-2xl shadow-card p-8 text-center text-slate-400">
-          <T id="section.review.empty">Chưa có đánh giá nào. Đánh giá thật từ cộng đồng sẽ hiển thị tại đây.</T>
+          Chưa có đánh giá nào. Đánh giá thật từ cộng đồng sẽ hiển thị tại đây.
         </div>
       ) : (
         <div className="grid lg:grid-cols-[280px_1fr] gap-5">
@@ -99,7 +97,7 @@ export default function ReviewSection({
               {[5, 4, 3, 2, 1].map((star, idx) => (
                 <div key={star} className="flex items-center gap-2 text-xs">
                   <span className="text-slate-500 font-semibold w-8 shrink-0">
-                    {star} <T id="section.review.starUnit">sao</T>
+                    {star} sao
                   </span>
                   <div className="flex-1 h-1.5 rounded-full bg-slate-100 overflow-hidden">
                     <div
@@ -112,7 +110,7 @@ export default function ReviewSection({
               ))}
             </div>
             <p className="text-xs text-slate-400">
-              <T id="section.review.basedOn">Dựa trên</T> {stats.total.toLocaleString("vi-VN")} <T id="section.review.reviewsUnit">đánh giá</T>
+              Dựa trên {stats.total.toLocaleString("vi-VN")} đánh giá
             </p>
           </div>
 
@@ -168,9 +166,7 @@ export default function ReviewSection({
                     )}
                   </div>
 
-                  <TranslatedField as="p" model="Review" recordId={review.id} field="content" className="text-sm text-slate-500 line-clamp-2 mb-3">
-                    {review.content}
-                  </TranslatedField>
+                  <p className="text-sm text-slate-500 line-clamp-2 mb-3">{review.content}</p>
 
                   {(() => {
                     const hasRealImages = review.images.length > 0;

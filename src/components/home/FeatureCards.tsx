@@ -1,4 +1,3 @@
-import T from "@/lib/i18n/T";
 
 const FEATURES = [
   {
@@ -88,16 +87,16 @@ export default function FeatureCards() {
                 {f.icon}
               </div>
               <p className="font-display font-bold text-slate-800 mb-1">
-                <T id={`feature.${f.id}.title`}>{f.title}</T>
+                {f.title}
               </p>
               <p className="text-sm text-slate-400 mb-3 max-w-[75%]">
-                <T id={`feature.${f.id}.desc`}>{f.desc}</T>
+                {f.desc}
               </p>
               <a
                 href="#"
                 className={`inline-block text-xs font-bold border rounded-full px-3 py-1.5 transition-colors duration-200 ${f.linkClass}`}
               >
-                <T id={`feature.${f.id}.link`}>{f.link}</T>
+                {f.link}
               </a>
             </div>
           </div>

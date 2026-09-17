@@ -1,7 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
-import T from "@/lib/i18n/T";
 
 // Banner CTA quan ly duoc qua Admin > Banner - lay banner active co sortOrder nho nhat.
 // Neu admin chua tao banner nao thi fallback ve noi dung tinh mac dinh (khong de trong).
@@ -25,10 +24,10 @@ export default async function CTASection() {
             <path d="M12 2l7 3v6c0 5-3.4 8.4-7 10-3.6-1.6-7-5-7-10V5l7-3z" />
           </svg>
           <h3 className="font-display font-extrabold text-white text-2xl sm:text-3xl mb-2 drop-shadow">
-            {banner?.title ?? <T id="section.cta.title">Bạn đã từng bị lừa đảo?</T>}
+            {banner?.title ?? "Bạn đã từng bị lừa đảo?"}
           </h3>
           <p className="text-white/85 mb-5">
-            {banner?.subtitle ?? <T id="section.cta.subtitle">Chia sẻ để bảo vệ cộng đồng du lịch Phan Thiết</T>}
+            {banner?.subtitle ?? "Chia sẻ để bảo vệ cộng đồng du lịch Phan Thiết"}
           </p>
           <Link
             href={buttonHref}
@@ -37,7 +36,7 @@ export default async function CTASection() {
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M3 11v2a2 2 0 0 0 2 2h1l3 4v-4h8a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2H8L5 4v3H5a2 2 0 0 0-2 2z" />
             </svg>
-            {banner?.buttonText ?? <T id="section.cta.button">Chia sẻ ngay</T>}
+            {banner?.buttonText ?? "Chia sẻ ngay"}
           </Link>
         </div>
       </div>

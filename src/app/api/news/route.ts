@@ -3,7 +3,6 @@ import { prisma } from "@/lib/prisma";
 import { requireAdminSession, requireCreateOrEdit } from "@/lib/admin-action";
 import { z } from "zod";
 import { imagePathSchema } from "@/lib/validation";
-import { saveTranslations } from "@/lib/content-translation";
 import { sanitizeArticleHtml } from "@/lib/sanitize-html";
 import { slugifyBase, ensureUniqueSlug } from "@/lib/slug";
 
@@ -73,10 +72,6 @@ export async function POST(req: NextRequest) {
     },
   });
 
-  void saveTranslations("News", news.id, {
-    title: news.title,
-    excerpt: news.excerpt,
-  });
 
   return NextResponse.json(news, { status: 201 });
 }

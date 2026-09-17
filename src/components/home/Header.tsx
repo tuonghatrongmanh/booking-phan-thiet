@@ -1,10 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
-import LanguageSwitcher from "./LanguageSwitcher";
 import HeaderNav from "./HeaderNav";
 import MobileNavToggle from "./MobileNavToggle";
 import HeaderCoinBadge from "./HeaderCoinBadge";
-import T from "@/lib/i18n/T";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getSiteSettings } from "@/lib/settings";
@@ -42,7 +40,6 @@ export default async function Header() {
 
           <div className="flex items-center gap-3 lg:gap-4">
             <span className="hidden xl:block w-px h-7 bg-white/25" aria-hidden="true" />
-            <LanguageSwitcher />
             {user && <HeaderCoinBadge initialCoins={user.coins} avatar={user.avatar || "/images/avatar-world.png"} name={user.name} />}
             {user ? (
               <Link href="/tai-khoan" className="relative flex items-center shrink-0" aria-label="Tài khoản của bạn">
@@ -70,7 +67,7 @@ export default async function Header() {
               >
                 <i className="fa-solid fa-user text-base sm:text-sm" aria-hidden="true" />
                 <span className="hidden sm:inline">
-                  <T id="auth.login">Đăng nhập</T>
+                  Đăng nhập
                 </span>
               </Link>
             )}

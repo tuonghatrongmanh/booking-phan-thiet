@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import T from "@/lib/i18n/T";
 
 type LogoItem = { id: string; name: string; image: string; href: string | null };
 
@@ -64,7 +63,7 @@ export default function BrandMarquee({ logos }: { logos: LogoItem[] }) {
     <section className="py-6">
       <div className="container-custom mb-4">
         <p className="text-center text-xs font-bold tracking-wide text-slate-400 uppercase">
-          <T id="section.brands.title">Được tin tưởng bởi</T>
+          Được tin tưởng bởi
         </p>
       </div>
       <div className="relative overflow-hidden">

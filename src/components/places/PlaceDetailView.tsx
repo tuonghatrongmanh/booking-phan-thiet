@@ -7,7 +7,6 @@ import type { PlaceCategory } from "@prisma/client";
 import Header from "@/components/home/Header";
 import Footer from "@/components/home/Footer";
 import ScrollTopButton from "@/components/home/ScrollTopButton";
-import TranslatedField from "@/components/i18n/TranslatedField";
 
 function formatDate(date: Date) {
   return new Date(date).toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" });
@@ -75,15 +74,7 @@ export default async function PlaceDetailView({
                 )}
               </div>
               <div className="min-w-0 pt-10">
-                <TranslatedField
-                  as="h1"
-                  model="Place"
-                  recordId={place.id}
-                  field="name"
-                  className="font-display font-extrabold text-xl text-slate-800 truncate"
-                >
-                  {place.name}
-                </TranslatedField>
+                <h1 className="font-display font-extrabold text-xl text-slate-800 truncate">{place.name}</h1>
                 <div className="flex items-center gap-1 text-xs mt-0.5">
                   <span className="text-brand-gold flex">
                     {Array.from({ length: 5 }).map((_, s) => (
@@ -121,15 +112,7 @@ export default async function PlaceDetailView({
             </div>
 
             {place.description && (
-              <TranslatedField
-                as="p"
-                model="Place"
-                recordId={place.id}
-                field="description"
-                className="text-[15px] text-slate-600 whitespace-pre-line mt-5"
-              >
-                {place.description}
-              </TranslatedField>
+              <p className="text-[15px] text-slate-600 whitespace-pre-line mt-5">{place.description}</p>
             )}
 
             {place.images.length > 1 && (
