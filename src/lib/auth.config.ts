@@ -7,6 +7,9 @@ export const authConfig = {
     signIn: "/admin/login",
   },
   session: { strategy: "jwt" },
+  // Render (khac Vercel) khong tu duoc Auth.js tin cay lam host - thieu dong nay se
+  // bi loi "UntrustedHost" tren MOI request xac thuc khi deploy ngoai Vercel.
+  trustHost: true,
   providers: [], // Provider thật (Credentials + Prisma) chỉ khai báo trong lib/auth.ts
   callbacks: {
     // Gắn role/type vào token + session ngay tại đây (không chỉ trong lib/auth.ts) vì
