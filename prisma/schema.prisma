@@ -71,7 +71,8 @@ model User {
   name         String
   email        String    @unique
   dob          DateTime?
-  password     String?
+  password       String?
+  emailVerifiedAt DateTime?
   avatar       String    @default("/images/avatar-world.png")
   googleId     String?   @unique
   lastEditedAt DateTime?
@@ -98,6 +99,31 @@ model User {
   placeReviews     PlaceReview[]
   salePlace        Place?
   rentalInquiries RentalInquiry[]
+  passwordResetTokens     PasswordResetToken[]
+  emailVerificationTokens EmailVerificationToken[]
+}
+
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  token     String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+}
+
+model EmailVerificationToken {
+  id        String   @id @default(cuid())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId])
 }
 
 model Admin {

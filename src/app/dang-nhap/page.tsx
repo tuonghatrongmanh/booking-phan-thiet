@@ -75,7 +75,12 @@ function LoginForm() {
             />
           </div>
           <div>
-            <label className="text-[13px] text-slate-500 font-medium mb-1 block">Mật khẩu</label>
+            <div className="flex items-center justify-between mb-1">
+              <label className="text-[13px] text-slate-500 font-medium block">Mật khẩu</label>
+              <Link href="/quen-mat-khau" className="text-[12px] text-brand-blue font-semibold hover:underline">
+                Quên mật khẩu?
+              </Link>
+            </div>
             <input
               type="password"
               required

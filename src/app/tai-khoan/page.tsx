@@ -37,6 +37,7 @@ export default async function AccountPage() {
         dob: user!.dob ? user!.dob.toISOString().slice(0, 10) : null,
         avatar: user!.avatar,
         warningNote: user!.warnedAt ? user!.warningNote : null,
+        emailVerified: Boolean(user!.emailVerifiedAt),
       }}
       daysLeft={daysLeft}
       saleApplication={saleApplication}

@@ -15,6 +15,7 @@ type UserInfo = {
   dob: string | null;
   avatar: string;
   warningNote?: string | null;
+  emailVerified: boolean;
 };
 
 const ICON = {
@@ -215,6 +216,25 @@ export default function ProfileView({
   const [avatar, setAvatar] = useState(user.avatar);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [resending, setResending] = useState(false);
+  const [resendMessage, setResendMessage] = useState<string | null>(null);
+
+  async function handleResendVerification() {
+    setResending(true);
+    setResendMessage(null);
+    const res = await fetch("/api/auth/send-verification-email", { method: "POST" });
+    const data = await res.json().catch(() => ({}));
+    setResending(false);
+    if (!res.ok) {
+      setResendMessage(typeof data.error === "string" ? data.error : "Có lỗi xảy ra");
+      return;
+    }
+    setResendMessage(
+      data.sent
+        ? "Đã gửi email xác thực, hãy kiểm tra hòm thư (cả mục Spam)."
+        : "Hệ thống ghi nhận yêu cầu nhưng chưa gửi được email tự động - liên hệ admin để được hỗ trợ."
+    );
+  }
 
   async function handleSave() {
     setSaving(true);
@@ -308,6 +328,30 @@ export default function ProfileView({
               <div>
                 <p className="font-bold text-sm mb-0.5">Cảnh báo từ quản trị viên</p>
                 <p className="text-sm whitespace-pre-line">{user.warningNote}</p>
+              </div>
+            </div>
+          )}
+
+          {!user.emailVerified && (
+            <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 text-amber-700 rounded-xl px-4 py-3 mb-4">
+              <i className="fa-regular fa-envelope text-lg mt-0.5" aria-hidden="true" />
+              <div className="min-w-0">
+                <p className="font-bold text-sm mb-0.5">Email chưa được xác thực</p>
+                {resendMessage ? (
+                  <p className="text-sm">{resendMessage}</p>
+                ) : (
+                  <p className="text-sm">
+                    Xác thực email để bảo mật tài khoản tốt hơn.{" "}
+                    <button
+                      type="button"
+                      onClick={handleResendVerification}
+                      disabled={resending}
+                      className="font-bold underline hover:no-underline disabled:opacity-60"
+                    >
+                      {resending ? "Đang gửi..." : "Gửi lại email xác thực"}
+                    </button>
+                  </p>
+                )}
               </div>
             </div>
           )}

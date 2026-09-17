@@ -68,6 +68,7 @@ export const NAV: NavEntry[] = [
   { href: "/admin/forum-comments", label: "Kiểm duyệt bình luận", icon: "M8 10h8M8 14h5M21 12c0 4.4-4 8-9 8-1.3 0-2.5-.2-3.6-.7L3 21l1.8-4.2A7.9 7.9 0 0 1 3 12c0-4.4 4-8 9-8s9 3.6 9 8z" },
   { href: "/admin/guide-videos", label: "Video hướng dẫn", icon: "M14.752 11.168l-3.197-2.132A1 1 0 0 0 10 9.87v4.263a1 1 0 0 0 1.555.832l3.197-2.132a1 1 0 0 0 0-1.664z M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z" },
   { href: "/admin/users", label: "Thành viên", icon: "M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" },
+  { href: "/admin/password-reset-requests", label: "Yêu cầu đặt lại mật khẩu", icon: "M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0 0v3m-6-3a6 6 0 1 1 12 0M5 21h14" },
   { href: "/admin/staff", label: "Nhân viên", icon: "M17 20h5v-2a4 4 0 0 0-4-4h-1M9 20H4v-2a4 4 0 0 1 4-4h1m0-4a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm7 4a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" },
   { href: "/admin/pending-changes", label: "Chờ duyệt", icon: "M12 8v4l3 3M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20z" },
   {
@@ -123,6 +124,7 @@ export const HREF_TO_SECTION: Record<string, import("@/lib/admin-permissions").S
   "/admin/redemptions": "redemptions",
   "/admin/game-banners": "game-banners",
   "/admin/car-rentals": "car-rentals",
+  "/admin/password-reset-requests": "password-reset-requests",
   "/admin/rental-inquiries": "car-rentals",
   "/admin/forum-comments": "forum-comments",
   "/admin/settings": "settings",

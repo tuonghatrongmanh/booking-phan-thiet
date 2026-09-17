@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { signOut } from "next-auth/react";
+import Link from "next/link";
 
 export default function AdminAccountMenu({ userName }: { userName?: string | null }) {
   const [open, setOpen] = useState(false);
@@ -30,22 +31,20 @@ export default function AdminAccountMenu({ userName }: { userName?: string | nul
 
       {open && (
         <div className="absolute right-0 top-full mt-1.5 z-50 w-56 bg-white rounded-xl shadow-2xl border border-slate-100 p-2">
-          <button
-            type="button"
-            disabled
-            title="Sắp ra mắt"
-            className="w-full text-left flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium text-slate-400 cursor-not-allowed"
+          <Link
+            href="/admin/account"
+            onClick={() => setOpen(false)}
+            className="w-full text-left flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50 transition"
           >
             <i className="fa-regular fa-id-card w-4" aria-hidden="true" /> Thông tin tài khoản
-          </button>
-          <button
-            type="button"
-            disabled
-            title="Sắp ra mắt"
-            className="w-full text-left flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium text-slate-400 cursor-not-allowed"
+          </Link>
+          <Link
+            href="/admin/account"
+            onClick={() => setOpen(false)}
+            className="w-full text-left flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50 transition"
           >
             <i className="fa-solid fa-gear w-4" aria-hidden="true" /> Cài đặt
-          </button>
+          </Link>
           <a
             href="/admin#hoat-dong"
             className="w-full text-left flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50 transition"
