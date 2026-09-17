@@ -1,15 +1,16 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import type { ActivityItem } from "@/lib/recent-activity-feed";
 
-const SHOW_MS = 5000;
-const HIDE_GAP_MS = 800;
+const SHOW_MS = 2600;
+const HIDE_GAP_MS = 400;
 
 // Widget "hoat dong gan day" o goc trai man hinh - tu hien tung item 1, nghi 1 chut
-// roi qua item ke tiep, lap vong quanh. Nguoi dung co the bam X de tat han (luu vao
-// sessionStorage, khong hien lai trong tab hien tai - dung "tat = tat het" chu khong
-// phai "seen once" nhu bug da gap voi SaleStandingGate).
+// roi qua item ke tiep, lap vong quanh, chu ky ~3s de tao cam giac soi dong. Nguoi
+// dung co the bam X de tat han (luu vao sessionStorage, khong hien lai trong tab hien
+// tai - dung "tat = tat het" chu khong phai "seen once" nhu bug da gap voi SaleStandingGate).
 export default function RecentActivityTicker({ items }: { items: ActivityItem[] }) {
   const [index, setIndex] = useState(0);
   const [visible, setVisible] = useState(false);
@@ -27,7 +28,7 @@ export default function RecentActivityTicker({ items }: { items: ActivityItem[] 
     if (items.length === 0 || dismissed) return;
     let timeoutId: ReturnType<typeof setTimeout>;
 
-    const showTimer = setTimeout(() => setVisible(true), 1500);
+    const showTimer = setTimeout(() => setVisible(true), 1200);
 
     function cycle() {
       timeoutId = setTimeout(() => {
@@ -66,9 +67,12 @@ export default function RecentActivityTicker({ items }: { items: ActivityItem[] 
         visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-3 pointer-events-none"
       }`}
     >
-      <div className="flex items-center gap-3 bg-white rounded-2xl shadow-xl border border-slate-100 px-4 py-3">
-        <span className="shrink-0 w-9 h-9 rounded-full bg-brand-sky flex items-center justify-center text-brand-blue">
-          <i className={item.icon} aria-hidden="true" />
+      <div key={item.id} className="flex items-center gap-3 bg-white rounded-2xl shadow-xl border border-slate-100 px-4 py-3">
+        <span className="relative shrink-0 w-10 h-10 rounded-full overflow-hidden ring-2 ring-brand-sky">
+          <Image src={item.avatar} alt="" fill className="object-cover" />
+          <span className="absolute -bottom-0.5 -right-0.5 w-[18px] h-[18px] rounded-full bg-brand-blue text-white flex items-center justify-center text-[9px] ring-2 ring-white">
+            <i className={item.icon} aria-hidden="true" />
+          </span>
         </span>
         <p className="text-[13px] text-slate-700 leading-snug flex-1 min-w-0">{item.text}</p>
         <button
