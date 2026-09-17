@@ -12,6 +12,8 @@ import TrustedBrandsSection from "@/components/home/TrustedBrandsSection";
 import Footer from "@/components/home/Footer";
 import ScrollTopButton from "@/components/home/ScrollTopButton";
 import Reveal from "@/components/home/Reveal";
+import RecentActivityTicker from "@/components/home/RecentActivityTicker";
+import { getRecentActivityFeed } from "@/lib/recent-activity-feed";
 
 // Trang chủ luôn lấy dữ liệu mới nhất từ database (sale, tin tức, đánh giá)
 export const dynamic = "force-dynamic";
@@ -22,7 +24,7 @@ function avgOf(nums: number[]) {
 }
 
 export default async function HomePage() {
-  const [sales, news, reviews, saleAgentPlaces, categoryCounts, reviewAgg, reviewsByStar] = await Promise.all([
+  const [sales, news, reviews, saleAgentPlaces, categoryCounts, reviewAgg, reviewsByStar, activityFeed] = await Promise.all([
     prisma.sale.findMany({
       where: { active: true },
       orderBy: { createdAt: "desc" },
@@ -55,6 +57,7 @@ export default async function HomePage() {
     ]),
     prisma.review.aggregate({ _avg: { rating: true }, _count: true }),
     prisma.review.groupBy({ by: ["rating"], _count: true }),
+    getRecentActivityFeed(10),
   ]);
 
   const saleAgents: SaleAgent[] = saleAgentPlaces.map((p) => ({
@@ -95,6 +98,7 @@ export default async function HomePage() {
       <Reveal><CTASection /></Reveal>
       <Footer />
       <ScrollTopButton />
+      <RecentActivityTicker items={activityFeed} />
     </>
   );
 }
