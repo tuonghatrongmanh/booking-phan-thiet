@@ -52,6 +52,15 @@ export default async function AdminDashboardPage({ searchParams }: { searchParam
     prisma.forumComment.count({ where: { createdAt: { lte: previousEnd } } }),
   ]);
 
+  const [pendingChangeCount, staffList] = await Promise.all([
+    prisma.pendingChange.count({ where: { status: "PENDING" } }),
+    prisma.admin.findMany({
+      where: { role: { not: "SUPER_ADMIN" } },
+      orderBy: { lastLoginAt: "desc" },
+      select: { id: true, name: true, role: true, active: true, lastLoginAt: true },
+    }),
+  ]);
+
   const [visits, visitsPrev, suspiciousCount, suspiciousCountPrev, onlineIps, uniqueIps, avgDuration, errorCount, totalRequests, activity] =
     await Promise.all([
       prisma.requestLog.count({ where: { createdAt: { gte: start, lte: end } } }),
@@ -76,6 +85,15 @@ export default async function AdminDashboardPage({ searchParams }: { searchParam
     { label: "Thành viên", value: userCount, previousValue: userCountPrev, href: "/admin/users", icon: "fa-solid fa-users", iconColor: "text-brand-blue", iconBg: "bg-sky-50" },
     { label: "Bài đăng diễn đàn", value: forumPostCount, previousValue: forumPostCountPrev, href: "/admin/forum", icon: "fa-solid fa-comments", iconColor: "text-brand-green", iconBg: "bg-brand-greenBg" },
     { label: "Bình luận diễn đàn", value: forumCommentCount, previousValue: forumCommentCountPrev, href: "/admin/forum-comments", icon: "fa-solid fa-comment-dots", iconColor: "text-brand-orange", iconBg: "bg-amber-50" },
+    {
+      label: "Chờ duyệt",
+      value: pendingChangeCount,
+      href: "/admin/pending-changes",
+      icon: "fa-solid fa-clipboard-check",
+      iconColor: pendingChangeCount > 0 ? "text-brand-red" : "text-brand-green",
+      iconBg: pendingChangeCount > 0 ? "bg-brand-redBg" : "bg-brand-greenBg",
+      variant: pendingChangeCount > 0 ? ("warning" as const) : undefined,
+    },
   ];
 
   const securityCards = [
@@ -214,6 +232,46 @@ export default async function AdminDashboardPage({ searchParams }: { searchParam
             * Thời gian phản hồi/tỷ lệ lỗi đo trực tiếp từ request thật trong khoảng "{rangeLabel}". Uptime lịch sử cần thêm thời gian thu thập để hiển thị chính xác.
           </p>
         </div>
+      </div>
+
+      <div className="bg-white rounded-2xl shadow-card p-5 mt-5">
+        <h3 className="font-display font-bold text-slate-800 mb-3 flex items-center gap-2">
+          <i className="fa-solid fa-user-group text-brand-blue" aria-hidden="true" /> Hoạt động nhân viên
+        </h3>
+        {staffList.length === 0 ? (
+          <p className="text-sm text-slate-400 text-center py-6">Chưa có nhân viên nào.</p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-left text-xs text-slate-400 border-b border-slate-100">
+                  <th className="py-2 font-semibold">Nhân viên</th>
+                  <th className="py-2 font-semibold">Vai trò</th>
+                  <th className="py-2 font-semibold">Trạng thái</th>
+                  <th className="py-2 font-semibold">Đăng nhập gần nhất</th>
+                </tr>
+              </thead>
+              <tbody>
+                {staffList.map((s) => (
+                  <tr key={s.id} className="border-b border-slate-50 last:border-0">
+                    <td className="py-2.5">
+                      <Link href={`/admin/staff/${s.id}`} className="font-semibold text-slate-700 hover:text-brand-blue transition">
+                        {s.name}
+                      </Link>
+                    </td>
+                    <td className="py-2.5 text-slate-500">{s.role === "ADMIN" ? "Quản trị" : "Biên tập viên"}</td>
+                    <td className="py-2.5">
+                      <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${s.active ? "bg-brand-greenBg text-brand-green" : "bg-slate-100 text-slate-400"}`}>
+                        {s.active ? "Đang hoạt động" : "Đã khoá"}
+                      </span>
+                    </td>
+                    <td className="py-2.5 text-slate-400">{s.lastLoginAt ? timeAgo(s.lastLoginAt) : "Chưa đăng nhập"}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </div>
   );
