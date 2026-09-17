@@ -3,6 +3,7 @@ import "./globals.css";
 import { LanguageProvider } from "@/lib/i18n/LanguageProvider";
 import PopupModal from "@/components/home/PopupModal";
 import SaleStandingGate from "@/components/home/SaleStandingGate";
+import RapidNavGuard from "@/components/ui/RapidNavGuard";
 import DialogProvider from "@/components/ui/DialogProvider";
 import { getSiteSettings } from "@/lib/settings";
 
@@ -43,6 +44,7 @@ export default function RootLayout({
             {children}
             <PopupModal />
             <SaleStandingGate />
+            <RapidNavGuard />
           </LanguageProvider>
         </DialogProvider>
       </body>

@@ -1,8 +1,13 @@
+"use client";
+
+import { useSlowLoadNotice } from "@/components/ui/LoadingSkeleton";
+
 function Block({ className = "" }: { className?: string }) {
   return <div className={`bg-slate-200/70 rounded-xl ${className}`} />;
 }
 
 export default function HomeLoading() {
+  useSlowLoadNotice();
   return (
     <div className="min-h-screen bg-white animate-pulse">
       {/* header */}
