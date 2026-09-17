@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { requireAdminSession } from "@/lib/admin-action";
 import { verifyMasterPassword } from "@/lib/security-gate";
+import { logAdminAction } from "@/lib/audit-log";
 import { z } from "zod";
 
 const schema = z.object({
@@ -35,6 +36,8 @@ export async function POST(req: NextRequest) {
     update: { masterPasswordHash: hash },
     create: { id: "singleton", masterPasswordHash: hash },
   });
+
+  void logAdminAction(admin, "change-master-password", "SecuritySettings", "singleton");
 
   return NextResponse.json({ ok: true });
 }

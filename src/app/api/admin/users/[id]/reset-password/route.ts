@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { requireAdminSession } from "@/lib/admin-action";
 import { verifyMasterPassword, generateRandomPassword } from "@/lib/security-gate";
+import { logAdminAction } from "@/lib/audit-log";
 import { z } from "zod";
 
 const schema = z.object({ masterPassword: z.string() });
@@ -34,6 +35,8 @@ export async function POST(req: NextRequest, { params }: Params) {
   const newPassword = generateRandomPassword();
   const hash = await bcrypt.hash(newPassword, 10);
   await prisma.user.update({ where: { id }, data: { password: hash } });
+
+  void logAdminAction(admin, "reset-password", "User", id, `Đặt lại mật khẩu cho ${user.name} (${user.email})`);
 
   return NextResponse.json({ newPassword });
 }

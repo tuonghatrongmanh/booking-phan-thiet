@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { requireAdminSession } from "@/lib/admin-action";
 import { z } from "zod";
 import { recalcSalePoints } from "@/lib/sale-points-server";
+import { logAdminAction } from "@/lib/audit-log";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -32,6 +33,7 @@ export async function POST(req: NextRequest, { params }: Params) {
   if (parsed.data.approve) {
     await prisma.saleStanding.delete({ where: { placeId: id } });
     void recalcSalePoints(id).catch(() => {});
+    void logAdminAction(admin, "approve-sale-appeal", "Place", id, parsed.data.note);
     return NextResponse.json({ ok: true, lifted: true });
   }
 
@@ -39,5 +41,6 @@ export async function POST(req: NextRequest, { params }: Params) {
     where: { placeId: id },
     data: { appealStatus: "RESOLVED", appealNote: parsed.data.note, appealResolvedAt: new Date() },
   });
+  void logAdminAction(admin, "reject-sale-appeal", "Place", id, parsed.data.note);
   return NextResponse.json(updated);
 }

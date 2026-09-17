@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { requireAdminSession } from "@/lib/admin-action";
 import { z } from "zod";
 import { recalcSalePoints } from "@/lib/sale-points-server";
+import { logAdminAction } from "@/lib/audit-log";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -59,6 +60,7 @@ export async function POST(req: NextRequest, { params }: Params) {
   });
 
   void recalcSalePoints(id).catch(() => {});
+  void logAdminAction(admin, parsed.data.action === "BANNED" ? "ban-sale" : "suspend-sale", "Place", id, parsed.data.reason);
   return NextResponse.json(standing, { status: 201 });
 }
 
@@ -79,6 +81,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
   try {
     const standing = await prisma.saleStanding.update({ where: { placeId: id }, data: { active: parsed.data.active } });
     void recalcSalePoints(id).catch(() => {});
+    void logAdminAction(admin, parsed.data.active ? "reactivate-sale-standing" : "deactivate-sale-standing", "Place", id);
     return NextResponse.json(standing);
   } catch {
     return NextResponse.json({ error: "Không tìm thấy" }, { status: 404 });
@@ -96,6 +99,7 @@ export async function DELETE(_req: NextRequest, { params }: Params) {
   try {
     await prisma.saleStanding.delete({ where: { placeId: id } });
     void recalcSalePoints(id).catch(() => {});
+    void logAdminAction(admin, "remove-sale-standing", "Place", id);
     return NextResponse.json({ ok: true });
   } catch {
     return NextResponse.json({ error: "Không tìm thấy" }, { status: 404 });

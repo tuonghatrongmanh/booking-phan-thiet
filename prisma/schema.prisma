@@ -150,6 +150,28 @@ model Admin {
   pendingChangesReviewed PendingChange[] @relation("PendingChangeReviewedBy")
   messagesSent           AdminMessage[]  @relation("AdminMessageFrom")
   messagesReceived       AdminMessage[]  @relation("AdminMessageTo")
+  auditLogs              AdminAuditLog[]
+}
+
+// Nhat ky cho cac hanh dong SUPER_ADMIN nhay cam nhat (dat lai mat khau nguoi
+// khac, dinh chi/cam Sale...) - KHONG phai log toan bo hanh dong admin (qua rong,
+// PendingChange da co doi voi luong duyet cua EDITOR). adminId nullable + luu san
+// adminName/adminEmail (snapshot) de van doc duoc lich su neu tai khoan admin do
+// sau nay bi xoa.
+model AdminAuditLog {
+  id         String   @id @default(cuid())
+  admin      Admin?   @relation(fields: [adminId], references: [id], onDelete: SetNull)
+  adminId    String?
+  adminName  String
+  adminEmail String
+  action     String
+  targetType String
+  targetId   String
+  detail     String?  @db.Text
+  createdAt  DateTime @default(now())
+
+  @@index([adminId])
+  @@index([targetType, targetId])
 }
 
 enum PendingChangeAction {
