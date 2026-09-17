@@ -76,8 +76,9 @@ export default function RegisterPage() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="text-[13px] text-slate-500 font-medium mb-1 block">Họ và tên</label>
+            <label htmlFor="register-name" className="text-[13px] text-slate-500 font-medium mb-1 block">Họ và tên</label>
             <input
+              id="register-name"
               required
               value={name}
               onChange={(e) => setName(e.target.value)}
@@ -86,8 +87,9 @@ export default function RegisterPage() {
             />
           </div>
           <div>
-            <label className="text-[13px] text-slate-500 font-medium mb-1 block">Số điện thoại</label>
+            <label htmlFor="register-phone" className="text-[13px] text-slate-500 font-medium mb-1 block">Số điện thoại</label>
             <input
+              id="register-phone"
               required
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
@@ -96,8 +98,9 @@ export default function RegisterPage() {
             />
           </div>
           <div>
-            <label className="text-[13px] text-slate-500 font-medium mb-1 block">Email</label>
+            <label htmlFor="register-email" className="text-[13px] text-slate-500 font-medium mb-1 block">Email</label>
             <input
+              id="register-email"
               type="email"
               required
               value={email}
@@ -107,8 +110,9 @@ export default function RegisterPage() {
             />
           </div>
           <div>
-            <label className="text-[13px] text-slate-500 font-medium mb-1 block">Ngày sinh</label>
+            <label htmlFor="register-dob" className="text-[13px] text-slate-500 font-medium mb-1 block">Ngày sinh</label>
             <input
+              id="register-dob"
               type="date"
               required
               value={dob}
@@ -117,8 +121,9 @@ export default function RegisterPage() {
             />
           </div>
           <div>
-            <label className="text-[13px] text-slate-500 font-medium mb-1 block">Mật khẩu</label>
+            <label htmlFor="register-password" className="text-[13px] text-slate-500 font-medium mb-1 block">Mật khẩu</label>
             <input
+              id="register-password"
               type="password"
               required
               minLength={8}
@@ -129,8 +134,9 @@ export default function RegisterPage() {
             />
           </div>
           <div>
-            <label className="text-[13px] text-slate-500 font-medium mb-1 block">Nhập lại mật khẩu</label>
+            <label htmlFor="register-confirm-password" className="text-[13px] text-slate-500 font-medium mb-1 block">Nhập lại mật khẩu</label>
             <input
+              id="register-confirm-password"
               type="password"
               required
               value={confirmPassword}

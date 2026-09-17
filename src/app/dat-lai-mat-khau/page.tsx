@@ -84,8 +84,9 @@ function ResetForm() {
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="text-[13px] text-slate-500 font-medium mb-1 block">Mật khẩu mới</label>
+              <label htmlFor="reset-password" className="text-[13px] text-slate-500 font-medium mb-1 block">Mật khẩu mới</label>
               <input
+                id="reset-password"
                 type="password"
                 required
                 value={password}
@@ -95,8 +96,9 @@ function ResetForm() {
               />
             </div>
             <div>
-              <label className="text-[13px] text-slate-500 font-medium mb-1 block">Nhập lại mật khẩu mới</label>
+              <label htmlFor="reset-password-confirm" className="text-[13px] text-slate-500 font-medium mb-1 block">Nhập lại mật khẩu mới</label>
               <input
+                id="reset-password-confirm"
                 type="password"
                 required
                 value={confirm}

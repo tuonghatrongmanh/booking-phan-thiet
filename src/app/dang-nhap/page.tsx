@@ -64,8 +64,9 @@ function LoginForm() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="text-[13px] text-slate-500 font-medium mb-1 block">Email</label>
+            <label htmlFor="login-email" className="text-[13px] text-slate-500 font-medium mb-1 block">Email</label>
             <input
+              id="login-email"
               type="email"
               required
               value={email}
@@ -76,12 +77,13 @@ function LoginForm() {
           </div>
           <div>
             <div className="flex items-center justify-between mb-1">
-              <label className="text-[13px] text-slate-500 font-medium block">Mật khẩu</label>
+              <label htmlFor="login-password" className="text-[13px] text-slate-500 font-medium block">Mật khẩu</label>
               <Link href="/quen-mat-khau" className="text-[12px] text-brand-blue font-semibold hover:underline">
                 Quên mật khẩu?
               </Link>
             </div>
             <input
+              id="login-password"
               type="password"
               required
               value={password}

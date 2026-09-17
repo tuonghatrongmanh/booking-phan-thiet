@@ -15,6 +15,19 @@ const handle = app.getRequestHandler();
 // gioi han do dai de tranh 1 client spam join vo so ten phong tuy y.
 const ROOM_RE = /^forum(-post)?:[a-zA-Z0-9_-]{1,80}$/;
 
+// Log ro loi truoc khi thoat - Node.js KHONG tu exit nua neu co listener rieng cho
+// "uncaughtException" (khac hanh vi mac dinh), nen phai goi process.exit() tay, neu
+// khong process se tiep tuc chay voi trang thai khong ro rang (nguy hiem hon la de
+// no crash that). unhandledRejection thi chi log, khong exit - 1 promise reject rieng
+// le (vd 1 query Prisma bi cold-start timeout) khong nen keo sap toan bo server.
+process.on("uncaughtException", (err) => {
+  console.error("[uncaughtException]", err);
+  process.exit(1);
+});
+process.on("unhandledRejection", (reason) => {
+  console.error("[unhandledRejection]", reason);
+});
+
 app.prepare().then(async () => {
   // Import dong (khong phai import tinh o dau file) - request-log.ts import prisma.ts,
   // ma prisma.ts khoi tao PrismaClient ngay luc module duoc nap dung process.env.DATABASE_URL.
