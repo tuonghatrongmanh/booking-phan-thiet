@@ -51,6 +51,11 @@ type PlaceInitial = {
   vehicleType?: string | null;
   priceHolidayVnd?: number | null;
   returnLocation?: string | null;
+  brand?: string | null;
+  engineCc?: number | null;
+  transmission?: string | null;
+  seats?: number | null;
+  badge?: string | null;
   coverImage?: string | null;
   roleTitle?: string | null;
   slogan?: string | null;
@@ -101,6 +106,11 @@ export default function PlaceForm({
   const [vehicleType, setVehicleType] = useState(initial?.vehicleType ?? "");
   const [priceHolidayVnd, setPriceHolidayVnd] = useState(initial?.priceHolidayVnd?.toString() ?? "");
   const [returnLocation, setReturnLocation] = useState(initial?.returnLocation ?? "");
+  const [brand, setBrand] = useState(initial?.brand ?? "");
+  const [engineCc, setEngineCc] = useState(initial?.engineCc?.toString() ?? "");
+  const [transmission, setTransmission] = useState(initial?.transmission ?? "");
+  const [seats, setSeats] = useState(initial?.seats?.toString() ?? "2");
+  const [badge, setBadge] = useState(initial?.badge ?? "");
   const [coverImage, setCoverImage] = useState(initial?.coverImage ?? "");
   const [roleTitle, setRoleTitle] = useState(initial?.roleTitle ?? "");
   const [slogan, setSlogan] = useState(initial?.slogan ?? "");
@@ -148,6 +158,11 @@ export default function PlaceForm({
       vehicleType: vehicleType === "" ? null : vehicleType,
       priceHolidayVnd: priceHolidayVnd.trim() === "" ? null : Number(priceHolidayVnd),
       returnLocation: returnLocation.trim() === "" ? null : returnLocation.trim(),
+      brand: brand === "" ? null : brand,
+      engineCc: engineCc.trim() === "" ? null : Number(engineCc),
+      transmission: transmission === "" ? null : transmission,
+      seats: seats.trim() === "" ? null : Number(seats),
+      badge: badge.trim() === "" ? null : badge.trim(),
       coverImage: coverImage.trim() === "" ? null : coverImage.trim(),
       roleTitle: roleTitle.trim() === "" ? null : roleTitle.trim(),
       slogan: slogan.trim() === "" ? null : slogan.trim(),
@@ -535,6 +550,76 @@ export default function PlaceForm({
               />
             </div>
           </div>
+        </div>
+
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+          <div>
+            <label className="text-[13px] text-slate-500 font-medium mb-1 block">Hãng xe</label>
+            <select
+              value={brand}
+              onChange={(e) => setBrand(e.target.value)}
+              className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-[15px] focus:outline-none focus:ring-2 focus:ring-brand-blue/40"
+            >
+              <option value="">— Chọn hãng —</option>
+              <option value="Honda">Honda</option>
+              <option value="Yamaha">Yamaha</option>
+              <option value="Suzuki">Suzuki</option>
+              <option value="SYM">SYM</option>
+              <option value="Khác">Khác</option>
+            </select>
+          </div>
+          <div>
+            <label className="text-[13px] text-slate-500 font-medium mb-1 block">Dung tích máy (cc)</label>
+            <input
+              type="number"
+              min={0}
+              value={engineCc}
+              onChange={(e) => setEngineCc(e.target.value)}
+              className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-[15px] focus:outline-none focus:ring-2 focus:ring-brand-blue/40"
+              placeholder="150"
+            />
+          </div>
+          <div>
+            <label className="text-[13px] text-slate-500 font-medium mb-1 block">Hộp số</label>
+            <select
+              value={transmission}
+              onChange={(e) => setTransmission(e.target.value)}
+              className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-[15px] focus:outline-none focus:ring-2 focus:ring-brand-blue/40"
+            >
+              <option value="">— Chọn —</option>
+              <option value="Tự động">Tự động</option>
+              <option value="Số 4 cấp">Số 4 cấp</option>
+              <option value="Số sàn">Số sàn</option>
+            </select>
+          </div>
+          <div>
+            <label className="text-[13px] text-slate-500 font-medium mb-1 block">Số người ngồi</label>
+            <input
+              type="number"
+              min={1}
+              max={4}
+              value={seats}
+              onChange={(e) => setSeats(e.target.value)}
+              className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-[15px] focus:outline-none focus:ring-2 focus:ring-brand-blue/40"
+            />
+          </div>
+        </div>
+
+        <div className="mb-4">
+          <label className="text-[13px] text-slate-500 font-medium mb-1 block">Nhãn nhỏ trên thẻ xe (không bắt buộc)</label>
+          <select
+            value={badge}
+            onChange={(e) => setBadge(e.target.value)}
+            className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-[15px] focus:outline-none focus:ring-2 focus:ring-brand-blue/40"
+          >
+            <option value="">— Không có —</option>
+            <option value="Xe đời mới">Xe đời mới</option>
+            <option value="Tiết kiệm xăng">Tiết kiệm xăng</option>
+            <option value="Giá tốt nhất">Giá tốt nhất</option>
+            <option value="Xe hot">Xe hot</option>
+            <option value="Bền bỉ">Bền bỉ</option>
+            <option value="Tiện lợi">Tiện lợi</option>
+          </select>
         </div>
 
         <div className="grid sm:grid-cols-2 gap-4 mb-4">

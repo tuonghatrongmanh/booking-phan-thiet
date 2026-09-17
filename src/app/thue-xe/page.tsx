@@ -3,13 +3,18 @@ import Footer from "@/components/home/Footer";
 import Reveal from "@/components/home/Reveal";
 import { prisma } from "@/lib/prisma";
 import { avgOf } from "@/lib/places";
+import RentalHero from "@/components/car-rental/RentalHero";
 import VehicleListClient from "@/components/car-rental/VehicleListClient";
+import RentalBenefits from "@/components/car-rental/RentalBenefits";
+import RentalSteps from "@/components/car-rental/RentalSteps";
+import RentalFAQ from "@/components/car-rental/RentalFAQ";
+import RentalCTA from "@/components/car-rental/RentalCTA";
 
 export const dynamic = "force-dynamic";
 
 export const metadata = {
   title: "Thuê xe máy Phan Thiết - Xe số, tay ga, Vision, SH giá tốt | Booking Phan Thiết",
-  description: "Thuê xe máy tại Phan Thiết - Mũi Né: xe số 50cc, xe tay ga, Vision, SH, giá ngày thường/ngày lễ rõ ràng, giao nhận tận nơi.",
+  description: "Thuê xe máy tại Phan Thiết - Mũi Né: xe số, xe tay ga, Vision, SH, giá ngày thường/ngày lễ rõ ràng, giao nhận tận nơi.",
 };
 
 export default async function ThueXePage() {
@@ -24,6 +29,11 @@ export default async function ThueXePage() {
     name: v.name,
     avatar: v.avatar,
     vehicleType: v.vehicleType,
+    brand: v.brand,
+    engineCc: v.engineCc,
+    transmission: v.transmission,
+    seats: v.seats,
+    badge: v.badge,
     priceFromVnd: v.priceFromVnd,
     priceHolidayVnd: v.priceHolidayVnd,
     availableRooms: v.availableRooms,
@@ -46,23 +56,29 @@ export default async function ThueXePage() {
     <div className="bg-slate-50 min-h-screen">
       <Header />
 
-      <section className="bg-brand-sky/40 py-10">
-        <div className="container-custom text-center max-w-2xl mx-auto">
-          <h1 className="font-display font-bold text-3xl text-slate-800 mb-2">Thuê xe máy Phan Thiết</h1>
-          <p className="text-slate-500 text-sm">
-            Xe số, xe tay ga, Vision, SH, cào cào... giá ngày thường/ngày lễ rõ ràng, giao nhận tận nơi
-          </p>
-        </div>
-      </section>
+      <RentalHero />
 
       <Reveal>
-        <section className="container-custom py-10">
+        <section className="max-w-[1200px] mx-auto px-4 py-8 sm:py-10">
           {vehicleData.length === 0 ? (
             <p className="text-center text-slate-400 py-16">Chưa có xe cho thuê nào.</p>
           ) : (
             <VehicleListClient vehicles={vehicleData} />
           )}
         </section>
+      </Reveal>
+
+      <Reveal>
+        <RentalBenefits />
+      </Reveal>
+      <Reveal>
+        <RentalSteps />
+      </Reveal>
+      <Reveal>
+        <RentalFAQ />
+      </Reveal>
+      <Reveal>
+        <RentalCTA />
       </Reveal>
 
       <Footer />

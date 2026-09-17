@@ -510,6 +510,11 @@ model Place {
   vehicleType     String? // "Xe so 50cc" | "Xe tay ga" | "Xe Vision" | "Xe cao cao" | "Xe SH" | tu do
   priceHolidayVnd Int? // gia thue ngay le/cuoi tuan, don vi VND (priceFromVnd dung lam gia ngay thuong)
   returnLocation  String? // dia diem tra xe - null nghia la giong dia diem nhan xe (truong address)
+  brand           String? // Honda/Yamaha/Suzuki/SYM... dung loc "Thuong hieu" o trang Thue xe
+  engineCc        Int? // dung tich xy-lanh, hien "150cc"
+  transmission    String? // "Tu dong" | "So 4 cap" | tu do - hien trong thong so xe
+  seats           Int?    @default(2)
+  badge           String? // nhan nho goc the (vd "Xe hot", "Gia tot nhat") - dung chung cho moi category, khong rieng CAR_RENTAL
 
   // null = chua noi voi Google Sheets nao, dung logic availableRooms/totalRooms cu nhu
   // truoc gio. Khac null = da dong bo tu mau o trong sheet cua chu so huu, UU TIEN hien
@@ -527,8 +532,37 @@ model Place {
   sheetMappings  SheetRowMapping[]
   videos         PlaceVideo[]
   standing       SaleStanding?
+  rentalInquiries RentalInquiry[]
 
   @@index([category, status])
+}
+
+// Yeu cau thue xe khach gui tu widget "Dat thue" o trang /thue-xe (category CAR_RENTAL).
+// KHONG phai don dat cho tu dong xac nhan thuc su (khong co he thong tinh trang lich
+// theo ngay) - day la 1 "lead" de nhan vien lien he lai xac nhan, giong luong Redemption
+// (admin xu ly thu cong, khong tu dong giao dich).
+model RentalInquiry {
+  id             String   @id @default(cuid())
+  place          Place    @relation(fields: [placeId], references: [id], onDelete: Cascade)
+  placeId        String
+  customerName   String
+  customerPhone  String
+  pickupDate     DateTime
+  returnDate     DateTime
+  pickupLocation String?
+  note           String?  @db.Text
+  status         RentalInquiryStatus @default(PENDING)
+  createdAt      DateTime @default(now())
+
+  @@index([placeId])
+  @@index([status])
+}
+
+enum RentalInquiryStatus {
+  PENDING
+  CONTACTED
+  DONE
+  CANCELLED
 }
 
 // Video TikTok gioi thieu cua 1 Sale uy tin (category = SALE) - toi da 6, gioi han xu
