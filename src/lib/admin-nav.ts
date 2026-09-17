@@ -13,6 +13,7 @@ export function isGroup(item: NavEntry): item is NavGroup {
 // breadcrumb, khong lap du lieu 2 noi.
 export const NAV: NavEntry[] = [
   { href: "/admin", label: "Tổng quan", icon: "M4 13h6V4H4v9zm0 7h6v-5H4v5zm10 0h6V11h-6v9zm0-16v5h6V4h-6z" },
+  { href: "/admin/messages", label: "Tin nhắn", icon: "M4 4h16v16H4zM4 4l8 8 8-8" },
   { href: "/admin/news", label: "Tin tức", icon: "M4 4h16v16H4zM8 8h8M8 12h8M8 16h5" },
   {
     label: "Lưu trú",
@@ -95,6 +96,7 @@ export function findBreadcrumbLabel(pathname: string): string {
 // ly rieng (Tong quan: chi SuperAdmin; con lai: hien tai chi SuperAdmin dung, chua
 // cap cho nhan vien).
 export const HREF_TO_SECTION: Record<string, import("@/lib/admin-permissions").SectionKey> = {
+  "/admin/messages": "staff-messages",
   "/admin/news": "tin-tuc",
   "/admin/luu-tru": "luu-tru-settings",
   "/admin/places": "homestay",

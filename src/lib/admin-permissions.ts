@@ -43,6 +43,7 @@ export const SECTION_LABELS = {
   "forum-comments": "Kiểm duyệt bình luận",
   settings: "Cài đặt",
   "guide-videos": "Video hướng dẫn",
+  "staff-messages": "Tin nhắn",
 } as const;
 
 export type SectionKey = keyof typeof SECTION_LABELS;
@@ -84,6 +85,7 @@ export const DEFAULT_STAFF_PERMISSIONS: AdminPermissions = {
   "forum-comments": { access: true, create: "direct", edit: "direct", delete: "none", hide: "none" },
   settings: { access: true, create: "direct", edit: "direct", delete: "none", hide: "none" },
   "guide-videos": { access: true, create: "direct", edit: "direct", delete: "none", hide: "none" },
+  "staff-messages": { access: true, create: "none", edit: "none", delete: "none", hide: "none" },
 };
 
 export function getSectionPermission(permissions: AdminPermissions | null | undefined, section: SectionKey): SectionPermission {

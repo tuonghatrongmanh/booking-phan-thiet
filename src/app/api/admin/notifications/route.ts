@@ -7,12 +7,13 @@ import { requireAdmin } from "@/lib/require-admin";
 // doc/chua doc trong DB (chua co bang rieng) - client tu theo doi qua localStorage
 // bang cach so sanh id/thoi gian moi nhat da xem.
 export async function GET() {
-  const { error } = await requireAdmin();
+  const { session, error } = await requireAdmin();
   if (error) return error;
+  const adminId = (session!.user as { id: string }).id;
 
   const since = new Date(Date.now() - 24 * 60 * 60 * 1000);
 
-  const [alerts, newUsers, newComments] = await Promise.all([
+  const [alerts, newUsers, newComments, unreadMessages] = await Promise.all([
     prisma.requestLog.findMany({
       where: { suspicious: true, createdAt: { gte: since } },
       orderBy: { createdAt: "desc" },
@@ -30,6 +31,12 @@ export async function GET() {
       orderBy: { createdAt: "desc" },
       take: 5,
       select: { id: true, createdAt: true, author: { select: { name: true } } },
+    }),
+    prisma.adminMessage.findMany({
+      where: { toAdminId: adminId, read: false },
+      orderBy: { createdAt: "desc" },
+      take: 5,
+      select: { id: true, message: true, createdAt: true, fromAdmin: { select: { name: true } } },
     }),
   ]);
 
@@ -57,6 +64,14 @@ export async function GET() {
       description: `${c.author.name} vừa bình luận trên diễn đàn`,
       href: "/admin/forum-comments",
       createdAt: c.createdAt,
+    })),
+    ...unreadMessages.map((m) => ({
+      id: `message-${m.id}`,
+      type: "message" as const,
+      title: `Tin nhắn từ ${m.fromAdmin.name}`,
+      description: m.message,
+      href: "/admin/messages",
+      createdAt: m.createdAt,
     })),
   ].sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
 

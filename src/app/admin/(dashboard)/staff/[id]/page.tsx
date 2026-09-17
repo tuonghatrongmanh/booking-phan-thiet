@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import StaffPermissionsEditor from "@/components/admin/StaffPermissionsEditor";
 import StaffActivityPanel from "@/components/admin/StaffActivityPanel";
 import PasswordResetCard from "@/components/admin/PasswordResetCard";
+import StaffMessageCard from "@/components/admin/StaffMessageCard";
 import type { AdminPermissions } from "@/lib/admin-permissions";
 
 type Params = { params: Promise<{ id: string }> };
@@ -12,6 +13,12 @@ export default async function StaffDetailPage({ params }: Params) {
   const staff = await prisma.admin.findUnique({ where: { id } });
   if (!staff || staff.role === "SUPER_ADMIN") notFound();
 
+  const messageHistory = await prisma.adminMessage.findMany({
+    where: { toAdminId: staff.id },
+    orderBy: { createdAt: "desc" },
+    take: 20,
+  });
+
   return (
     <div className="space-y-6">
       <div>
@@ -20,6 +27,11 @@ export default async function StaffDetailPage({ params }: Params) {
       </div>
 
       <PasswordResetCard resetUrl={`/api/admin/staff/${staff.id}/reset-password`} label="nhân viên này" />
+
+      <StaffMessageCard
+        staffId={staff.id}
+        history={messageHistory.map((m) => ({ id: m.id, message: m.message, read: m.read, createdAt: m.createdAt.toISOString() }))}
+      />
 
       <StaffActivityPanel staffId={staff.id} />
 

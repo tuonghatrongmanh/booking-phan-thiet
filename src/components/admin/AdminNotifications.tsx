@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 
 type NotificationItem = {
   id: string;
-  type: "warning" | "system" | "unread" | "important";
+  type: "warning" | "system" | "unread" | "important" | "message";
   title: string;
   description: string;
   href: string;
@@ -17,6 +17,7 @@ const TYPE_DOT: Record<NotificationItem["type"], string> = {
   system: "bg-brand-green",
   unread: "bg-amber-400",
   important: "bg-brand-purple",
+  message: "bg-brand-blue",
 };
 
 const SEEN_KEY = "bpt_admin_notifications_seen_at";
