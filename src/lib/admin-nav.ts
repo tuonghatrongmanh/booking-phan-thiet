@@ -48,6 +48,7 @@ export const NAV: NavEntry[] = [
       { href: "/admin/banners", label: "Banner", icon: "M3 5h18v14H3zM3 9h18M8 5v4" },
       { href: "/admin/brand-logos", label: "Thương hiệu đối tác", icon: "M12 2l2.9 6 6.6.9-4.8 4.6 1.1 6.5L12 16.9 6.2 20l1.1-6.5L2.5 8.9l6.6-.9z" },
       { href: "/admin/popups", label: "Pop-up", icon: "M4 4h16v12H8l-4 4z" },
+      { href: "/admin/activity-samples", label: "Hoạt động minh họa", icon: "M13 10V3L4 14h7v7l9-11h-7z" },
     ],
   },
   {
@@ -96,6 +97,7 @@ export function findBreadcrumbLabel(pathname: string): string {
 // ly rieng (Tong quan: chi SuperAdmin; con lai: hien tai chi SuperAdmin dung, chua
 // cap cho nhan vien).
 export const HREF_TO_SECTION: Record<string, import("@/lib/admin-permissions").SectionKey> = {
+  "/admin/activity-samples": "activity-samples",
   "/admin/messages": "staff-messages",
   "/admin/news": "tin-tuc",
   "/admin/luu-tru": "luu-tru-settings",

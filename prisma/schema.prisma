@@ -365,6 +365,24 @@ model BrandLogo {
 
 // Popup anh hien giua man hinh khi khach vao website lan dau (moi phien trinh
 // duyet) - co nut dong. Admin bat/tat bang 1 nut trong danh sach, khong can vao form.
+// Cac muc "vi du minh hoa" cho widget "hoat dong gan day" o trang chu - admin tu viet
+// toan bo noi dung (ten + hanh dong) de chu dong ve marketing, KHONG tu dong sinh tu du
+// lieu thuc. Widget tron chung voi hoat dong THAT (danh gia/trung xu/doi thuong...),
+// thoi gian hien thi luon tinh lai la "gan day" moi lan tai trang (xem src/lib/recent-activity-feed.ts).
+model ActivitySample {
+  id        String   @id @default(cuid())
+  name      String
+  avatar    String?
+  action    String // vd: "vừa book xe Honda Vision tại Mũi Né"
+  icon      String   @default("fa-solid fa-bell")
+  active    Boolean  @default(true)
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([active, sortOrder])
+}
+
 model Popup {
   id        String   @id @default(cuid())
   title     String?

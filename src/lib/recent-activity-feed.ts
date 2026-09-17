@@ -4,7 +4,8 @@ export type ActivityItem = {
   id: string;
   icon: string;
   avatar: string;
-  text: string;
+  name: string;
+  action: string;
   createdAt: Date;
 };
 
@@ -32,92 +33,28 @@ function maskName(name: string): string {
   return `${parts[0]} ${rest}`;
 }
 
-// Widget "hoat dong gan day" tren trang chu can NHIEU va SOI DONG - nhung du lieu that
-// (danh gia/trung xu/doi thuong/dang bai/thanh vien moi) hien khong du day de tao cam
-// giac song dong lien tuc. Theo yeu cau cua chu web (da duoc giai thich ro va dong y):
-// tron them cac muc "minh hoa" (ten khach la vi du, KHONG phai nguoi thuc) nhung LUON
-// dung ten dia diem/mon an/tin tuc THAT tu database - khong bao gio bia thong tin ve
-// noi dung, chi minh hoa THEM nguoi mua/xem, giong cach nhieu trang dat phong/TMDT lon
-// (Booking.com, Agoda...) van lam de tao hieu ung xa hoi.
-const SAMPLE_NAMES = [
-  "Minh Anh",
-  "Gia Hân",
-  "Đức Thắng",
-  "Thanh Trúc",
-  "Hoàng Nam",
-  "Bảo Ngọc",
-  "Quang Huy",
-  "Thảo My",
-  "Việt Dũng",
-  "Ngọc Diệp",
-  "Anh Tuấn",
-  "Kim Ngân",
-  "Phương Linh",
-  "Tấn Phát",
-  "Mai Chi",
-];
-
-function sampleName(seed: number): string {
-  return pick(SAMPLE_NAMES, seed);
-}
-
 function relativeMinutesAgo(minutes: number): Date {
   return new Date(Date.now() - minutes * 60_000);
 }
 
+// Nguon MINH HOA: admin tu viet toan bo noi dung (xem /admin/activity-samples) - dung
+// khi du lieu THAT chua du nhieu de widget luon soi dong. Thoi gian LUON tinh lai la
+// "vua moi" moi lan tai trang (khong luu ngay co dinh trong DB) de khong bao gio bi cu.
 async function getIllustrativeItems(limit: number): Promise<ActivityItem[]> {
-  const [news, carRentals, homestays, foods] = await Promise.all([
-    prisma.news.findMany({ where: { published: true }, orderBy: { createdAt: "desc" }, take: limit, select: { id: true, title: true } }),
-    prisma.place.findMany({ where: { category: "CAR_RENTAL" }, take: limit, select: { id: true, name: true } }),
-    prisma.place.findMany({ where: { category: "HOMESTAY" }, take: limit, select: { id: true, name: true } }),
-    prisma.food.findMany({ where: { active: true }, take: limit, select: { id: true, name: true } }),
-  ]);
+  const samples = await prisma.activitySample.findMany({
+    where: { active: true },
+    orderBy: { sortOrder: "asc" },
+    take: limit,
+  });
 
-  const items: ActivityItem[] = [];
-  let seed = Math.floor(Math.random() * 1000);
-
-  for (const n of news) {
-    seed++;
-    items.push({
-      id: `sample-news-${n.id}`,
-      icon: "fa-solid fa-newspaper",
-      avatar: pick(STOCK_AVATARS, seed),
-      text: `${sampleName(seed)} vừa xem tin "${n.title}"`,
-      createdAt: relativeMinutesAgo(1 + (seed % 30)),
-    });
-  }
-  for (const c of carRentals) {
-    seed++;
-    items.push({
-      id: `sample-car-${c.id}`,
-      icon: "fa-solid fa-motorcycle",
-      avatar: pick(STOCK_AVATARS, seed),
-      text: `${sampleName(seed)} vừa thuê xe tại ${c.name}`,
-      createdAt: relativeMinutesAgo(1 + (seed % 30)),
-    });
-  }
-  for (const h of homestays) {
-    seed++;
-    items.push({
-      id: `sample-stay-${h.id}`,
-      icon: "fa-solid fa-house",
-      avatar: pick(STOCK_AVATARS, seed),
-      text: `${sampleName(seed)} vừa tham khảo đặt phòng tại ${h.name}`,
-      createdAt: relativeMinutesAgo(1 + (seed % 30)),
-    });
-  }
-  for (const f of foods) {
-    seed++;
-    items.push({
-      id: `sample-food-${f.id}`,
-      icon: "fa-solid fa-utensils",
-      avatar: pick(STOCK_AVATARS, seed),
-      text: `${sampleName(seed)} vừa tham khảo món "${f.name}"`,
-      createdAt: relativeMinutesAgo(1 + (seed % 30)),
-    });
-  }
-
-  return items;
+  return samples.map((s, i) => ({
+    id: `sample-${s.id}`,
+    icon: s.icon,
+    avatar: s.avatar || pick(STOCK_AVATARS, i),
+    name: s.name,
+    action: s.action,
+    createdAt: relativeMinutesAgo(1 + ((i * 7) % 45)),
+  }));
 }
 
 // Nguon THAT: danh gia/trung xu/doi thuong/bai dang dien dan/thanh vien moi - tat ca
@@ -157,21 +94,24 @@ async function getRealItems(limit: number): Promise<ActivityItem[]> {
       id: `review-${r.id}`,
       icon: "fa-solid fa-star",
       avatar: r.user.avatar || "/images/avatar-world.png",
-      text: `${maskName(r.user.name)} vừa đánh giá ${r.rating}★ cho ${r.place.name}`,
+      name: maskName(r.user.name),
+      action: `vừa đánh giá ${r.rating}★ cho ${r.place.name}`,
       createdAt: r.createdAt,
     })),
     ...plays.map((p) => ({
       id: `play-${p.id}`,
       icon: "fa-solid fa-coins",
       avatar: p.user.avatar || "/images/avatar-world.png",
-      text: `${maskName(p.user.name)} vừa trúng ${p.coinsWon} xu ở ${p.game.name}`,
+      name: maskName(p.user.name),
+      action: `vừa trúng ${p.coinsWon} xu ở ${p.game.name}`,
       createdAt: p.playedAt,
     })),
     ...redemptions.map((rd) => ({
       id: `redeem-${rd.id}`,
       icon: "fa-solid fa-gift",
       avatar: rd.user.avatar || "/images/avatar-world.png",
-      text: `${maskName(rd.user.name)} vừa đổi "${rd.reward.name}"`,
+      name: maskName(rd.user.name),
+      action: `vừa đổi "${rd.reward.name}"`,
       createdAt: rd.createdAt,
     })),
     ...posts
@@ -180,14 +120,16 @@ async function getRealItems(limit: number): Promise<ActivityItem[]> {
         id: `post-${p.id}`,
         icon: "fa-solid fa-comment-dots",
         avatar: p.authorUser!.avatar || "/images/avatar-world.png",
-        text: `${maskName(p.authorUser!.name)} vừa đăng bài trên Cộng đồng Phan Thiết`,
+        name: maskName(p.authorUser!.name),
+        action: `vừa đăng bài trên Cộng đồng Phan Thiết`,
         createdAt: p.createdAt,
       })),
     ...newUsers.map((u, i) => ({
       id: `newuser-${u.createdAt.getTime()}-${i}`,
       icon: "fa-solid fa-user-plus",
       avatar: u.avatar || "/images/avatar-world.png",
-      text: `${maskName(u.name)} vừa tham gia Booking Phan Thiết`,
+      name: maskName(u.name),
+      action: `vừa tham gia Booking Phan Thiết`,
       createdAt: u.createdAt,
     })),
   ];

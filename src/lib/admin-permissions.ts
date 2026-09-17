@@ -44,6 +44,7 @@ export const SECTION_LABELS = {
   settings: "Cài đặt",
   "guide-videos": "Video hướng dẫn",
   "staff-messages": "Tin nhắn",
+  "activity-samples": "Hoạt động minh họa",
 } as const;
 
 export type SectionKey = keyof typeof SECTION_LABELS;
@@ -86,6 +87,7 @@ export const DEFAULT_STAFF_PERMISSIONS: AdminPermissions = {
   settings: { access: true, create: "direct", edit: "direct", delete: "none", hide: "none" },
   "guide-videos": { access: true, create: "direct", edit: "direct", delete: "none", hide: "none" },
   "staff-messages": { access: true, create: "none", edit: "none", delete: "none", hide: "none" },
+  "activity-samples": { access: true, create: "direct", edit: "direct", delete: "direct", hide: "none" },
 };
 
 export function getSectionPermission(permissions: AdminPermissions | null | undefined, section: SectionKey): SectionPermission {
