@@ -73,6 +73,7 @@ export const NAV: NavEntry[] = [
   { href: "/admin/sheet-sync", label: "Đồng bộ Google Sheets", icon: "M9 17h6M9 13h6M9 9h1M4 4h16v16H4zM4 9h16" },
   { href: "/admin/forum", label: "Diễn đàn", icon: "M21 11.5a8.5 8.5 0 0 1-8.5 8.5c-1.4 0-2.7-.3-3.9-.9L3 20l1-5.5A8.5 8.5 0 1 1 21 11.5z" },
   { href: "/admin/forum-comments", label: "Kiểm duyệt bình luận", icon: "M8 10h8M8 14h5M21 12c0 4.4-4 8-9 8-1.3 0-2.5-.2-3.6-.7L3 21l1.8-4.2A7.9 7.9 0 0 1 3 12c0-4.4 4-8 9-8s9 3.6 9 8z" },
+  { href: "/admin/user-reviews", label: "Kiểm duyệt đánh giá", icon: "M11.48 3.5a.56.56 0 0 1 1.04 0l2.13 5.11a.56.56 0 0 0 .48.35l5.52.44c.5.04.7.66.32.99l-4.2 3.6a.56.56 0 0 0-.18.56l1.28 5.39a.56.56 0 0 1-.84.61l-4.73-2.89a.56.56 0 0 0-.58 0l-4.73 2.89a.56.56 0 0 1-.84-.61l1.28-5.39a.56.56 0 0 0-.18-.56l-4.2-3.6a.56.56 0 0 1 .32-.99l5.52-.44a.56.56 0 0 0 .48-.35L11.48 3.5z" },
   { href: "/admin/guide-videos", label: "Video hướng dẫn", icon: "M14.752 11.168l-3.197-2.132A1 1 0 0 0 10 9.87v4.263a1 1 0 0 0 1.555.832l3.197-2.132a1 1 0 0 0 0-1.664z M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z" },
   { href: "/admin/users", label: "Thành viên", icon: "M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" },
   { href: "/admin/password-reset-requests", label: "Yêu cầu đặt lại mật khẩu", icon: "M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0 0v3m-6-3a6 6 0 1 1 12 0M5 21h14" },
@@ -145,6 +146,7 @@ export const HREF_TO_SECTION: Record<string, import("@/lib/admin-permissions").S
   "/admin/password-reset-requests": "password-reset-requests",
   "/admin/rental-inquiries": "car-rentals",
   "/admin/forum-comments": "forum-comments",
+  "/admin/user-reviews": "forum-comments",
   "/admin/settings": "settings",
   "/admin/guide-videos": "guide-videos",
 };

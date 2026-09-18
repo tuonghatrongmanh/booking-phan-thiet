@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getActor } from "@/lib/auth-actor";
 import { rateLimit } from "@/lib/rate-limit";
+import { getClientIp } from "@/lib/request-log";
+import { checkReviewAllowed, alertIfReviewBurst } from "@/lib/review-guard";
 import { z } from "zod";
 
 const schema = z.object({
@@ -34,6 +36,14 @@ export async function POST(req: NextRequest, { params }: Params) {
   const food = await prisma.food.findUnique({ where: { id }, select: { id: true } });
   if (!food) return NextResponse.json({ error: "Không tìm thấy món ăn" }, { status: 404 });
 
+  const guard = await checkReviewAllowed({
+    kind: "food",
+    targetId: id,
+    userId: actor.id,
+    ip: getClientIp(Object.fromEntries(req.headers.entries())),
+  });
+  if (!guard.ok) return NextResponse.json({ error: guard.error }, { status: guard.status });
+
   const review = await prisma.foodReview.create({
     data: {
       foodId: id,
@@ -45,5 +55,6 @@ export async function POST(req: NextRequest, { params }: Params) {
     include: { user: { select: { name: true, avatar: true } }, images: true },
   });
 
+  void alertIfReviewBurst("food", id, review.rating);
   return NextResponse.json(review, { status: 201 });
 }

@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getActor } from "@/lib/auth-actor";
 import { rateLimit } from "@/lib/rate-limit";
+import { getClientIp } from "@/lib/request-log";
+import { checkReviewAllowed, alertIfReviewBurst } from "@/lib/review-guard";
 import { z } from "zod";
 import { recalcSalePoints } from "@/lib/sale-points-server";
 
@@ -36,6 +38,14 @@ export async function POST(req: NextRequest, { params }: Params) {
   const place = await prisma.place.findUnique({ where: { id }, select: { id: true } });
   if (!place) return NextResponse.json({ error: "Không tìm thấy địa điểm" }, { status: 404 });
 
+  const guard = await checkReviewAllowed({
+    kind: "place",
+    targetId: id,
+    userId: actor.id,
+    ip: getClientIp(Object.fromEntries(req.headers.entries())),
+  });
+  if (!guard.ok) return NextResponse.json({ error: guard.error }, { status: guard.status });
+
   const review = await prisma.placeReview.create({
     data: {
       placeId: id,
@@ -48,5 +58,6 @@ export async function POST(req: NextRequest, { params }: Params) {
   });
 
   void recalcSalePoints(id).catch(() => {});
+  void alertIfReviewBurst("place", id, review.rating);
   return NextResponse.json(review, { status: 201 });
 }

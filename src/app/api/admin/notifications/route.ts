@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/require-admin";
+import { findReviewBursts } from "@/lib/review-guard";
 
 // GET /api/admin/notifications - gop cac su kien that gan day thanh 1 danh sach thong
 // bao (canh bao bao mat, thanh vien moi, binh luan moi). Khong luu trang thai da
@@ -13,7 +14,7 @@ export async function GET() {
 
   const since = new Date(Date.now() - 24 * 60 * 60 * 1000);
 
-  const [alerts, newUsers, newComments, unreadMessages] = await Promise.all([
+  const [alerts, newUsers, newComments, unreadMessages, reviewBursts] = await Promise.all([
     prisma.requestLog.findMany({
       where: { suspicious: true, createdAt: { gte: since } },
       orderBy: { createdAt: "desc" },
@@ -38,9 +39,18 @@ export async function GET() {
       take: 5,
       select: { id: true, message: true, createdAt: true, fromAdmin: { select: { name: true } } },
     }),
+    findReviewBursts(),
   ]);
 
   const items = [
+    ...reviewBursts.map((b) => ({
+      id: `review-burst-${b.kind}-${b.targetId}`,
+      type: "warning" as const,
+      title: "Nghi bão đánh giá xấu",
+      description: `"${b.name}" nhận ${b.count} đánh giá ≤2★ trong 24 giờ`,
+      href: "/admin/user-reviews",
+      createdAt: b.latestAt,
+    })),
     ...alerts.map((a) => ({
       id: `alert-${a.id}`,
       type: "warning" as const,
