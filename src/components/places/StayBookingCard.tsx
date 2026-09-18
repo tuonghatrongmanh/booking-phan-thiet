@@ -2,17 +2,19 @@
 
 import { useState } from "react";
 import { formatPriceVnd } from "@/lib/place-amenities";
-import StayBookingModal from "@/components/places/StayBookingModal";
+import StayBookingModal, { type StayBookingConfig } from "@/components/places/StayBookingModal";
 
 export default function StayBookingCard({
   placeId,
   placeName,
+  booking,
   priceFromVnd,
   phone,
   zaloUrl,
 }: {
   placeId: string;
   placeName: string;
+  booking: StayBookingConfig;
   priceFromVnd: number | null;
   phone: string | null;
   zaloUrl: string | null;
@@ -103,6 +105,7 @@ export default function StayBookingCard({
         <StayBookingModal
           placeId={placeId}
           placeName={placeName}
+          booking={booking}
           priceFromVnd={priceFromVnd}
           phone={phone}
           initialCheckin={checkin || undefined}

@@ -44,6 +44,7 @@ type PlaceInitial = {
   amenities?: string[] | null;
   petFriendly?: boolean;
   totalRooms?: number | null;
+  depositVnd?: number | null;
   availableRooms?: number | null;
   mapEmbedUrl?: string | null;
   videoUrl?: string | null;
@@ -99,6 +100,7 @@ export default function PlaceForm({
   const [amenities, setAmenities] = useState<string[]>(initial?.amenities ?? []);
   const [petFriendly, setPetFriendly] = useState(initial?.petFriendly ?? false);
   const [totalRooms, setTotalRooms] = useState(initial?.totalRooms?.toString() ?? "");
+  const [depositVnd, setDepositVnd] = useState(initial?.depositVnd?.toString() ?? "");
   const [availableRooms, setAvailableRooms] = useState(initial?.availableRooms?.toString() ?? "");
   const [mapEmbedUrl, setMapEmbedUrl] = useState(initial?.mapEmbedUrl ?? "");
   const [videoUrl, setVideoUrl] = useState(initial?.videoUrl ?? "");
@@ -151,6 +153,7 @@ export default function PlaceForm({
       amenities,
       petFriendly,
       totalRooms: totalRooms.trim() === "" ? null : Number(totalRooms),
+      depositVnd: depositVnd.trim() === "" ? null : Number(depositVnd),
       availableRooms: availableRooms.trim() === "" ? null : Number(availableRooms),
       mapEmbedUrl: mapEmbedUrl.trim() === "" ? null : mapEmbedUrl.trim(),
       videoUrl: videoUrl.trim() === "" ? null : extractYoutubeId(videoUrl),
@@ -429,6 +432,19 @@ export default function PlaceForm({
           </div>
         </div>
 
+        <div className="mb-4">
+          <label className="text-[13px] text-slate-500 font-medium mb-1 block">Tiền cọc cả chỗ ở (VNĐ) - chỉ dùng khi CHƯA tạo gói phòng</label>
+          <input
+            type="number"
+            min={0}
+            value={depositVnd}
+            onChange={(e) => setDepositVnd(e.target.value)}
+            className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-[15px] focus:outline-none focus:ring-2 focus:ring-brand-blue/40"
+            placeholder="300000"
+          />
+          <p className="text-xs text-slate-400 mt-1">Muốn cọc khác nhau cho phòng đơn / phòng đôi / nguyên căn thì tạo các "Gói đặt phòng" ở khối bên dưới (sau khi lưu). Để trống = dùng mức mặc định trong Cài đặt.</p>
+        </div>
+
         <div>
           <label className="text-[13px] text-slate-500 font-medium mb-1 block">Link nhúng Google Maps</label>
           <input
@@ -645,6 +661,19 @@ export default function PlaceForm({
               placeholder="150000"
             />
           </div>
+        </div>
+
+        <div className="mb-4">
+          <label className="text-[13px] text-slate-500 font-medium mb-1 block">Tiền cọc giữ chỗ MỖI XE (VNĐ)</label>
+          <input
+            type="number"
+            min={0}
+            value={depositVnd}
+            onChange={(e) => setDepositVnd(e.target.value)}
+            className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-[15px] focus:outline-none focus:ring-2 focus:ring-brand-blue/40"
+            placeholder="100000"
+          />
+          <p className="text-xs text-slate-400 mt-1">Khách đặt nhiều xe thì cọc = số này x số xe. Để trống = dùng mức mặc định trong Cài đặt → Thanh toán đặt cọc. Số xe cùng mẫu cho thuê cùng lúc lấy từ ô Tổng số phía trên.</p>
         </div>
 
         <div className="mb-4">

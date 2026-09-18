@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireSectionAccess, requireCreateOrEdit } from "@/lib/admin-action";
+import { emailBookingCancelled } from "@/lib/booking-notify";
+import { summaryFromRental } from "@/lib/booking-summary";
 import { z } from "zod";
 
 const schema = z.object({
@@ -22,10 +24,19 @@ export async function PATCH(req: NextRequest, { params }: Params) {
     return NextResponse.json({ error: "Dữ liệu không hợp lệ" }, { status: 400 });
   }
 
+  const existing = await prisma.rentalInquiry.findUnique({ where: { id }, select: { status: true } });
+  if (!existing) return NextResponse.json({ error: "Không tìm thấy đơn" }, { status: 404 });
+
   const inquiry = await prisma.rentalInquiry.update({
     where: { id },
     data: { status: parsed.data.status },
+    include: { place: { select: { name: true } } },
   });
+
+  // Báo cho khách khi đơn bị huỷ (đơn huỷ cũng không còn giữ xe - xem booking-availability.ts)
+  if (parsed.data.status === "CANCELLED" && existing.status !== "CANCELLED") {
+    void emailBookingCancelled(summaryFromRental(inquiry));
+  }
 
   return NextResponse.json({ item: inquiry });
 }

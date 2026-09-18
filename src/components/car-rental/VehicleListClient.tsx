@@ -21,6 +21,8 @@ export type VehicleData = {
   priceHolidayVnd: number | null;
   availableRooms: number | null;
   totalRooms: number | null;
+  depositVnd: number; // tiền cọc giữ chỗ MỖI xe (đã gộp mặc định trong Cài đặt)
+  depositEnabled: boolean; // admin đã cấu hình tài khoản nhận cọc chưa
   availabilityStatus: AvailabilityStatusKey | null;
   createdAt: string;
   ratingAverage: number;

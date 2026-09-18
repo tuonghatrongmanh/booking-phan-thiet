@@ -26,7 +26,7 @@ export async function GET() {
 
   const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
 
-  const [redemptions, rentalInquiries] = await Promise.all([
+  const [redemptions, rentalInquiries, stayInquiries] = await Promise.all([
     prisma.redemption.findMany({
       where: { userId: actor.id, status: { in: ["FULFILLED", "CANCELLED"] }, updatedAt: { gte: since } },
       orderBy: { updatedAt: "desc" },
@@ -34,7 +34,21 @@ export async function GET() {
       include: { reward: { select: { name: true } } },
     }),
     prisma.rentalInquiry.findMany({
-      where: { userId: actor.id, status: { in: ["CONTACTED", "DONE", "CANCELLED"] }, updatedAt: { gte: since } },
+      where: {
+        userId: actor.id,
+        updatedAt: { gte: since },
+        OR: [{ status: { in: ["CONTACTED", "DONE", "CANCELLED"] } }, { depositStatus: "PAID" }],
+      },
+      orderBy: { updatedAt: "desc" },
+      take: 15,
+      include: { place: { select: { name: true } } },
+    }),
+    prisma.stayBookingInquiry.findMany({
+      where: {
+        userId: actor.id,
+        updatedAt: { gte: since },
+        OR: [{ status: { in: ["CONTACTED", "DONE", "CANCELLED"] } }, { depositStatus: "PAID" }],
+      },
       orderBy: { updatedAt: "desc" },
       take: 15,
       include: { place: { select: { name: true } } },
@@ -53,13 +67,32 @@ export async function GET() {
   const rentalItems = rentalInquiries.map((r) => ({
     id: `rental:${r.id}`,
     type: r.status === "DONE" ? ("system" as const) : r.status === "CANCELLED" ? ("warning" as const) : ("unread" as const),
-    title: RENTAL_STATUS_LABEL[r.status] ?? "Cập nhật yêu cầu thuê xe",
+    title:
+      r.status === "CANCELLED" || r.status === "DONE" || r.status === "CONTACTED"
+        ? (RENTAL_STATUS_LABEL[r.status] ?? "Cập nhật yêu cầu thuê xe")
+        : "Đã nhận cọc - giữ xe thành công",
     description: r.place.name,
-    href: "/thue-xe",
+    href: r.depositRef ? `/tra-cuu-dat-cho?ref=${r.depositRef}` : "/thue-xe",
     createdAt: r.updatedAt,
   }));
 
-  const items = [...redemptionItems, ...rentalItems].sort(
+  const stayItems = stayInquiries.map((r) => ({
+    id: `stay:${r.id}`,
+    type: r.status === "DONE" || r.depositStatus === "PAID" ? ("system" as const) : r.status === "CANCELLED" ? ("warning" as const) : ("unread" as const),
+    title:
+      r.status === "CANCELLED"
+        ? "Yêu cầu đặt phòng đã bị huỷ"
+        : r.status === "DONE"
+          ? "Chuyến lưu trú đã hoàn tất"
+          : r.status === "CONTACTED"
+            ? "Yêu cầu đặt phòng đã được liên hệ xác nhận"
+            : "Đã nhận cọc - giữ phòng thành công",
+    description: r.place.name,
+    href: r.depositRef ? `/tra-cuu-dat-cho?ref=${r.depositRef}` : `/luu-tru/${r.placeId}`,
+    createdAt: r.updatedAt,
+  }));
+
+  const items = [...redemptionItems, ...rentalItems, ...stayItems].sort(
     (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
   );
 

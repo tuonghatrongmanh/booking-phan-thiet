@@ -27,6 +27,7 @@ const updateSchema = z.object({
   amenities: z.array(z.string()).optional(),
   petFriendly: z.boolean().optional(),
   totalRooms: z.number().int().nonnegative().nullable().optional(),
+  depositVnd: z.number().int().min(10_000).max(50_000_000).nullable().optional(),
   availableRooms: z.number().int().nonnegative().nullable().optional(),
   mapEmbedUrl: z.string().nullable().optional(),
   videoUrl: z.string().trim().regex(/^[A-Za-z0-9_-]{6,20}$/, "Video ID không hợp lệ").nullable().optional().or(z.literal("")),

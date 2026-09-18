@@ -31,6 +31,8 @@ export default function VehicleBookingModal({ vehicle, onClose }: { vehicle: Veh
   const [pickupLocation, setPickupLocation] = useState(vehicle.address ?? "");
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
+  const [quantity, setQuantity] = useState(1);
   const [note, setNote] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
@@ -50,7 +52,9 @@ export default function VehicleBookingModal({ vehicle, onClose }: { vehicle: Veh
   }, [onClose]);
 
   const days = Math.max(1, diffDays(pickupDate, returnDate) || 1);
-  const total = useMemo(() => (vehicle.priceFromVnd ?? 0) * days, [vehicle.priceFromVnd, days]);
+  const stock = Math.max(1, vehicle.totalRooms ?? 1);
+  const total = useMemo(() => (vehicle.priceFromVnd ?? 0) * days * quantity, [vehicle.priceFromVnd, days, quantity]);
+  const depositTotal = vehicle.depositVnd * quantity;
 
   function validate() {
     const next: Record<string, string> = {};
@@ -60,6 +64,7 @@ export default function VehicleBookingModal({ vehicle, onClose }: { vehicle: Veh
     if (!pickupLocation.trim()) next.pickupLocation = "Vui lòng nhập khu vực nhận xe";
     if (!name.trim()) next.name = "Vui lòng nhập họ tên";
     if (!/^0\d{9}$/.test(phone.trim())) next.phone = "Số điện thoại không hợp lệ (VD: 0912345678)";
+    if (email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) next.email = "Email không hợp lệ";
     setErrors(next);
     return Object.keys(next).length === 0;
   }
@@ -76,6 +81,8 @@ export default function VehicleBookingModal({ vehicle, onClose }: { vehicle: Veh
         placeId: vehicle.id,
         customerName: name.trim(),
         customerPhone: phone.trim(),
+        customerEmail: email.trim() || undefined,
+        quantity,
         pickupDate,
         returnDate,
         pickupLocation: pickupLocation.trim(),
@@ -118,7 +125,11 @@ export default function VehicleBookingModal({ vehicle, onClose }: { vehicle: Veh
 
         {done && deposit ? (
           <div className="p-5">
-            <DepositQrPanel deposit={deposit} phone={phone} />
+            <DepositQrPanel
+              deposit={deposit}
+              phone={phone}
+              breakdown={quantity > 1 ? `${formatVnd(vehicle.depositVnd)} x ${quantity} xe` : undefined}
+            />
             <button type="button" onClick={onClose} className="mt-4 w-full bg-brand-blue text-white font-bold rounded-xl py-2.5">
               Đóng
             </button>
@@ -216,6 +227,44 @@ export default function VehicleBookingModal({ vehicle, onClose }: { vehicle: Veh
               </div>
             </div>
 
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-[13px] text-slate-500 font-medium mb-1 block">Email (không bắt buộc)</label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="de-nhan-xac-nhan@email.com"
+                  className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-blue/40"
+                />
+                {errors.email && <p className="text-xs text-brand-red mt-1">{errors.email}</p>}
+              </div>
+              <div>
+                <label className="text-[13px] text-slate-500 font-medium mb-1 block">
+                  Số xe cần thuê{stock > 1 ? " (tối đa " + stock + ")" : ""}
+                </label>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    aria-label="Giảm số xe"
+                    onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                    className="w-10 h-10 rounded-xl border border-slate-200 text-lg font-bold text-slate-600 hover:bg-slate-50"
+                  >
+                    -
+                  </button>
+                  <span className="w-10 text-center font-extrabold text-slate-800">{quantity}</span>
+                  <button
+                    type="button"
+                    aria-label="Tăng số xe"
+                    onClick={() => setQuantity((q) => Math.min(stock, q + 1))}
+                    className="w-10 h-10 rounded-xl border border-slate-200 text-lg font-bold text-slate-600 hover:bg-slate-50"
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+            </div>
+
             <div>
               <label className="text-[13px] text-slate-500 font-medium mb-1 block">Ghi chú (không bắt buộc)</label>
               <textarea
@@ -235,10 +284,25 @@ export default function VehicleBookingModal({ vehicle, onClose }: { vehicle: Veh
                 <span className="text-slate-500">Giá / ngày</span>
                 <span className="font-semibold text-slate-700">{formatVnd(vehicle.priceFromVnd ?? 0)}</span>
               </div>
+              {quantity > 1 && (
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-slate-500">Số xe</span>
+                  <span className="font-semibold text-slate-700">{quantity} xe</span>
+                </div>
+              )}
               <div className="flex items-center justify-between pt-1.5 border-t border-sky-100">
                 <span className="font-bold text-slate-700">Tạm tính</span>
                 <span className="font-extrabold text-brand-blue text-lg">{formatVnd(total)}</span>
               </div>
+              {vehicle.depositEnabled && (
+                <div className="flex items-center justify-between text-sm pt-1.5 border-t border-sky-100">
+                  <span className="text-slate-500">
+                    Cọc giữ chỗ ({formatVnd(vehicle.depositVnd)}
+                    {quantity > 1 ? " x " + quantity + " xe" : ""})
+                  </span>
+                  <span className="font-bold text-amber-600">{formatVnd(depositTotal)}</span>
+                </div>
+              )}
             </div>
 
             {errors.form && <p className="text-sm text-brand-red bg-brand-redBg rounded-lg px-3 py-2">{errors.form}</p>}

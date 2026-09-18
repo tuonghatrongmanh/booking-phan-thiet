@@ -8,6 +8,9 @@ import Footer from "@/components/home/Footer";
 import ScrollTopButton from "@/components/home/ScrollTopButton";
 import StayGallery from "@/components/places/StayGallery";
 import StayBookingCard from "@/components/places/StayBookingCard";
+import type { StayBookingConfig } from "@/components/places/StayBookingModal";
+import { getPaymentSettings } from "@/lib/payment-settings";
+import { canTakeDeposit } from "@/lib/booking-deposit";
 import StayMobileBookingBar from "@/components/places/StayMobileBookingBar";
 import StayPromoContactRow from "@/components/places/StayPromoContactRow";
 import StayAmenityIconRow from "@/components/places/StayAmenityIconRow";
@@ -38,10 +41,25 @@ export default async function StayDetailView({ placeId }: { placeId: string }) {
     include: {
       images: { orderBy: { id: "asc" } },
       reviews: { orderBy: { createdAt: "desc" }, include: { images: true } },
+      bookingOptions: { orderBy: { sortOrder: "asc" } },
     },
   });
 
   if (!place || place.category !== "HOMESTAY" || place.hidden) notFound();
+
+  const paymentSettings = await getPaymentSettings();
+  const bookingConfig: StayBookingConfig = {
+    options: place.bookingOptions.map((o) => ({
+      id: o.id,
+      label: o.label,
+      depositVnd: o.depositVnd,
+      priceVnd: o.priceVnd,
+      maxUnits: o.maxUnits,
+      wholeProperty: o.wholeProperty,
+    })),
+    legacyDepositVnd: place.depositVnd ?? paymentSettings.depositAmountVnd,
+    depositEnabled: canTakeDeposit(paymentSettings),
+  };
 
   void prisma.place.update({ where: { id: place.id }, data: { views: { increment: 1 } } }).catch(() => {});
 
@@ -165,7 +183,7 @@ export default async function StayDetailView({ placeId }: { placeId: string }) {
           </div>
 
           <div className="lg:sticky lg:top-[110px]">
-            <StayBookingCard placeId={place.id} placeName={place.name} priceFromVnd={place.priceFromVnd} phone={place.phone} zaloUrl={place.zaloUrl} />
+            <StayBookingCard placeId={place.id} placeName={place.name} booking={bookingConfig} priceFromVnd={place.priceFromVnd} phone={place.phone} zaloUrl={place.zaloUrl} />
           </div>
         </div>
 
@@ -246,7 +264,7 @@ export default async function StayDetailView({ placeId }: { placeId: string }) {
 
       <Footer />
       <ScrollTopButton />
-      <StayMobileBookingBar placeId={place.id} placeName={place.name} priceFromVnd={place.priceFromVnd} phone={place.phone} />
+      <StayMobileBookingBar placeId={place.id} placeName={place.name} booking={bookingConfig} priceFromVnd={place.priceFromVnd} phone={place.phone} />
       <div className="lg:hidden h-[68px]" aria-hidden="true" />
     </div>
   );

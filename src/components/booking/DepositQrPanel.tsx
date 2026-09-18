@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 
 export type DepositInfo = {
   amount: number;
@@ -43,21 +44,53 @@ function CopyRow({ label, value }: { label: string; value: string }) {
 }
 
 // Màn hình đặt cọc giữ chỗ sau khi khách gửi yêu cầu đặt phòng/thuê xe: hiện QR
-// VietQR + thông tin chuyển khoản thủ công (phòng khi quét không được). KHÔNG có nút
-// "tôi đã chuyển" - việc xác nhận đã nhận tiền là của admin (kiểm tra tay trong app
-// ngân hàng), khách tự bấm sẽ dễ bị giả mạo.
-export default function DepositQrPanel({ deposit, phone }: { deposit: DepositInfo; phone: string }) {
+// VietQR + thông tin chuyển khoản thủ công (phòng khi quét không được).
+// Nút "Tôi đã chuyển khoản" CHỈ nhắc admin kiểm tra ngân hàng (báo Telegram/chuông) -
+// nó KHÔNG xác nhận cọc. Việc xác nhận đã nhận tiền vẫn là của admin, nên khách bấm
+// bừa cũng không thể giữ chỗ giả (xem /api/booking-lookup/report-paid).
+export default function DepositQrPanel({
+  deposit,
+  phone,
+  breakdown,
+  showHeader = true,
+}: {
+  deposit: DepositInfo;
+  phone: string;
+  breakdown?: string;
+  showHeader?: boolean;
+}) {
+  const [reportState, setReportState] = useState<"idle" | "sending" | "done" | "error">("idle");
+
+  async function reportPaid() {
+    setReportState("sending");
+    try {
+      const res = await fetch("/api/booking-lookup/report-paid", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ref: deposit.ref, phone }),
+      });
+      setReportState(res.ok ? "done" : "error");
+    } catch {
+      setReportState("error");
+    }
+  }
+
   return (
     <div className="space-y-4">
       <div className="text-center">
-        <div className="w-12 h-12 rounded-full bg-brand-greenBg text-brand-green flex items-center justify-center mx-auto mb-2 text-xl">
-          <i className="fa-solid fa-check" aria-hidden="true" />
-        </div>
-        <p className="font-bold text-slate-800">Đã ghi nhận yêu cầu của bạn!</p>
+        {showHeader && (
+          <>
+            <div className="w-12 h-12 rounded-full bg-brand-greenBg text-brand-green flex items-center justify-center mx-auto mb-2 text-xl">
+              <i className="fa-solid fa-check" aria-hidden="true" />
+            </div>
+            <p className="font-bold text-slate-800">Đã ghi nhận yêu cầu của bạn!</p>
+          </>
+        )}
         <p className="text-sm text-slate-500 mt-1">
           Để <strong>giữ chỗ chắc chắn</strong>, vui lòng đặt cọc <strong className="text-brand-blue">{formatVnd(deposit.amount)}</strong>{" "}
           bằng cách quét mã QR bên dưới.
         </p>
+        {breakdown && <p className="text-xs text-slate-400 mt-0.5">{breakdown}</p>}
       </div>
 
       <div className="flex justify-center">
@@ -78,6 +111,35 @@ export default function DepositQrPanel({ deposit, phone }: { deposit: DepositInf
         <CopyRow label="Số tiền" value={String(deposit.amount)} />
         <CopyRow label="Nội dung CK" value={deposit.ref} />
       </div>
+
+      {reportState === "done" ? (
+        <p className="text-sm text-brand-green bg-brand-greenBg rounded-xl px-3 py-2.5 text-center font-semibold">
+          <i className="fa-solid fa-circle-check mr-1.5" aria-hidden="true" />
+          Đã báo cho nhân viên! Chúng tôi sẽ kiểm tra và xác nhận sớm nhất.
+        </p>
+      ) : (
+        <button
+          type="button"
+          onClick={reportPaid}
+          disabled={reportState === "sending"}
+          className="w-full border-2 border-brand-blue text-brand-blue font-bold rounded-xl py-2.5 hover:bg-brand-sky/30 transition disabled:opacity-60"
+        >
+          {reportState === "sending" ? "Đang gửi..." : "Tôi đã chuyển khoản"}
+        </button>
+      )}
+      {reportState === "error" && (
+        <p className="text-xs text-brand-red text-center">Không gửi được, vui lòng thử lại hoặc liên hệ nhân viên.</p>
+      )}
+
+      {showHeader && (
+        <div className="bg-amber-50 border border-amber-200 rounded-xl px-3 py-2.5 text-center">
+          <p className="text-xs text-amber-700">Mã đơn của bạn (hãy lưu lại để tra cứu)</p>
+          <p className="font-mono font-extrabold text-lg text-amber-900 tracking-wider">{deposit.ref}</p>
+          <Link href={`/tra-cuu-dat-cho?ref=${deposit.ref}`} className="text-xs font-semibold text-brand-blue hover:underline">
+            Tra cứu trạng thái đơn
+          </Link>
+        </div>
+      )}
 
       <p className="text-xs text-slate-400 leading-relaxed">
         Vui lòng giữ <strong>đúng nội dung chuyển khoản</strong> ({deposit.ref}) để chúng tôi đối chiếu. Sau khi nhận được

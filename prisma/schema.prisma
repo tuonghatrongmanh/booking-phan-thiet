@@ -573,6 +573,11 @@ model Place {
   seats           Int?    @default(2)
   badge           String? // nhan nho goc the (vd "Xe hot", "Gia tot nhat") - dung chung cho moi category, khong rieng CAR_RENTAL
 
+  // Tien coc giu cho (VND) - CAR_RENTAL: coc cho MOI xe (nhan voi so xe khach dat);
+  // HOMESTAY: coc cho ca can khi chua tao goi phong nao (xem bookingOptions). null =
+  // dung muc mac dinh trong Cai dat > Thanh toan (PaymentSettings.depositAmountVnd).
+  depositVnd Int?
+
   // null = chua noi voi Google Sheets nao, dung logic availableRooms/totalRooms cu nhu
   // truoc gio. Khac null = da dong bo tu mau o trong sheet cua chu so huu, UU TIEN hien
   // thi trang thai nay tren cong khai thay vi tinh tu availableRooms.
@@ -591,6 +596,7 @@ model Place {
   standing       SaleStanding?
   rentalInquiries RentalInquiry[]
   stayBookingInquiries StayBookingInquiry[]
+  bookingOptions PlaceBookingOption[]
 
   @@index([category, status])
 }
@@ -612,6 +618,9 @@ model RentalInquiry {
   pickupLocation String?
   note           String?  @db.Text
   status         RentalInquiryStatus @default(PENDING)
+  quantity       Int      @default(1) // so xe khach dat cung luc (coc = coc moi xe x quantity)
+  customerEmail  String? // tuy chon - de gui email xac nhan/cap nhat cho khach
+  customerReportedPaidAt DateTime? // khach bam "Toi da chuyen khoan" - CHI la nhac admin kiem tra, khong phai xac nhan
 
   // Dat coc qua VietQR - "PAID" la dieu kien duy nhat de tinh la da "chiem" ngay
   // do khi kiem tra trung lich cho don khac (xem src/lib/booking-availability.ts).
@@ -648,6 +657,12 @@ model StayBookingInquiry {
   guestCount     Int?
   note           String?  @db.Text
   status         RentalInquiryStatus @default(PENDING)
+  optionId       String? // goi phong khach chon (PlaceBookingOption), SetNull khi admin xoa goi
+  optionLabel    String? // ban chup ten goi luc dat - de van doc duoc du goi bi xoa/doi ten sau nay
+  optionWhole    Boolean  @default(false) // ban chup: goi "nguyen can" (chan ca cac phong khac)
+  quantity       Int      @default(1) // so phong cua goi da chon
+  customerEmail  String?
+  customerReportedPaidAt DateTime?
 
   depositAmount  Int?
   depositStatus  DepositStatus @default(NONE)
@@ -660,6 +675,24 @@ model StayBookingInquiry {
   @@index([placeId])
   @@index([userId])
   @@index([status])
+}
+
+// Goi dat phong cua 1 homestay (vd "Phong don" coc 200k, "Phong doi" coc 300k, "Nguyen
+// can" coc 1.000.000d). Moi goi tu quy dinh tien coc rieng va so phong (maxUnits) co
+// the cho dat cung luc; goi "nguyen can" (wholeProperty) chan toan bo ngay do.
+model PlaceBookingOption {
+  id            String   @id @default(cuid())
+  place         Place    @relation(fields: [placeId], references: [id], onDelete: Cascade)
+  placeId       String
+  label         String
+  depositVnd    Int
+  priceVnd      Int? // gia tham khao / dem (chi de hien thi)
+  maxUnits      Int      @default(1)
+  wholeProperty Boolean  @default(false)
+  sortOrder     Int      @default(0)
+  createdAt     DateTime @default(now())
+
+  @@index([placeId])
 }
 
 enum RentalInquiryStatus {

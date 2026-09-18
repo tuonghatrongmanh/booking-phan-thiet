@@ -111,7 +111,7 @@ export default function PaymentSettingsForm({ initial }: { initial: PaymentSetti
       </div>
 
       <div>
-        <label htmlFor="pay-deposit" className="text-[13px] text-slate-500 font-medium mb-1 block">Số tiền cọc mặc định (VNĐ)</label>
+        <label htmlFor="pay-deposit" className="text-[13px] text-slate-500 font-medium mb-1 block">Tiền cọc mặc định (VNĐ)</label>
         <input
           id="pay-deposit"
           inputMode="numeric"
@@ -119,6 +119,10 @@ export default function PaymentSettingsForm({ initial }: { initial: PaymentSetti
           onChange={(e) => setDeposit(e.target.value.replace(/\D/g, ""))}
           className="w-full sm:w-64 border border-slate-200 rounded-xl px-3 py-2.5 text-[15px] focus:outline-none focus:ring-2 focus:ring-brand-blue/40"
         />
+        <p className="text-xs text-slate-400 mt-1 max-w-xl">
+          Chỉ là mức dự phòng khi xe / chỗ ở chưa tự đặt tiền cọc riêng. Cọc thật được đặt ngay trong form sửa từng xe (cọc mỗi
+          xe, nhân với số xe khách thuê) và từng gói phòng của homestay (phòng đơn, phòng đôi, nguyên căn...).
+        </p>
       </div>
 
       {previewUrl && (

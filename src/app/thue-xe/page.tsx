@@ -3,6 +3,8 @@ import Footer from "@/components/home/Footer";
 import Reveal from "@/components/home/Reveal";
 import { prisma } from "@/lib/prisma";
 import { avgOf } from "@/lib/places";
+import { getPaymentSettings } from "@/lib/payment-settings";
+import { canTakeDeposit } from "@/lib/booking-deposit";
 import RentalHero from "@/components/car-rental/RentalHero";
 import VehicleListClient from "@/components/car-rental/VehicleListClient";
 import RentalBenefits from "@/components/car-rental/RentalBenefits";
@@ -24,6 +26,9 @@ export default async function ThueXePage() {
     include: { images: true, reviews: { select: { rating: true } } },
   });
 
+  const paymentSettings = await getPaymentSettings();
+  const depositEnabled = canTakeDeposit(paymentSettings);
+
   const vehicleData = vehicles.map((v) => ({
     id: v.id,
     name: v.name,
@@ -38,6 +43,8 @@ export default async function ThueXePage() {
     priceHolidayVnd: v.priceHolidayVnd,
     availableRooms: v.availableRooms,
     totalRooms: v.totalRooms,
+    depositVnd: v.depositVnd ?? paymentSettings.depositAmountVnd,
+    depositEnabled,
     availabilityStatus: v.availabilityStatus,
     createdAt: v.createdAt.toISOString(),
     ratingAverage: avgOf(v.reviews.map((r) => r.rating)),

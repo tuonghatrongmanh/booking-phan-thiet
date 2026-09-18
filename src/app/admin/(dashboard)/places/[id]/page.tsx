@@ -5,6 +5,7 @@ import PlaceForm from "@/components/admin/PlaceForm";
 import PlaceImagesManager from "@/components/admin/PlaceImagesManager";
 import SocialCommentsManager from "@/components/admin/SocialCommentsManager";
 import ReviewsManager from "@/components/admin/ReviewsManager";
+import PlaceBookingOptionsManager from "@/components/admin/PlaceBookingOptionsManager";
 
 export const dynamic = "force-dynamic";
 
@@ -16,6 +17,7 @@ export default async function PlaceDetailPage({ params }: { params: Promise<{ id
       images: true,
       socialComments: { orderBy: { createdAt: "desc" } },
       reviews: { orderBy: { createdAt: "desc" }, include: { images: true } },
+      bookingOptions: { orderBy: { sortOrder: "asc" } },
     },
   });
   const [stayTypes, amenities] = await Promise.all([
@@ -37,6 +39,19 @@ export default async function PlaceDetailPage({ params }: { params: Promise<{ id
       </div>
 
       <PlaceForm initial={{ ...place, amenities: Array.isArray(place.amenities) ? (place.amenities as string[]) : [] }} stayTypes={stayTypes} amenityOptions={amenities.map((a) => a.label)} />
+      {place.category === "HOMESTAY" && (
+        <PlaceBookingOptionsManager
+          placeId={place.id}
+          options={place.bookingOptions.map((o) => ({
+            id: o.id,
+            label: o.label,
+            depositVnd: o.depositVnd,
+            priceVnd: o.priceVnd,
+            maxUnits: o.maxUnits,
+            wholeProperty: o.wholeProperty,
+          }))}
+        />
+      )}
       <PlaceImagesManager placeId={place.id} images={place.images} />
       <SocialCommentsManager placeId={place.id} comments={place.socialComments} />
       <ReviewsManager placeId={place.id} reviews={place.reviews} />

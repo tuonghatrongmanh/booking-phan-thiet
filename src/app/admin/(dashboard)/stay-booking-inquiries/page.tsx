@@ -2,6 +2,8 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import RentalInquiryStatusControl from "@/components/admin/RentalInquiryStatusControl";
 import DepositBadge from "@/components/admin/DepositBadge";
+import CustomerContact from "@/components/admin/CustomerContact";
+import { buildCustomerMessage } from "@/lib/booking-message";
 
 export const dynamic = "force-dynamic";
 
@@ -79,10 +81,29 @@ export default async function AdminStayBookingInquiriesPage({
                   <td className="px-5 py-3">
                     <p className="font-semibold text-slate-800">{r.place.name}</p>
                     {r.place.phone && <p className="text-xs text-slate-400">{r.place.phone}</p>}
+                    {r.optionLabel && (
+                      <p className="text-xs font-bold text-brand-blue">
+                        {r.optionLabel}
+                        {!r.optionWhole && r.quantity > 1 ? ` x ${r.quantity}` : ""}
+                      </p>
+                    )}
                   </td>
                   <td className="px-5 py-3">
-                    <p className="font-semibold text-slate-700">{r.customerName}</p>
-                    <p className="text-xs text-slate-400">{r.customerPhone}</p>
+                    <CustomerContact
+                      name={r.customerName}
+                      phone={r.customerPhone}
+                      email={r.customerEmail}
+                      message={buildCustomerMessage({
+                        customerName: r.customerName,
+                        placeName: r.place.name,
+                        dateText: `${formatDateOnly(r.checkinDate)} - ${formatDateOnly(r.checkoutDate)}`,
+                        detailText: r.optionLabel ? (r.optionWhole ? r.optionLabel : `${r.optionLabel} x ${r.quantity}`) : null,
+                        depositStatus: r.depositStatus,
+                        depositAmount: r.depositAmount,
+                        depositRef: r.depositRef,
+                        cancelled: r.status === "CANCELLED",
+                      })}
+                    />
                   </td>
                   <td className="px-5 py-3 text-slate-500">{r.guestCount ?? <span className="text-slate-300">—</span>}</td>
                   <td className="px-5 py-3 text-slate-500 whitespace-nowrap">
@@ -95,6 +116,7 @@ export default async function AdminStayBookingInquiriesPage({
                       status={r.depositStatus}
                       amount={r.depositAmount}
                       depositRef={r.depositRef}
+                      reportedPaid={Boolean(r.customerReportedPaidAt)}
                       confirmUrl={`/api/admin/stay-booking-inquiries/${r.id}/confirm-deposit`}
                     />
                   </td>

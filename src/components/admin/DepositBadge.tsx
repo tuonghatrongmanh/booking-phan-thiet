@@ -12,11 +12,13 @@ export default function DepositBadge({
   status,
   amount,
   depositRef,
+  reportedPaid,
   confirmUrl,
 }: {
   status: "NONE" | "PENDING" | "PAID";
   amount: number | null;
   depositRef?: string | null;
+  reportedPaid?: boolean;
   confirmUrl: string;
 }) {
   const router = useRouter();
@@ -64,6 +66,11 @@ export default function DepositBadge({
         Chờ chuyển khoản{amount ? ` (${formatVnd(amount)})` : ""}
       </span>
       {depositRef && <span className="text-[11px] text-slate-500 font-mono">Mã CK: {depositRef}</span>}
+      {reportedPaid && (
+        <span className="text-[11px] font-bold text-white bg-brand-red rounded-full px-2 py-0.5 w-fit">
+          Khách báo đã chuyển - kiểm tra ngân hàng
+        </span>
+      )}
       <button
         type="button"
         onClick={handleConfirm}

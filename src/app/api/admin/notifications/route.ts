@@ -14,7 +14,8 @@ export async function GET() {
 
   const since = new Date(Date.now() - 24 * 60 * 60 * 1000);
 
-  const [alerts, newUsers, newComments, unreadMessages, reviewBursts] = await Promise.all([
+  const [alerts, newUsers, newComments, unreadMessages, reviewBursts, newRentals, newStays, reportedRentals, reportedStays] =
+    await Promise.all([
     prisma.requestLog.findMany({
       where: { suspicious: true, createdAt: { gte: since } },
       orderBy: { createdAt: "desc" },
@@ -40,9 +41,64 @@ export async function GET() {
       select: { id: true, message: true, createdAt: true, fromAdmin: { select: { name: true } } },
     }),
     findReviewBursts(),
+    prisma.rentalInquiry.findMany({
+      where: { createdAt: { gte: since } },
+      orderBy: { createdAt: "desc" },
+      take: 5,
+      select: { id: true, customerName: true, quantity: true, createdAt: true, place: { select: { name: true } } },
+    }),
+    prisma.stayBookingInquiry.findMany({
+      where: { createdAt: { gte: since } },
+      orderBy: { createdAt: "desc" },
+      take: 5,
+      select: { id: true, customerName: true, optionLabel: true, createdAt: true, place: { select: { name: true } } },
+    }),
+    // Khách bấm "Tôi đã chuyển khoản" nhưng admin chưa xác nhận - hiện cho tới khi xử lý xong
+    prisma.rentalInquiry.findMany({
+      where: { depositStatus: "PENDING", status: { not: "CANCELLED" }, customerReportedPaidAt: { not: null } },
+      orderBy: { customerReportedPaidAt: "desc" },
+      take: 5,
+      select: { id: true, customerName: true, depositAmount: true, customerReportedPaidAt: true, place: { select: { name: true } } },
+    }),
+    prisma.stayBookingInquiry.findMany({
+      where: { depositStatus: "PENDING", status: { not: "CANCELLED" }, customerReportedPaidAt: { not: null } },
+      orderBy: { customerReportedPaidAt: "desc" },
+      take: 5,
+      select: { id: true, customerName: true, depositAmount: true, customerReportedPaidAt: true, place: { select: { name: true } } },
+    }),
   ]);
 
+  const paidItem = (
+    kind: "rental" | "stay",
+    r: { id: string; customerName: string; depositAmount: number | null; customerReportedPaidAt: Date | null; place: { name: string } }
+  ) => ({
+    id: `reported-paid-${kind}-${r.id}`,
+    type: "warning" as const,
+    title: "Khách báo đã chuyển cọc - hãy kiểm tra ngân hàng",
+    description: `${r.customerName} - ${r.place.name}${r.depositAmount ? " - " + r.depositAmount.toLocaleString("vi-VN") + "đ" : ""}`,
+    href: kind === "rental" ? "/admin/rental-inquiries" : "/admin/stay-booking-inquiries",
+    createdAt: r.customerReportedPaidAt ?? new Date(0),
+  });
+
   const items = [
+    ...reportedRentals.map((r) => paidItem("rental", r)),
+    ...reportedStays.map((r) => paidItem("stay", r)),
+    ...newRentals.map((r) => ({
+      id: `rental-new-${r.id}`,
+      type: "unread" as const,
+      title: "Có đơn thuê xe mới",
+      description: `${r.customerName} - ${r.place.name}${r.quantity > 1 ? " (" + r.quantity + " xe)" : ""}`,
+      href: "/admin/rental-inquiries",
+      createdAt: r.createdAt,
+    })),
+    ...newStays.map((r) => ({
+      id: `stay-new-${r.id}`,
+      type: "unread" as const,
+      title: "Có đơn đặt phòng mới",
+      description: `${r.customerName} - ${r.place.name}${r.optionLabel ? " (" + r.optionLabel + ")" : ""}`,
+      href: "/admin/stay-booking-inquiries",
+      createdAt: r.createdAt,
+    })),
     ...reviewBursts.map((b) => ({
       id: `review-burst-${b.kind}-${b.targetId}`,
       type: "warning" as const,
