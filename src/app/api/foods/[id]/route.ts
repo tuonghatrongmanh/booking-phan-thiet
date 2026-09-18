@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { requireAdminSession, requireCreateOrEdit, requestDeleteOrHide } from "@/lib/admin-action";
 import { z } from "zod";
 import { sanitizeArticleHtml } from "@/lib/sanitize-html";
+import { pingIndexNow, foodPublicUrl } from "@/lib/indexnow";
 
 const updateSchema = z.object({
   name: z.string().trim().min(2).optional(),
@@ -58,8 +59,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
 
   try {
     const food = await prisma.food.update({ where: { id }, data });
-    if (parsed.data.name || parsed.data.description) {
-    }
+    if (food.active || data.active === false) pingIndexNow([foodPublicUrl(food.slug)]);
     return NextResponse.json(food);
   } catch {
     return NextResponse.json({ error: "Không tìm thấy" }, { status: 404 });
@@ -85,5 +85,6 @@ export async function DELETE(_req: NextRequest, { params }: Params) {
   if (result.outcome !== "direct") return result.response;
 
   await prisma.food.delete({ where: { id } });
+  if (existing.active) pingIndexNow([foodPublicUrl(existing.slug)]);
   return NextResponse.json({ ok: true });
 }

@@ -4,6 +4,7 @@ import { requireAdminSession, requireCreateOrEdit } from "@/lib/admin-action";
 import { z } from "zod";
 import { sanitizeArticleHtml } from "@/lib/sanitize-html";
 import { slugifyBase, ensureUniqueSlug } from "@/lib/slug";
+import { pingIndexNow, foodPublicUrl } from "@/lib/indexnow";
 
 const foodSchema = z.object({
   name: z.string().trim().min(2),
@@ -63,6 +64,8 @@ export async function POST(req: NextRequest) {
       content: parsed.data.content ? sanitizeArticleHtml(parsed.data.content) : null,
     },
   });
+
+  if (food.active) pingIndexNow([foodPublicUrl(food.slug)]);
 
   return NextResponse.json(food, { status: 201 });
 }

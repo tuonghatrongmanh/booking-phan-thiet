@@ -5,6 +5,7 @@ import type { SectionKey } from "@/lib/admin-permissions";
 import { z } from "zod";
 import { PlaceCategory, PlaceStatus, StayType } from "@prisma/client";
 import { imagePathSchema } from "@/lib/validation";
+import { pingIndexNow, placePublicUrl } from "@/lib/indexnow";
 
 const placeSchema = z.object({
   name: z.string().min(2),
@@ -99,8 +100,7 @@ export async function POST(req: NextRequest) {
 
   const place = await prisma.place.create({ data: parsed.data });
 
-  if (place.description) {
-  }
+  pingIndexNow([placePublicUrl(place)]);
 
   return NextResponse.json(place, { status: 201 });
 }

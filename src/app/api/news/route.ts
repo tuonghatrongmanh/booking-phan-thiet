@@ -5,6 +5,7 @@ import { z } from "zod";
 import { imagePathSchema } from "@/lib/validation";
 import { sanitizeArticleHtml } from "@/lib/sanitize-html";
 import { slugifyBase, ensureUniqueSlug } from "@/lib/slug";
+import { pingIndexNow, newsPublicUrl } from "@/lib/indexnow";
 
 const newsSchema = z.object({
   title: z.string().min(3, "Tiêu đề quá ngắn"),
@@ -72,6 +73,7 @@ export async function POST(req: NextRequest) {
     },
   });
 
+  if (news.published) pingIndexNow([newsPublicUrl(news.slug)]);
 
   return NextResponse.json(news, { status: 201 });
 }

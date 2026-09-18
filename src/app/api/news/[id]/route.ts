@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { pingIndexNow, newsPublicUrl } from "@/lib/indexnow";
 import { requireAdminSession, requireCreateOrEdit, requestDeleteOrHide } from "@/lib/admin-action";
 import { z } from "zod";
 import { imagePathSchema } from "@/lib/validation";
@@ -58,6 +59,8 @@ export async function PATCH(req: NextRequest, { params }: Params) {
 
   try {
     const news = await prisma.news.update({ where: { id }, data });
+    // Báo khi bài đang công khai, hoặc vừa bị gỡ (để công cụ tìm kiếm cập nhật lại)
+    if (news.published || data.published === false) pingIndexNow([newsPublicUrl(news.slug)]);
     return NextResponse.json(news);
   } catch {
     return NextResponse.json({ error: "Không tìm thấy" }, { status: 404 });
@@ -84,5 +87,6 @@ export async function DELETE(_req: NextRequest, { params }: Params) {
   if (result.outcome !== "direct") return result.response;
 
   await prisma.news.delete({ where: { id } });
+  if (existing.published) pingIndexNow([newsPublicUrl(existing.slug)]);
   return NextResponse.json({ ok: true });
 }

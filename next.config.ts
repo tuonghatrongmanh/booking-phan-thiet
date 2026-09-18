@@ -58,6 +58,11 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  // File xác minh IndexNow phải nằm ở gốc domain (/<key>.txt) - key là hash hex 32 ký tự,
+  // trả về bởi route handler vì key sinh từ NEXTAUTH_SECRET (xem src/lib/indexnow.ts).
+  async rewrites() {
+    return [{ source: "/:key([a-f0-9]{32}).txt", destination: "/api/indexnow-key/:key" }];
+  },
   async headers() {
     return [
       {
