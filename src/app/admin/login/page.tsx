@@ -94,7 +94,17 @@ function LoginForm() {
     setLoading(false);
 
     if (res?.error) {
-      setError(needsOtp ? "Mã 2FA không đúng" : "Email hoặc mật khẩu không đúng");
+      if (res.code === "rate_limited") {
+        setError("Bạn nhập sai quá nhiều lần, vui lòng đợi 5 phút rồi thử lại.");
+      } else if (res.code === "invalid_otp") {
+        setError("Mã 2FA không đúng hoặc đã hết hạn. Hãy nhập mã mới đang hiện trên app.");
+      } else if (res.error === "CredentialsSignin") {
+        setError(needsOtp ? "Mã 2FA không đúng hoặc đã hết hạn." : "Email hoặc mật khẩu không đúng");
+      } else {
+        // Lỗi KHÔNG phải sai mã/mật khẩu (thường do cookie cũ/tiện ích trình duyệt chặn) - hiện
+        // mã lỗi thật để dễ xử lý thay vì báo nhầm là sai mã 2FA.
+        setError(`Không đăng nhập được do lỗi phiên (mã: ${res.error}). Hãy xóa cookie của trang này hoặc thử cửa sổ ẩn danh.`);
+      }
       return;
     }
 

@@ -1,17 +1,26 @@
-import NextAuth from "next-auth";
+import NextAuth, { CredentialsSignin } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import Google from "next-auth/providers/google";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { authConfig } from "@/lib/auth.config";
-import { rateLimit } from "@/lib/rate-limit";
-import { verifyTwoFactorToken } from "@/lib/two-factor";
+import { rateLimit, isRateLimited, recordFailure, clearFailures } from "@/lib/rate-limit";
+import { verifyTwoFactorToken, getTwoFactorClockDelta } from "@/lib/two-factor";
 
 // Chong brute-force dang nhap: gioi han theo EMAIL (khong phai IP) vi day la cach
 // chan dung dich - ke tan cong doi IP van khong the thu lai ngay tren CUNG 1 tai
 // khoan. 5 lan sai / 5 phut la du rong cho nguoi go nham, du chat de chan do quet.
 const LOGIN_ATTEMPT_LIMIT = 5;
 const LOGIN_WINDOW_MS = 5 * 60_000;
+
+// Mã lỗi riêng để trang đăng nhập admin hiện đúng nguyên nhân thay vì báo chung chung
+// "mã 2FA không đúng" cho MỌI trường hợp thất bại (xem src/app/admin/login/page.tsx).
+class RateLimitedError extends CredentialsSignin {
+  code = "rate_limited";
+}
+class InvalidOtpError extends CredentialsSignin {
+  code = "invalid_otp";
+}
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   ...authConfig,
@@ -79,20 +88,46 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         const password = credentials?.password as string | undefined;
         const otp = credentials?.otp as string | undefined;
         if (!email || !password) return null;
-        if (!rateLimit(`login-admin:${email.toLowerCase()}`, LOGIN_ATTEMPT_LIMIT, LOGIN_WINDOW_MS)) return null;
+        // Chỉ đếm lần THẤT BẠI (đăng nhập đúng không tốn lượt) - dùng chung khóa với
+        // /api/admin/login-precheck.
+        const limiterKey = `login-admin:${email.toLowerCase()}`;
+        if (isRateLimited(limiterKey, LOGIN_ATTEMPT_LIMIT, LOGIN_WINDOW_MS)) throw new RateLimitedError();
 
         const admin = await prisma.admin.findUnique({ where: { email: email.toLowerCase() } });
-        if (!admin || !admin.active) return null;
+        if (!admin || !admin.active) {
+          recordFailure(limiterKey);
+          return null;
+        }
 
         const valid = await bcrypt.compare(password, admin.password);
-        if (!valid) return null;
+        if (!valid) {
+          recordFailure(limiterKey);
+          return null;
+        }
 
         // 2FA (TOTP) - neu tai khoan da bat, bat buoc phai co ma dung thi moi cho
         // dang nhap, du mat khau da dung. Day la lop chan THU 2, khong the bo qua
         // chi bang mat khau bi lo.
         if (admin.twoFactorEnabled) {
-          if (!otp || !admin.twoFactorSecret || !verifyTwoFactorToken(otp, admin.twoFactorSecret)) return null;
+          if (!otp || !admin.twoFactorSecret || !verifyTwoFactorToken(otp, admin.twoFactorSecret)) {
+            recordFailure(limiterKey);
+            if (otp && admin.twoFactorSecret) {
+              // Chẩn đoán trong log server (KHÔNG lộ ra trình duyệt, không ghi secret/mã): mã
+              // sai vì đồng hồ lệch bao nhiêu bước, hay không khớp mã nào (nhầm mục trong app).
+              const delta = getTwoFactorClockDelta(otp, admin.twoFactorSecret);
+              console.warn(
+                `[2fa] Mã sai cho ${admin.email}: ${
+                  delta === null
+                    ? "không khớp mã nào trong ±10 phút (nhầm mục trong app / sai secret / gõ sai)"
+                    : `mã khớp nhưng lệch ${delta} bước (~${delta * 30}s) - đồng hồ điện thoại hoặc server lệch`
+                }`
+              );
+            }
+            throw new InvalidOtpError();
+          }
         }
+
+        clearFailures(limiterKey);
 
         void prisma.admin.update({ where: { id: admin.id }, data: { lastLoginAt: new Date() } }).catch(() => {});
 

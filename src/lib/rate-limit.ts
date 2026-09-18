@@ -29,3 +29,25 @@ export function rateLimit(key: string, limit: number, windowMs: number): boolean
 
   return true;
 }
+
+// ----- Chế độ "chỉ đếm lần THẤT BẠI" (dùng cho đăng nhập) -----
+// rateLimit() ở trên tính MỌI lần gọi là 1 lượt nên đăng nhập đúng cũng tốn lượt (đăng
+// nhập admin gọi 2 lần: kiểm tra mật khẩu + đăng nhập thật => 1 lần đăng nhập đúng tốn
+// 2/5 lượt và lần thử thứ 3 bị chặn dù mã đúng). Ba hàm dưới đây cho phép chỉ ghi nhận
+// lần SAI: đăng nhập đúng không tốn lượt nào.
+export function isRateLimited(key: string, limit: number, windowMs: number): boolean {
+  const now = Date.now();
+  const fresh = (buckets.get(key) ?? []).filter((t) => now - t < windowMs);
+  buckets.set(key, fresh);
+  return fresh.length >= limit;
+}
+
+export function recordFailure(key: string): void {
+  const list = buckets.get(key) ?? [];
+  list.push(Date.now());
+  buckets.set(key, list);
+}
+
+export function clearFailures(key: string): void {
+  buckets.delete(key);
+}
