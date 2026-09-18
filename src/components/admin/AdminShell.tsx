@@ -219,19 +219,6 @@ export default function AdminShell({
         </nav>
 
         <div className={`border-t border-white/10 py-4 shrink-0 ${collapsed ? "lg:px-2" : "px-5"}`}>
-          <Link
-            href="/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={`flex items-center gap-2 text-sm font-semibold text-white/80 hover:text-white mb-1 ${
-              collapsed ? "lg:justify-center" : ""
-            }`}
-            title={collapsed ? "Xem trang web" : undefined}
-          >
-            <i className="fa-solid fa-arrow-up-right-from-square shrink-0" aria-hidden="true" />
-            <span className={collapsed ? "lg:hidden" : ""}>Xem trang web</span>
-          </Link>
-
           <button
             type="button"
             onClick={() => {

@@ -34,6 +34,16 @@ export default function AdminContentHeader({ userName }: { userName?: string | n
       </div>
 
       <div className="flex items-center gap-2 shrink-0">
+        <Link
+          href="/"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Xem trang web"
+          title="Xem trang web"
+          className="relative w-10 h-10 flex items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 transition"
+        >
+          <i className="fa-solid fa-arrow-up-right-from-square" aria-hidden="true" />
+        </Link>
         <AdminNotifications />
         <AdminDateFilter currentLabel={rangeLabel} />
         <span className="w-px h-7 bg-slate-100" aria-hidden="true" />
