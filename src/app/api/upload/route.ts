@@ -5,6 +5,7 @@ import path from "path";
 import { getActor } from "@/lib/auth-actor";
 import { rateLimit } from "@/lib/rate-limit";
 import cloudinary from "@/lib/cloudinary";
+import { isValidImageSignature, isValidVideoSignature } from "@/lib/file-signature";
 
 // Chưa cấu hình Cloudinary (.env trống) -> lưu tạm vào public/uploads để test local
 const CLOUDINARY_CONFIGURED = Boolean(
@@ -50,6 +51,13 @@ export async function POST(req: NextRequest) {
 
   const arrayBuffer = await file.arrayBuffer();
   const buffer = Buffer.from(arrayBuffer);
+
+  // Kiem tra chu ky nhi phan thuc su cua file - khong chi tin Content-Type do client
+  // tu khai bao (de gia mao, vd doi ten/Content-Type cua file .html thanh "anh").
+  const validSignature = isVideo ? isValidVideoSignature(buffer) : isValidImageSignature(buffer);
+  if (!validSignature) {
+    return NextResponse.json({ error: "File không đúng định dạng ảnh/video hợp lệ" }, { status: 400 });
+  }
 
   if (!CLOUDINARY_CONFIGURED) {
     try {

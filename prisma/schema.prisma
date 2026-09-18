@@ -141,6 +141,13 @@ model Admin {
   permissions Json?
   lastLoginAt DateTime?
 
+  // Xac thuc 2 lop (TOTP, kieu Google Authenticator) - twoFactorSecret chi khac null
+  // SAU KHI admin xac nhan thanh cong 1 ma trong luc kich hoat (khong luu secret
+  // "nua vao" chi vi da bam nut bat dau, tranh truong hop bat 2FA nhung chua bao gio
+  // xac minh duoc secret khop voi app cua ho).
+  twoFactorEnabled Boolean @default(false)
+  twoFactorSecret  String?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

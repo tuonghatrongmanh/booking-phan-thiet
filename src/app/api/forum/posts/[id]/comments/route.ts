@@ -6,6 +6,7 @@ import { rateLimit } from "@/lib/rate-limit";
 import { getIO } from "@/lib/socket-server";
 import { forumCategoryRoom, forumPostRoom } from "@/lib/socket-rooms";
 import { enumToSlug } from "@/lib/forum";
+import { extractUrls, findMaliciousUrls } from "@/lib/link-scan";
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const actor = await getActor();
@@ -25,6 +26,11 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   const parsed = forumCommentSchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json({ error: parsed.error.issues[0]?.message ?? "Dữ liệu không hợp lệ" }, { status: 400 });
+  }
+
+  const maliciousUrls = await findMaliciousUrls(extractUrls(parsed.data.content));
+  if (maliciousUrls.length > 0) {
+    return NextResponse.json({ error: "Bình luận chứa liên kết bị đánh dấu không an toàn, vui lòng gỡ bỏ" }, { status: 400 });
   }
 
   const comment = await prisma.forumComment.create({

@@ -48,6 +48,8 @@ function LoginForm() {
   const [ready, setReady] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [otp, setOtp] = useState("");
+  const [needsOtp, setNeedsOtp] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -58,19 +60,41 @@ function LoginForm() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setLoading(true);
     setError(null);
 
+    if (!needsOtp) {
+      setLoading(true);
+      const res = await fetch("/api/admin/login-precheck", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json().catch(() => ({}));
+      setLoading(false);
+
+      if (!res.ok) {
+        setError(typeof data.error === "string" ? data.error : "Email hoặc mật khẩu không đúng");
+        return;
+      }
+
+      if (data.requiresTwoFactor) {
+        setNeedsOtp(true);
+        return;
+      }
+    }
+
+    setLoading(true);
     const res = await signIn("credentials", {
       email,
       password,
+      otp: needsOtp ? otp : undefined,
       redirect: false,
     });
 
     setLoading(false);
 
     if (res?.error) {
-      setError("Email hoặc mật khẩu không đúng");
+      setError(needsOtp ? "Mã 2FA không đúng" : "Email hoặc mật khẩu không đúng");
       return;
     }
 
@@ -100,29 +124,61 @@ function LoginForm() {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="text-[13px] text-slate-500 font-medium mb-1 block">Tài khoản</label>
-            <input
-              type="text"
-              required
-              autoComplete="username"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-[15px] focus:outline-none focus:ring-2 focus:ring-brand-blue/40"
-              placeholder="Tên đăng nhập"
-            />
-          </div>
-          <div>
-            <label className="text-[13px] text-slate-500 font-medium mb-1 block">Mật khẩu</label>
-            <input
-              type="password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-[15px] focus:outline-none focus:ring-2 focus:ring-brand-blue/40"
-              placeholder="••••••••"
-            />
-          </div>
+          {needsOtp ? (
+            <div>
+              <label className="text-[13px] text-slate-500 font-medium mb-1 block">Mã xác thực 2 lớp</label>
+              <input
+                type="text"
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                required
+                autoFocus
+                value={otp}
+                onChange={(e) => setOtp(e.target.value)}
+                className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-[15px] tracking-widest text-center focus:outline-none focus:ring-2 focus:ring-brand-blue/40"
+                placeholder="000000"
+                maxLength={6}
+              />
+              <p className="text-xs text-slate-400 mt-1.5">Nhập mã 6 số từ ứng dụng Google Authenticator (hoặc tương tự).</p>
+              <button
+                type="button"
+                onClick={() => {
+                  setNeedsOtp(false);
+                  setOtp("");
+                  setError(null);
+                }}
+                className="text-xs text-brand-blue font-semibold hover:underline mt-1.5"
+              >
+                Quay lại
+              </button>
+            </div>
+          ) : (
+            <>
+              <div>
+                <label className="text-[13px] text-slate-500 font-medium mb-1 block">Tài khoản</label>
+                <input
+                  type="text"
+                  required
+                  autoComplete="username"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-[15px] focus:outline-none focus:ring-2 focus:ring-brand-blue/40"
+                  placeholder="Tên đăng nhập"
+                />
+              </div>
+              <div>
+                <label className="text-[13px] text-slate-500 font-medium mb-1 block">Mật khẩu</label>
+                <input
+                  type="password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-[15px] focus:outline-none focus:ring-2 focus:ring-brand-blue/40"
+                  placeholder="••••••••"
+                />
+              </div>
+            </>
+          )}
 
           {error && (
             <p className="text-sm text-brand-red bg-brand-redBg rounded-lg px-3 py-2">{error}</p>
@@ -133,7 +189,7 @@ function LoginForm() {
             disabled={loading}
             className="w-full bg-brand-blue hover:brightness-95 transition text-white font-bold rounded-xl py-3 disabled:opacity-60"
           >
-            {loading ? "Đang đăng nhập..." : "Đăng nhập"}
+            {loading ? "Đang xử lý..." : needsOtp ? "Xác nhận" : "Đăng nhập"}
           </button>
         </form>
       </div>

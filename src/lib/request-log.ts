@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { sendTelegramAlert, shouldAlertForIp } from "@/lib/telegram-alert";
 
 // Duong dan/tien to KHONG ghi log (asset tinh, HMR, internal Next.js) - neu ghi het
 // se ngap bang trong vai giay do 1 lan tai trang keo theo hang chuc file JS/CSS/anh.
@@ -138,6 +139,14 @@ export async function logRequest(params: {
       },
     })
     .catch(() => {});
+
+  // Canh bao tuc thoi qua Telegram cho su kien muc "high" - gioi han 1 lan/10 phut
+  // moi IP de khong spam khi 1 nguon lap lai lien tuc.
+  if (severity === "high" && shouldAlertForIp(ip)) {
+    void sendTelegramAlert(
+      `⚠️ <b>Cảnh báo bảo mật (Cao)</b>\nIP: ${ip}${country ? ` (${city ? city + ", " : ""}${country})` : ""}\nĐường dẫn: ${method} ${path}\nLý do: ${reason}`
+    ).catch(() => {});
+  }
 }
 
 // Cache danh sach IP bi chan trong bo nho (lam moi dinh ky) de KHONG phai truy van DB

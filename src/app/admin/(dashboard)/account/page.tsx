@@ -15,7 +15,7 @@ export default async function AdminAccountPage() {
         <p className="text-slate-400">Cập nhật thông tin và mật khẩu cho tài khoản quản trị của bạn</p>
       </div>
 
-      <AdminAccountForm name={admin.name} email={admin.email} />
+      <AdminAccountForm name={admin.name} email={admin.email} twoFactorEnabled={admin.twoFactorEnabled} />
     </div>
   );
 }

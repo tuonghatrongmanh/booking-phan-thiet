@@ -3,8 +3,17 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useDialog } from "@/components/ui/DialogProvider";
+import AdminTwoFactorCard from "./AdminTwoFactorCard";
 
-export default function AdminAccountForm({ name: initialName, email }: { name: string; email: string }) {
+export default function AdminAccountForm({
+  name: initialName,
+  email,
+  twoFactorEnabled,
+}: {
+  name: string;
+  email: string;
+  twoFactorEnabled: boolean;
+}) {
   const router = useRouter();
   const { toast } = useDialog();
 
@@ -143,6 +152,8 @@ export default function AdminAccountForm({ name: initialName, email }: { name: s
           {savingPassword ? "Đang đổi..." : "Đổi mật khẩu"}
         </button>
       </form>
+
+      <AdminTwoFactorCard enabled={twoFactorEnabled} />
     </div>
   );
 }

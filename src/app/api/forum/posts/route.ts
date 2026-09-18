@@ -6,6 +6,7 @@ import { isForumSlug, slugToEnum, extractHashtags } from "@/lib/forum";
 import { rateLimit } from "@/lib/rate-limit";
 import { getIO } from "@/lib/socket-server";
 import { forumCategoryRoom } from "@/lib/socket-rooms";
+import { extractUrls, findMaliciousUrls } from "@/lib/link-scan";
 
 // reactions loc theo userId ("" -> khong bao gio khop) de client biet minh da tha cam
 // xuc loai gi cho tung bai ngay tu du lieu dau, khong phai doan mo hinh o feed.
@@ -67,6 +68,13 @@ export async function POST(req: Request) {
   }
 
   const { title, content, postType, locationTag, media } = parsed.data;
+
+  const urlsInContent = extractUrls(`${title} ${content}`);
+  const maliciousUrls = await findMaliciousUrls(urlsInContent);
+  if (maliciousUrls.length > 0) {
+    return NextResponse.json({ error: "Bài viết chứa liên kết bị đánh dấu không an toàn, vui lòng gỡ bỏ" }, { status: 400 });
+  }
+
   const category = slugToEnum(slug);
   const tags = extractHashtags(`${title} ${content}`);
 

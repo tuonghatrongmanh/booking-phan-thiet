@@ -5,6 +5,7 @@ import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { authConfig } from "@/lib/auth.config";
 import { rateLimit } from "@/lib/rate-limit";
+import { verifyTwoFactorToken } from "@/lib/two-factor";
 
 // Chong brute-force dang nhap: gioi han theo EMAIL (khong phai IP) vi day la cach
 // chan dung dich - ke tan cong doi IP van khong the thu lai ngay tren CUNG 1 tai
@@ -71,10 +72,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       credentials: {
         email: { label: "Email", type: "email" },
         password: { label: "Mật khẩu", type: "password" },
+        otp: { label: "Mã 2FA", type: "text" },
       },
       async authorize(credentials) {
         const email = credentials?.email as string | undefined;
         const password = credentials?.password as string | undefined;
+        const otp = credentials?.otp as string | undefined;
         if (!email || !password) return null;
         if (!rateLimit(`login-admin:${email.toLowerCase()}`, LOGIN_ATTEMPT_LIMIT, LOGIN_WINDOW_MS)) return null;
 
@@ -83,6 +86,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
         const valid = await bcrypt.compare(password, admin.password);
         if (!valid) return null;
+
+        // 2FA (TOTP) - neu tai khoan da bat, bat buoc phai co ma dung thi moi cho
+        // dang nhap, du mat khau da dung. Day la lop chan THU 2, khong the bo qua
+        // chi bang mat khau bi lo.
+        if (admin.twoFactorEnabled) {
+          if (!otp || !admin.twoFactorSecret || !verifyTwoFactorToken(otp, admin.twoFactorSecret)) return null;
+        }
 
         void prisma.admin.update({ where: { id: admin.id }, data: { lastLoginAt: new Date() } }).catch(() => {});
 
