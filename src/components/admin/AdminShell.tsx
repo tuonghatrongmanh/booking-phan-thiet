@@ -53,6 +53,8 @@ export default function AdminShell({
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [settingsMenuOpen, setSettingsMenuOpen] = useState(false);
+  const canAccessSiteSettings = isSuperAdmin || getSectionPermission(permissions, "settings").access;
   const [openGroups, setOpenGroups] = useState<Set<string>>(() => {
     const initial = new Set<string>();
     for (const item of visibleNav) {
@@ -221,7 +223,7 @@ export default function AdminShell({
             href="/"
             target="_blank"
             rel="noopener noreferrer"
-            className={`flex items-center gap-2 text-sm font-semibold text-white/80 hover:text-white mb-3 ${
+            className={`flex items-center gap-2 text-sm font-semibold text-white/80 hover:text-white mb-1 ${
               collapsed ? "lg:justify-center" : ""
             }`}
             title={collapsed ? "Xem trang web" : undefined}
@@ -230,7 +232,57 @@ export default function AdminShell({
             <span className={collapsed ? "lg:hidden" : ""}>Xem trang web</span>
           </Link>
 
-          <p className={`text-xs text-white/50 mb-2 truncate ${collapsed ? "lg:hidden" : ""}`}>{userName || "Quản trị viên"}</p>
+          <button
+            type="button"
+            onClick={() => {
+              if (collapsed) setCollapsed(false);
+              setSettingsMenuOpen((o) => !o);
+            }}
+            title={collapsed ? "Cài đặt" : undefined}
+            className={`w-full flex items-center gap-2 text-sm font-semibold text-white/80 hover:text-white ${
+              collapsed ? "lg:justify-center" : ""
+            }`}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="shrink-0">
+              <path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 0 0-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 0 0-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 0 0-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 0 0-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 0 0 1.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065zM15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0z" />
+            </svg>
+            <span className={`flex-1 text-left ${collapsed ? "lg:hidden" : ""}`}>Cài đặt</span>
+            {!collapsed && (
+              <i
+                className={`fa-solid fa-chevron-down text-[10px] transition-transform shrink-0 ${settingsMenuOpen ? "rotate-180" : ""}`}
+                aria-hidden="true"
+              />
+            )}
+          </button>
+          {settingsMenuOpen && !collapsed && (
+            <div className="mt-1 mb-2 space-y-1 pl-6">
+              {canAccessSiteSettings && (
+                <Link
+                  href="/admin/settings"
+                  className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-semibold text-white/70 hover:bg-white/10 hover:text-white transition"
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-current shrink-0" />
+                  Cài đặt trang web
+                </Link>
+              )}
+              <Link
+                href="/admin/account"
+                className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-semibold text-white/70 hover:bg-white/10 hover:text-white transition"
+              >
+                <span className="w-1.5 h-1.5 rounded-full bg-current shrink-0" />
+                Tài khoản của tôi
+              </Link>
+              <a
+                href="/admin#hoat-dong"
+                className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-semibold text-white/70 hover:bg-white/10 hover:text-white transition"
+              >
+                <span className="w-1.5 h-1.5 rounded-full bg-current shrink-0" />
+                Nhật ký hoạt động
+              </a>
+            </div>
+          )}
+
+          <p className={`text-xs text-white/50 mb-2 mt-3 truncate ${collapsed ? "lg:hidden" : ""}`}>{userName || "Quản trị viên"}</p>
           <button
             onClick={() => signOut({ callbackUrl: "/admin/login" })}
             className={`text-sm font-semibold text-white/80 hover:text-white flex items-center gap-2 ${collapsed ? "lg:justify-center w-full" : ""}`}

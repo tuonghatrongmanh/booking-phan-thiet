@@ -36,14 +36,7 @@ export default function AdminAccountMenu({ userName }: { userName?: string | nul
             onClick={() => setOpen(false)}
             className="w-full text-left flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50 transition"
           >
-            <i className="fa-regular fa-id-card w-4" aria-hidden="true" /> Thông tin tài khoản
-          </Link>
-          <Link
-            href="/admin/account"
-            onClick={() => setOpen(false)}
-            className="w-full text-left flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50 transition"
-          >
-            <i className="fa-solid fa-gear w-4" aria-hidden="true" /> Cài đặt
+            <i className="fa-regular fa-id-card w-4" aria-hidden="true" /> Tài khoản của tôi
           </Link>
           <a
             href="/admin#hoat-dong"

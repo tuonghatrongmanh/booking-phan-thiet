@@ -61,27 +61,42 @@ export const NAV: NavEntry[] = [
       { href: "/admin/game-banners", label: "Banner", icon: "M3 5h18v14H3zM3 9h18M8 5v4" },
     ],
   },
-  { href: "/admin/car-rentals", label: "Thuê xe", icon: "M5 17h-2v-6l2-5h9l4 5h1a2 2 0 0 1 2 2v4h-2M5 17a2 2 0 1 0 4 0M5 17a2 2 0 1 1 4 0M15 17a2 2 0 1 0 4 0M15 17a2 2 0 1 1 4 0M1 11h16" },
-  { href: "/admin/rental-inquiries", label: "Yêu cầu thuê xe", icon: "M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 14l2 2 4-4" },
+  {
+    label: "Thuê xe",
+    icon: "M5 17h-2v-6l2-5h9l4 5h1a2 2 0 0 1 2 2v4h-2M5 17a2 2 0 1 0 4 0M5 17a2 2 0 1 1 4 0M15 17a2 2 0 1 0 4 0M15 17a2 2 0 1 1 4 0M1 11h16",
+    children: [
+      { href: "/admin/car-rentals", label: "Danh sách xe", icon: "M5 17h-2v-6l2-5h9l4 5h1a2 2 0 0 1 2 2v4h-2M5 17a2 2 0 1 0 4 0M5 17a2 2 0 1 1 4 0M15 17a2 2 0 1 0 4 0M15 17a2 2 0 1 1 4 0M1 11h16" },
+      { href: "/admin/rental-inquiries", label: "Yêu cầu thuê xe", icon: "M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 14l2 2 4-4" },
+    ],
+  },
   { href: "/admin/sheet-sync", label: "Đồng bộ Google Sheets", icon: "M9 17h6M9 13h6M9 9h1M4 4h16v16H4zM4 9h16" },
   { href: "/admin/forum", label: "Diễn đàn", icon: "M21 11.5a8.5 8.5 0 0 1-8.5 8.5c-1.4 0-2.7-.3-3.9-.9L3 20l1-5.5A8.5 8.5 0 1 1 21 11.5z" },
   { href: "/admin/forum-comments", label: "Kiểm duyệt bình luận", icon: "M8 10h8M8 14h5M21 12c0 4.4-4 8-9 8-1.3 0-2.5-.2-3.6-.7L3 21l1.8-4.2A7.9 7.9 0 0 1 3 12c0-4.4 4-8 9-8s9 3.6 9 8z" },
   { href: "/admin/guide-videos", label: "Video hướng dẫn", icon: "M14.752 11.168l-3.197-2.132A1 1 0 0 0 10 9.87v4.263a1 1 0 0 0 1.555.832l3.197-2.132a1 1 0 0 0 0-1.664z M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z" },
   { href: "/admin/users", label: "Thành viên", icon: "M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" },
   { href: "/admin/password-reset-requests", label: "Yêu cầu đặt lại mật khẩu", icon: "M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0 0v3m-6-3a6 6 0 1 1 12 0M5 21h14" },
-  { href: "/admin/staff", label: "Nhân viên", icon: "M17 20h5v-2a4 4 0 0 0-4-4h-1M9 20H4v-2a4 4 0 0 1 4-4h1m0-4a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm7 4a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" },
-  { href: "/admin/audit-log", label: "Nhật ký hành động", icon: "M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 14h6M9 18h4" },
-  { href: "/admin/pending-changes", label: "Chờ duyệt", icon: "M12 8v4l3 3M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20z" },
   {
-    href: "/admin/settings",
-    label: "Cài đặt",
-    icon: "M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 0 0-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 0 0-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 0 0-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 0 0-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 0 0 1.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065zM15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0z",
+    label: "Nhân viên",
+    icon: "M17 20h5v-2a4 4 0 0 0-4-4h-1M9 20H4v-2a4 4 0 0 1 4-4h1m0-4a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm7 4a4 4 0 1 0 0-8 4 4 0 0 0 0 8z",
+    children: [
+      { href: "/admin/staff", label: "Danh sách nhân viên", icon: "M17 20h5v-2a4 4 0 0 0-4-4h-1M9 20H4v-2a4 4 0 0 1 4-4h1m0-4a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm7 4a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" },
+      { href: "/admin/pending-changes", label: "Chờ duyệt", icon: "M12 8v4l3 3M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20z" },
+    ],
   },
+  { href: "/admin/audit-log", label: "Nhật ký hành động", icon: "M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 14h6M9 18h4" },
 ];
 
 // Tim nhan (label) breadcrumb khop voi pathname hien tai - kiem tra ca muc con
 // trong group truoc (khop dai hon/cu the hon), sau do moi den muc cap 1.
+const EXTRA_BREADCRUMB_LABELS: Record<string, string> = {
+  "/admin/settings": "Cài đặt",
+  "/admin/account": "Tài khoản của tôi",
+};
+
 export function findBreadcrumbLabel(pathname: string): string {
+  for (const [href, label] of Object.entries(EXTRA_BREADCRUMB_LABELS)) {
+    if (pathname === href || pathname.startsWith(href + "/")) return label;
+  }
   for (const item of NAV) {
     if (isGroup(item)) {
       for (const child of item.children) {
