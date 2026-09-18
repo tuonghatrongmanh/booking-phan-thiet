@@ -1,6 +1,7 @@
 import { getSiteSettings } from "@/lib/settings";
 import SettingsForm from "@/components/admin/SettingsForm";
 import PaymentSettingsForm from "@/components/admin/PaymentSettingsForm";
+import TelegramTestCard from "@/components/admin/TelegramTestCard";
 import { getPaymentSettings } from "@/lib/payment-settings";
 import { getCurrentAdmin } from "@/lib/current-admin";
 
@@ -21,6 +22,15 @@ export default async function AdminSettingsPage() {
       {admin?.role === "SUPER_ADMIN" && (
         <div className="mt-8">
           <PaymentSettingsForm initial={paymentSettings} />
+        </div>
+      )}
+
+      {admin?.role === "SUPER_ADMIN" && (
+        <div className="mt-8">
+          <TelegramTestCard
+            hasToken={Boolean(process.env.TELEGRAM_BOT_TOKEN)}
+            hasChatId={Boolean(process.env.TELEGRAM_CHAT_ID)}
+          />
         </div>
       )}
     </div>

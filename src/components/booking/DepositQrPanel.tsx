@@ -53,25 +53,42 @@ export default function DepositQrPanel({
   phone,
   breakdown,
   showHeader = true,
+  claim,
+  onClaimChange,
 }: {
   deposit: DepositInfo;
   phone: string;
   breakdown?: string;
   showHeader?: boolean;
+  // Trạng thái "báo đã chuyển" của đơn (khi mở lại từ trang tra cứu). Mặc định: chưa báo.
+  claim?: { reported: boolean; rejected: boolean; canReport: boolean; blockedReason: string | null };
+  onClaimChange?: () => void;
 }) {
-  const [reportState, setReportState] = useState<"idle" | "sending" | "done" | "error">("idle");
+  const [step, setStep] = useState<"idle" | "confirm" | "sending" | "done">(claim?.reported ? "done" : "idle");
+  const [note, setNote] = useState("");
+  const [reportError, setReportError] = useState<string | null>(null);
+  const canReport = claim ? claim.canReport : true;
 
   async function reportPaid() {
-    setReportState("sending");
+    setStep("sending");
+    setReportError(null);
     try {
       const res = await fetch("/api/booking-lookup/report-paid", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ref: deposit.ref, phone }),
+        body: JSON.stringify({ ref: deposit.ref, phone, note: note.trim() || undefined }),
       });
-      setReportState(res.ok ? "done" : "error");
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setReportError(typeof data.error === "string" ? data.error : "Không gửi được, vui lòng thử lại hoặc liên hệ nhân viên.");
+        setStep("idle");
+        return;
+      }
+      setStep("done");
+      onClaimChange?.();
     } catch {
-      setReportState("error");
+      setReportError("Không gửi được, vui lòng thử lại hoặc liên hệ nhân viên.");
+      setStep("idle");
     }
   }
 
@@ -112,24 +129,63 @@ export default function DepositQrPanel({
         <CopyRow label="Nội dung CK" value={deposit.ref} />
       </div>
 
-      {reportState === "done" ? (
+      {claim?.rejected && step !== "done" && (
+        <p className="text-sm text-amber-800 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2.5">
+          Nhân viên đã kiểm tra nhưng <strong>chưa thấy tiền về tài khoản</strong>. Nếu bạn đã chuyển, hãy kiểm tra lại số tiền và
+          nội dung chuyển khoản (<strong>{deposit.ref}</strong>) rồi báo lại, hoặc liên hệ trực tiếp nhân viên.
+        </p>
+      )}
+
+      {step === "done" ? (
         <p className="text-sm text-brand-green bg-brand-greenBg rounded-xl px-3 py-2.5 text-center font-semibold">
           <i className="fa-solid fa-circle-check mr-1.5" aria-hidden="true" />
-          Đã báo cho nhân viên! Chúng tôi sẽ kiểm tra và xác nhận sớm nhất.
+          Đã báo cho nhân viên! Chúng tôi sẽ kiểm tra ngân hàng và xác nhận sớm nhất. Đơn CHỈ được giữ chỗ sau khi nhân viên xác
+          nhận đã nhận tiền.
         </p>
-      ) : (
+      ) : !canReport ? (
+        <p className="text-xs text-slate-500 bg-slate-50 rounded-xl px-3 py-2.5 text-center">{claim?.blockedReason}</p>
+      ) : step === "idle" ? (
         <button
           type="button"
-          onClick={reportPaid}
-          disabled={reportState === "sending"}
-          className="w-full border-2 border-brand-blue text-brand-blue font-bold rounded-xl py-2.5 hover:bg-brand-sky/30 transition disabled:opacity-60"
+          onClick={() => setStep("confirm")}
+          className="w-full border-2 border-brand-blue text-brand-blue font-bold rounded-xl py-2.5 hover:bg-brand-sky/30 transition"
         >
-          {reportState === "sending" ? "Đang gửi..." : "Tôi đã chuyển khoản"}
+          Tôi đã chuyển khoản
         </button>
+      ) : (
+        <div className="border-2 border-brand-blue rounded-xl p-3 space-y-2.5 bg-brand-sky/10">
+          <p className="text-sm text-slate-700">
+            Chỉ bấm khi bạn <strong>đã thực sự chuyển</strong> <strong>{formatVnd(deposit.amount)}</strong> với nội dung{" "}
+            <strong>{deposit.ref}</strong>. Nhân viên sẽ đối chiếu với sao kê ngân hàng.
+          </p>
+          <input
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+            maxLength={120}
+            placeholder="Ghi chú giúp nhân viên tìm nhanh (giờ chuyển, ngân hàng gửi...) - không bắt buộc"
+            className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-blue/40 bg-white"
+          />
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={reportPaid}
+              disabled={step === "sending"}
+              className="flex-1 bg-brand-blue text-white font-bold rounded-lg py-2 text-sm disabled:opacity-60"
+            >
+              {step === "sending" ? "Đang gửi..." : "Đúng, tôi đã chuyển"}
+            </button>
+            <button
+              type="button"
+              onClick={() => setStep("idle")}
+              disabled={step === "sending"}
+              className="px-4 border border-slate-200 text-slate-600 font-semibold rounded-lg text-sm bg-white"
+            >
+              Chưa
+            </button>
+          </div>
+        </div>
       )}
-      {reportState === "error" && (
-        <p className="text-xs text-brand-red text-center">Không gửi được, vui lòng thử lại hoặc liên hệ nhân viên.</p>
-      )}
+      {reportError && <p className="text-xs text-brand-red text-center">{reportError}</p>}
 
       {showHeader && (
         <div className="bg-amber-50 border border-amber-200 rounded-xl px-3 py-2.5 text-center">

@@ -3,6 +3,18 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import DepositQrPanel, { type DepositInfo } from "@/components/booking/DepositQrPanel";
+import RememberedOrderBanner from "@/components/booking/RememberedOrderBanner";
+import { clearDraft, loadContact, loadDraft, rememberOrder, saveContact, saveDraft, type Draft } from "@/lib/booking-device";
+
+function draftStr(d: Draft, key: string): string {
+  const v = d[key];
+  return typeof v === "string" ? v : "";
+}
+
+function draftNum(d: Draft, key: string, fallback: number): number {
+  const v = d[key];
+  return typeof v === "number" ? v : fallback;
+}
 
 function formatVnd(n: number) {
   return `${n.toLocaleString("vi-VN")}đ`;
@@ -57,19 +69,36 @@ export default function StayBookingModal({
   initialGuests,
   onClose,
 }: StayBookingModalProps) {
-  const [checkin, setCheckin] = useState(initialCheckin || todayStr());
-  const [checkout, setCheckout] = useState(initialCheckout || "");
-  const [guests, setGuests] = useState(String(initialGuests ?? 2));
-  const [optionId, setOptionId] = useState(booking.options[0]?.id ?? "");
-  const [quantity, setQuantity] = useState(1);
-  const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [email, setEmail] = useState("");
-  const [note, setNote] = useState("");
+  // Khôi phục thông tin khách đã nhập lần trước (liên hệ dùng chung + nháp riêng của chỗ ở này)
+  // để lỡ thoát form rồi mở lại không phải nhập lại từ đầu. Ngày khách vừa chọn ngay trên
+  // thẻ đặt phòng (initialCheckin/...) được ưu tiên hơn nháp cũ.
+  const [saved] = useState(() => ({ contact: loadContact(), draft: loadDraft("stay", placeId) }));
+  const draftCheckin = draftStr(saved.draft, "checkin");
+  const startCheckin = initialCheckin || (draftCheckin && draftCheckin >= todayStr() ? draftCheckin : todayStr());
+  const draftCheckout = draftStr(saved.draft, "checkout");
+  const draftOption = draftStr(saved.draft, "optionId");
+  const [checkin, setCheckin] = useState(startCheckin);
+  const [checkout, setCheckout] = useState(initialCheckout || (draftCheckout > startCheckin ? draftCheckout : ""));
+  const [guests, setGuests] = useState(String(initialGuests ?? draftNum(saved.draft, "guests", 2)));
+  const [optionId, setOptionId] = useState(
+    booking.options.some((o) => o.id === draftOption) ? draftOption : (booking.options[0]?.id ?? "")
+  );
+  const [quantity, setQuantity] = useState(Math.max(1, draftNum(saved.draft, "quantity", 1)));
+  const [name, setName] = useState(saved.contact.name);
+  const [phone, setPhone] = useState(saved.contact.phone);
+  const [email, setEmail] = useState(saved.contact.email);
+  const [note, setNote] = useState(draftStr(saved.draft, "note"));
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
   const [deposit, setDeposit] = useState<DepositInfo | null>(null);
+
+  // Tự lưu nháp mỗi khi khách sửa (sau khi đặt xong thì thôi, tránh lưu lại đơn đã gửi)
+  useEffect(() => {
+    if (done) return;
+    saveContact({ name, phone, email });
+    saveDraft("stay", placeId, { checkin, checkout, guests, optionId, quantity, note });
+  }, [done, name, phone, email, checkin, checkout, guests, optionId, quantity, note, placeId]);
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
@@ -138,6 +167,18 @@ export default function StayBookingModal({
     }
     setDeposit(data.deposit ?? null);
     setDone(true);
+    clearDraft("stay", placeId);
+    // Nhớ đơn trên thiết bị để khách tra cứu / quay lại thanh toán mà không cần đăng nhập
+    if (data.deposit?.ref) {
+      rememberOrder({
+        ref: data.deposit.ref,
+        phone: phone.trim(),
+        kind: "stay",
+        placeId,
+        placeName,
+        createdAt: Date.now(),
+      });
+    }
   }
 
   if (typeof document === "undefined") return null;
@@ -193,6 +234,7 @@ export default function StayBookingModal({
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="p-5 space-y-4">
+            <RememberedOrderBanner kind="stay" placeId={placeId} />
             <p className="font-bold text-sm text-slate-800 bg-slate-50 rounded-xl p-3">{placeName}</p>
 
             {booking.options.length > 0 && (

@@ -27,6 +27,12 @@ export default function RentalHero() {
           <p className="text-outline-white text-slate-600 text-sm mt-1.5">
             Xe số, xe tay ga, Vision, SH, các dòng xe đời mới - giá ngày thường/ngày lễ rõ ràng, giao nhận tận nơi
           </p>
+          <Link
+            href="/tra-cuu-dat-cho"
+            className="mt-3 inline-flex items-center gap-2 bg-white/90 hover:bg-white text-brand-blue text-xs font-bold rounded-full px-3.5 py-1.5 shadow transition"
+          >
+            <i className="fa-solid fa-magnifying-glass" aria-hidden="true" /> Tra cứu đơn đã đặt
+          </Link>
         </div>
       </div>
     </div>

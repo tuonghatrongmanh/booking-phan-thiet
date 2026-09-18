@@ -2,6 +2,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import RentalInquiryStatusControl from "@/components/admin/RentalInquiryStatusControl";
 import DepositBadge from "@/components/admin/DepositBadge";
+import { isDepositExpired } from "@/lib/booking-status";
 import CustomerContact from "@/components/admin/CustomerContact";
 import { buildCustomerMessage } from "@/lib/booking-message";
 
@@ -112,6 +113,11 @@ export default async function AdminRentalInquiriesPage({
                       amount={r.depositAmount}
                       depositRef={r.depositRef}
                       reportedPaid={Boolean(r.customerReportedPaidAt)}
+                      claimNote={r.paymentClaimNote}
+                      claimRejected={Boolean(r.paymentClaimRejectedAt) && !r.customerReportedPaidAt}
+                      claimCount={r.paymentClaimCount}
+                      expired={isDepositExpired(r.createdAt)}
+                      rejectUrl={`/api/admin/rental-inquiries/${r.id}/reject-claim`}
                       confirmUrl={`/api/admin/rental-inquiries/${r.id}/confirm-deposit`}
                     />
                   </td>

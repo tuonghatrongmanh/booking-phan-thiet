@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { formatPriceVnd } from "@/lib/place-amenities";
 import StayBookingModal, { type StayBookingConfig } from "@/components/places/StayBookingModal";
 
@@ -91,6 +92,10 @@ export default function StayBookingCard({
           <i className={zaloUrl ? "fa-solid fa-comment-dots" : "fa-solid fa-phone"} aria-hidden="true" /> {contactLabel}
         </a>
       )}
+
+      <Link href="/tra-cuu-dat-cho" className="mt-3 block text-center text-[13px] font-semibold text-[#1678C8] hover:underline">
+        Đã đặt trước đó? Tra cứu đơn của bạn
+      </Link>
 
       <div className="mt-4 space-y-2 text-[13px] text-[#486783]">
         <p className="flex items-center gap-2">

@@ -621,6 +621,9 @@ model RentalInquiry {
   quantity       Int      @default(1) // so xe khach dat cung luc (coc = coc moi xe x quantity)
   customerEmail  String? // tuy chon - de gui email xac nhan/cap nhat cho khach
   customerReportedPaidAt DateTime? // khach bam "Toi da chuyen khoan" - CHI la nhac admin kiem tra, khong phai xac nhan
+  paymentClaimCount      Int       @default(0) // so lan khach bam "Toi da chuyen khoan" (gioi han de chong bam bua)
+  paymentClaimRejectedAt DateTime? // admin bam "Chua nhan duoc tien" lan gan nhat
+  paymentClaimNote       String? // ghi chu khach nhap kem (gio chuyen, ngan hang gui...)
 
   // Dat coc qua VietQR - "PAID" la dieu kien duy nhat de tinh la da "chiem" ngay
   // do khi kiem tra trung lich cho don khac (xem src/lib/booking-availability.ts).
@@ -663,6 +666,9 @@ model StayBookingInquiry {
   quantity       Int      @default(1) // so phong cua goi da chon
   customerEmail  String?
   customerReportedPaidAt DateTime?
+  paymentClaimCount      Int       @default(0) // so lan khach bam "Toi da chuyen khoan" (gioi han de chong bam bua)
+  paymentClaimRejectedAt DateTime? // admin bam "Chua nhan duoc tien" lan gan nhat
+  paymentClaimNote       String? // ghi chu khach nhap kem (gio chuyen, ngan hang gui...)
 
   depositAmount  Int?
   depositStatus  DepositStatus @default(NONE)

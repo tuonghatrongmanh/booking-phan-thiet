@@ -51,13 +51,14 @@ export function notifyAdminNewBooking(b: BookingSummary): void {
   void sendTelegramAlert(lines.join("\n"));
 }
 
-export function notifyAdminReportedPaid(b: BookingSummary): void {
+export function notifyAdminReportedPaid(b: BookingSummary, note?: string | null): void {
   void sendTelegramAlert(
     [
-      `💸 <b>Khách báo đã chuyển cọc</b>`,
+      `💸 <b>Khách báo đã chuyển cọc (CHƯA xác minh)</b>`,
       `${esc(b.placeName)} - ${esc(b.customerName)} (${esc(b.customerPhone)})`,
       `Số tiền: ${b.depositAmount ? vnd(b.depositAmount) : "?"} - mã CK <code>${esc(b.depositRef ?? "")}</code>`,
-      `Hãy kiểm tra app ngân hàng rồi bấm "Xác nhận đã nhận cọc" trong Admin.`,
+      ...(note ? [`Khách ghi chú: ${esc(note)}`] : []),
+      `Hãy kiểm tra app ngân hàng: thấy tiền thì bấm "Xác nhận đã nhận cọc", chưa thấy thì bấm "Chưa nhận được tiền" trong Admin.`,
     ].join("\n")
   );
 }
@@ -135,4 +136,16 @@ export function formatBookingDate(d: Date): string {
   const dd = String(d.getUTCDate()).padStart(2, "0");
   const mm = String(d.getUTCMonth() + 1).padStart(2, "0");
   return `${dd}/${mm}/${d.getUTCFullYear()}`;
+}
+
+export async function emailDepositNotFound(b: BookingSummary) {
+  if (!b.customerEmail) return;
+  await sendMail({
+    to: b.customerEmail,
+    subject: `Chưa nhận được tiền cọc - ${b.placeName}`,
+    html: emailShell(
+      "Chúng tôi chưa thấy khoản cọc của bạn",
+      `<p>Xin chào ${esc(b.customerName)}, nhân viên đã kiểm tra nhưng <b>chưa thấy khoản chuyển</b> với nội dung <b>${esc(b.depositRef ?? "")}</b> trong tài khoản.</p>${infoTable(b)}<p>Nếu bạn đã chuyển, vui lòng kiểm tra lại số tiền và nội dung chuyển khoản (ngân hàng đôi khi xử lý chậm vài phút), rồi bấm báo lại ở trang tra cứu hoặc liên hệ trực tiếp nhân viên.</p>${trackLink(b)}`
+    ),
+  });
 }

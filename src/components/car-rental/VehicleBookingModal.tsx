@@ -5,6 +5,18 @@ import { createPortal } from "react-dom";
 import Image from "next/image";
 import type { VehicleData } from "./VehicleListClient";
 import DepositQrPanel, { type DepositInfo } from "@/components/booking/DepositQrPanel";
+import RememberedOrderBanner from "@/components/booking/RememberedOrderBanner";
+import { clearDraft, loadContact, loadDraft, rememberOrder, saveContact, saveDraft, type Draft } from "@/lib/booking-device";
+
+function draftStr(d: Draft, key: string): string {
+  const v = d[key];
+  return typeof v === "string" ? v : "";
+}
+
+function draftNum(d: Draft, key: string, fallback: number): number {
+  const v = d[key];
+  return typeof v === "number" ? v : fallback;
+}
 
 function formatVnd(n: number) {
   return `${n.toLocaleString("vi-VN")}đ`;
@@ -26,18 +38,31 @@ function diffDays(a: string, b: string) {
 }
 
 export default function VehicleBookingModal({ vehicle, onClose }: { vehicle: VehicleData; onClose: () => void }) {
-  const [pickupDate, setPickupDate] = useState(todayStr());
-  const [returnDate, setReturnDate] = useState(addDaysStr(todayStr(), 1));
-  const [pickupLocation, setPickupLocation] = useState(vehicle.address ?? "");
-  const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [email, setEmail] = useState("");
-  const [quantity, setQuantity] = useState(1);
-  const [note, setNote] = useState("");
+  // Khôi phục thông tin khách đã nhập lần trước (liên hệ dùng chung + nháp riêng của xe này)
+  // để lỡ thoát form rồi mở lại không phải nhập lại từ đầu.
+  const [saved] = useState(() => ({ contact: loadContact(), draft: loadDraft("rental", vehicle.id) }));
+  const draftPickup = draftStr(saved.draft, "pickupDate");
+  const startDate = draftPickup && draftPickup >= todayStr() ? draftPickup : todayStr();
+  const draftReturn = draftStr(saved.draft, "returnDate");
+  const [pickupDate, setPickupDate] = useState(startDate);
+  const [returnDate, setReturnDate] = useState(draftReturn && draftReturn >= startDate ? draftReturn : addDaysStr(startDate, 1));
+  const [pickupLocation, setPickupLocation] = useState(draftStr(saved.draft, "pickupLocation") || (vehicle.address ?? ""));
+  const [name, setName] = useState(saved.contact.name);
+  const [phone, setPhone] = useState(saved.contact.phone);
+  const [email, setEmail] = useState(saved.contact.email);
+  const [quantity, setQuantity] = useState(Math.min(Math.max(1, vehicle.totalRooms ?? 1), Math.max(1, draftNum(saved.draft, "quantity", 1))));
+  const [note, setNote] = useState(draftStr(saved.draft, "note"));
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
   const [deposit, setDeposit] = useState<DepositInfo | null>(null);
+
+  // Tự lưu nháp mỗi khi khách sửa (sau khi đặt xong thì thôi, tránh lưu lại đơn đã gửi)
+  useEffect(() => {
+    if (done) return;
+    saveContact({ name, phone, email });
+    saveDraft("rental", vehicle.id, { pickupDate, returnDate, pickupLocation, quantity, note });
+  }, [done, name, phone, email, pickupDate, returnDate, pickupLocation, quantity, note, vehicle.id]);
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
@@ -103,6 +128,18 @@ export default function VehicleBookingModal({ vehicle, onClose }: { vehicle: Veh
     }
     setDeposit(data.deposit ?? null);
     setDone(true);
+    clearDraft("rental", vehicle.id);
+    // Nhớ đơn trên thiết bị để khách tra cứu / quay lại thanh toán mà không cần đăng nhập
+    if (data.deposit?.ref) {
+      rememberOrder({
+        ref: data.deposit.ref,
+        phone: phone.trim(),
+        kind: "rental",
+        placeId: vehicle.id,
+        placeName: vehicle.name,
+        createdAt: Date.now(),
+      });
+    }
   }
 
   if (typeof document === "undefined") return null;
@@ -159,6 +196,7 @@ export default function VehicleBookingModal({ vehicle, onClose }: { vehicle: Veh
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="p-5 space-y-4">
+            <RememberedOrderBanner kind="rental" placeId={vehicle.id} />
             <div className="flex items-center gap-3 bg-slate-50 rounded-xl p-3">
               <div className="relative w-16 h-14 rounded-lg overflow-hidden shrink-0 bg-slate-100">
                 {vehicle.avatar && <Image src={vehicle.avatar} alt={vehicle.name} fill className="object-cover" />}

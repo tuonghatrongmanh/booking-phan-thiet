@@ -67,6 +67,7 @@ export default async function Footer() {
               HỖ TRỢ
             </p>
             <ul className="space-y-2.5 text-sm">
+              <li><Link href="/tra-cuu-dat-cho" className="hover:text-brand-gold hover:pl-1 transition-all inline-block">Tra cứu đơn đặt phòng / thuê xe</Link></li>
               <li><a href="#" className="hover:text-brand-gold hover:pl-1 transition-all inline-block">Hướng dẫn sử dụng</a></li>
               <li><a href="#" className="hover:text-brand-gold hover:pl-1 transition-all inline-block">Câu hỏi thường gặp</a></li>
               <li><a href="#" className="hover:text-brand-gold hover:pl-1 transition-all inline-block">Chính sách bảo mật</a></li>
