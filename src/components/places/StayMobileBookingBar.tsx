@@ -1,15 +1,21 @@
+"use client";
+
+import { useState } from "react";
 import { formatPriceVnd } from "@/lib/place-amenities";
+import StayBookingModal from "@/components/places/StayBookingModal";
 
 export default function StayMobileBookingBar({
+  placeId,
+  placeName,
   priceFromVnd,
   phone,
-  zaloUrl,
 }: {
+  placeId: string;
+  placeName: string;
   priceFromVnd: number | null;
   phone: string | null;
-  zaloUrl: string | null;
 }) {
-  const ctaHref = zaloUrl || (phone ? `tel:${phone}` : undefined);
+  const [open, setOpen] = useState(false);
 
   return (
     <div className="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-white shadow-[0_-4px_20px_rgba(0,0,0,0.10)] h-[68px] px-4 flex items-center justify-between gap-3">
@@ -23,17 +29,22 @@ export default function StayMobileBookingBar({
           <p className="text-xs text-[#8298AE]">Liên hệ để biết giá</p>
         )}
       </div>
-      <a
-        href={ctaHref}
-        target={zaloUrl ? "_blank" : undefined}
-        rel={zaloUrl ? "noopener noreferrer" : undefined}
-        aria-disabled={!ctaHref}
-        className={`shrink-0 h-11 min-w-[132px] px-5 rounded-xl font-extrabold text-white flex items-center justify-center gap-2 ${
-          ctaHref ? "bg-gradient-to-br from-[#168FE2] to-[#0879CE]" : "bg-slate-300 pointer-events-none"
-        }`}
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="shrink-0 h-11 min-w-[132px] px-5 rounded-xl font-extrabold text-white flex items-center justify-center gap-2 bg-gradient-to-br from-[#168FE2] to-[#0879CE]"
       >
-        Đặt ngay
-      </a>
+        Đặt phòng
+      </button>
+      {open && (
+        <StayBookingModal
+          placeId={placeId}
+          placeName={placeName}
+          priceFromVnd={priceFromVnd}
+          phone={phone}
+          onClose={() => setOpen(false)}
+        />
+      )}
     </div>
   );
 }

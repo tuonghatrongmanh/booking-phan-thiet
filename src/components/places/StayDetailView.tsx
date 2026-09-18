@@ -165,7 +165,7 @@ export default async function StayDetailView({ placeId }: { placeId: string }) {
           </div>
 
           <div className="lg:sticky lg:top-[110px]">
-            <StayBookingCard priceFromVnd={place.priceFromVnd} phone={place.phone} zaloUrl={place.zaloUrl} />
+            <StayBookingCard placeId={place.id} placeName={place.name} priceFromVnd={place.priceFromVnd} phone={place.phone} zaloUrl={place.zaloUrl} />
           </div>
         </div>
 
@@ -246,7 +246,7 @@ export default async function StayDetailView({ placeId }: { placeId: string }) {
 
       <Footer />
       <ScrollTopButton />
-      <StayMobileBookingBar priceFromVnd={place.priceFromVnd} phone={place.phone} zaloUrl={place.zaloUrl} />
+      <StayMobileBookingBar placeId={place.id} placeName={place.name} priceFromVnd={place.priceFromVnd} phone={place.phone} />
       <div className="lg:hidden h-[68px]" aria-hidden="true" />
     </div>
   );

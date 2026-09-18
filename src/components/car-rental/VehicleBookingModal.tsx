@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import Image from "next/image";
 import type { VehicleData } from "./VehicleListClient";
+import DepositQrPanel, { type DepositInfo } from "@/components/booking/DepositQrPanel";
 
 function formatVnd(n: number) {
   return `${n.toLocaleString("vi-VN")}đ`;
@@ -34,6 +35,7 @@ export default function VehicleBookingModal({ vehicle, onClose }: { vehicle: Veh
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
+  const [deposit, setDeposit] = useState<DepositInfo | null>(null);
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
@@ -82,10 +84,17 @@ export default function VehicleBookingModal({ vehicle, onClose }: { vehicle: Veh
     });
     setSubmitting(false);
 
+    const data = await res.json().catch(() => ({}));
     if (!res.ok) {
-      setErrors({ form: "Không thể gửi yêu cầu, vui lòng thử lại hoặc gọi trực tiếp." });
+      setErrors({
+        form:
+          typeof data.error === "string" && res.status === 409
+            ? data.error
+            : "Không thể gửi yêu cầu, vui lòng thử lại hoặc gọi trực tiếp.",
+      });
       return;
     }
+    setDeposit(data.deposit ?? null);
     setDone(true);
   }
 
@@ -107,7 +116,14 @@ export default function VehicleBookingModal({ vehicle, onClose }: { vehicle: Veh
           </button>
         </div>
 
-        {done ? (
+        {done && deposit ? (
+          <div className="p-5">
+            <DepositQrPanel deposit={deposit} phone={phone} />
+            <button type="button" onClick={onClose} className="mt-4 w-full bg-brand-blue text-white font-bold rounded-xl py-2.5">
+              Đóng
+            </button>
+          </div>
+        ) : done ? (
           <div className="p-6 text-center">
             <div className="w-14 h-14 rounded-full bg-brand-greenBg text-brand-green flex items-center justify-center mx-auto mb-3 text-2xl">
               <i className="fa-solid fa-check" aria-hidden="true" />

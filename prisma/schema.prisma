@@ -99,6 +99,7 @@ model User {
   placeReviews     PlaceReview[]
   salePlace        Place?
   rentalInquiries RentalInquiry[]
+  stayBookingInquiries StayBookingInquiry[]
   passwordResetTokens     PasswordResetToken[]
   emailVerificationTokens EmailVerificationToken[]
 }
@@ -589,6 +590,7 @@ model Place {
   videos         PlaceVideo[]
   standing       SaleStanding?
   rentalInquiries RentalInquiry[]
+  stayBookingInquiries StayBookingInquiry[]
 
   @@index([category, status])
 }
@@ -610,6 +612,48 @@ model RentalInquiry {
   pickupLocation String?
   note           String?  @db.Text
   status         RentalInquiryStatus @default(PENDING)
+
+  // Dat coc qua VietQR - "PAID" la dieu kien duy nhat de tinh la da "chiem" ngay
+  // do khi kiem tra trung lich cho don khac (xem src/lib/booking-availability.ts).
+  // depositRef la ma duy nhat nhung vao noi dung chuyen khoan de doi chieu tay.
+  depositAmount  Int?
+  depositStatus  DepositStatus @default(NONE)
+  depositRef     String?       @unique
+  depositPaidAt  DateTime?
+
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([placeId])
+  @@index([userId])
+  @@index([status])
+}
+
+enum DepositStatus {
+  NONE
+  PENDING
+  PAID
+}
+
+model StayBookingInquiry {
+  id             String   @id @default(cuid())
+  place          Place    @relation(fields: [placeId], references: [id], onDelete: Cascade)
+  placeId        String
+  user           User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userId         String?
+  customerName   String
+  customerPhone  String
+  checkinDate    DateTime
+  checkoutDate   DateTime
+  guestCount     Int?
+  note           String?  @db.Text
+  status         RentalInquiryStatus @default(PENDING)
+
+  depositAmount  Int?
+  depositStatus  DepositStatus @default(NONE)
+  depositRef     String?       @unique
+  depositPaidAt  DateTime?
+
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
@@ -658,6 +702,16 @@ model GuideVideo {
 // Mat khau chu - chi SUPER_ADMIN biet, dung de xac nhan lai truoc khi dat lai mat khau
 // Sale/Nhan vien. Luu 1 dong duy nhat (singleton id="singleton"), hash bcrypt - khong
 // ai xem lai duoc gia tri goc, chi so sanh dung/sai.
+model PaymentSettings {
+  id                 String @id @default("singleton")
+  bankBin            String?
+  bankLabel          String?
+  bankAccountNumber  String?
+  bankAccountName    String?
+  depositAmountVnd   Int      @default(100000)
+  updatedAt          DateTime @updatedAt
+}
+
 model SecuritySettings {
   id                 String   @id @default("singleton")
   masterPasswordHash String

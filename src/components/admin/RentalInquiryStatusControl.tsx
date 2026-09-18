@@ -11,7 +11,15 @@ const STATUS_LABEL: Record<string, string> = {
   CANCELLED: "Đã hủy",
 };
 
-export default function RentalInquiryStatusControl({ id, status }: { id: string; status: string }) {
+export default function RentalInquiryStatusControl({
+  id,
+  status,
+  statusUrl,
+}: {
+  id: string;
+  status: string;
+  statusUrl?: string;
+}) {
   const router = useRouter();
   const { toast } = useDialog();
   const [saving, setSaving] = useState(false);
@@ -19,7 +27,7 @@ export default function RentalInquiryStatusControl({ id, status }: { id: string;
   async function updateStatus(next: string) {
     if (next === status) return;
     setSaving(true);
-    const res = await fetch(`/api/admin/rental-inquiries/${id}`, {
+    const res = await fetch(statusUrl ?? `/api/admin/rental-inquiries/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status: next }),

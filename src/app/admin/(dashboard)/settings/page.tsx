@@ -1,10 +1,13 @@
 import { getSiteSettings } from "@/lib/settings";
 import SettingsForm from "@/components/admin/SettingsForm";
+import PaymentSettingsForm from "@/components/admin/PaymentSettingsForm";
+import { getPaymentSettings } from "@/lib/payment-settings";
+import { getCurrentAdmin } from "@/lib/current-admin";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminSettingsPage() {
-  const settings = await getSiteSettings();
+  const [settings, paymentSettings, admin] = await Promise.all([getSiteSettings(), getPaymentSettings(), getCurrentAdmin()]);
 
   return (
     <div>
@@ -14,6 +17,12 @@ export default async function AdminSettingsPage() {
       </div>
 
       <SettingsForm initial={settings} />
+
+      {admin?.role === "SUPER_ADMIN" && (
+        <div className="mt-8">
+          <PaymentSettingsForm initial={paymentSettings} />
+        </div>
+      )}
     </div>
   );
 }

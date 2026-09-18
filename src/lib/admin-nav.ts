@@ -21,6 +21,7 @@ export const NAV: NavEntry[] = [
     children: [
       { href: "/admin/luu-tru", label: "Tổng quan Lưu trú", icon: "M4 13h6V4H4v9zm0 7h6v-5H4v5zm10 0h6V11h-6v9zm0-16v5h6V4h-6z" },
       { href: "/admin/places", label: "Địa điểm / Homestay", icon: "M12 2 3 14h7l-1 8 11-13h-7l1-7z" },
+      { href: "/admin/stay-booking-inquiries", label: "Yêu cầu đặt phòng", icon: "M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 14l2 2 4-4" },
       { href: "/admin/stay-areas", label: "Khu vực", icon: "M12 2 3 14h7l-1 8 11-13h-7l1-7z" },
       { href: "/admin/stay-amenities", label: "Tiện ích", icon: "M4 6h16M4 12h16M4 18h16" },
       { href: "/admin/stay-types", label: "Danh mục chỗ ở", icon: "M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z" },
@@ -120,6 +121,7 @@ export const HREF_TO_SECTION: Record<string, import("@/lib/admin-permissions").S
   "/admin/news": "tin-tuc",
   "/admin/luu-tru": "luu-tru-settings",
   "/admin/places": "homestay",
+  "/admin/stay-booking-inquiries": "homestay",
   "/admin/stay-areas": "stay-areas",
   "/admin/stay-amenities": "stay-amenities",
   "/admin/stay-types": "stay-types",
