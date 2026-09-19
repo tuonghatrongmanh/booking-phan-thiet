@@ -41,12 +41,12 @@ export default function TableOfContents({ headings }: { headings: ArticleHeading
                 document.getElementById(h.id)?.scrollIntoView({ behavior: "smooth", block: "start" });
               }}
               className={`flex items-start gap-2.5 py-1.5 text-sm rounded-lg px-2 -mx-2 transition-colors ${
-                activeId === h.id ? "text-brand-blue font-bold bg-brand-sky" : "text-slate-600 hover:text-brand-blue"
+                activeId === h.id ? "text-food-primary font-bold bg-food-light" : "text-slate-600 hover:text-food-primary"
               }`}
             >
               <span
                 className={`shrink-0 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
-                  activeId === h.id ? "bg-brand-blue text-white" : "bg-slate-100 text-slate-400"
+                  activeId === h.id ? "bg-food-primary text-white" : "bg-food-light text-food-textMuted"
                 }`}
               >
                 {i + 1}

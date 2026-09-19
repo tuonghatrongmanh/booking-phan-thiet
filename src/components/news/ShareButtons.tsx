@@ -10,7 +10,8 @@ export default function ShareButtons({ path, title }: { path: string; title: str
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    setUrl(window.location.origin + path);
+    const t = setTimeout(() => setUrl(window.location.origin + path), 0);
+    return () => clearTimeout(t);
   }, [path]);
 
   async function copyLink() {

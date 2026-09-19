@@ -48,7 +48,7 @@ export default async function Header() {
               <Link
                 href="/dang-nhap"
                 aria-label="Đăng nhập"
-                className="flex items-center gap-1.5 w-10 h-10 sm:w-auto sm:h-auto justify-center sm:bg-white sm:hover:bg-slate-100 hover:bg-white/10 transition rounded-full sm:pl-3 sm:pr-4 sm:py-2 text-sm font-bold text-white sm:text-brand-blue sm:shadow-[0_4px_12px_rgba(0,0,0,0.08)]"
+                className="flex items-center gap-1.5 whitespace-nowrap shrink-0 w-10 h-10 sm:w-auto sm:h-auto justify-center sm:bg-white sm:hover:bg-slate-100 hover:bg-white/10 transition rounded-full sm:pl-3 sm:pr-4 sm:py-2 text-sm font-bold text-white sm:text-brand-blue sm:shadow-[0_4px_12px_rgba(0,0,0,0.08)]"
               >
                 <i className="fa-solid fa-user text-base sm:text-sm" aria-hidden="true" />
                 <span className="hidden sm:inline">

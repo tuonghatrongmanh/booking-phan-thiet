@@ -18,18 +18,14 @@ import NearbyPlaces from "@/components/news/NearbyPlaces";
 import AuthorInfo from "@/components/news/AuthorInfo";
 import RelatedServices from "@/components/news/RelatedServices";
 import EndCTA from "@/components/news/EndCTA";
+import ArticleSectionNav, { type ArticleSection } from "@/components/news/ArticleSectionNav";
+import ArticleSectionTitle from "@/components/news/ArticleSectionTitle";
+import ArticleSaveShare from "@/components/news/ArticleSaveShare";
 import { getSiteSettings } from "@/lib/settings";
 import { toDisplayHtml } from "@/lib/sanitize-html";
 import { prepareArticleContent, estimateReadingTime, splitBeforeHeading, injectVideoEmbeds, extractFaqItems } from "@/lib/article-content";
 
 export const dynamic = "force-dynamic";
-
-const CATEGORY_BADGE: Record<string, string> = {
-  "Kinh nghiệm": "bg-brand-blue",
-  "Địa điểm": "bg-amber-500",
-  "Ẩm thực": "bg-orange-500",
-  "Trải nghiệm": "bg-orange-500",
-};
 
 function formatDate(date: Date) {
   return new Date(date).toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" });
@@ -125,62 +121,68 @@ export default async function NewsDetailPage({ params }: { params: Promise<{ slu
     });
   }
 
+  const mapsUrl = article.place
+    ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${article.place.name} ${article.place.address ?? ""}`.trim())}`
+    : null;
+
+  const sections: ArticleSection[] = [{ id: "noi-dung", label: "Nội dung" }];
+  if (article.place && article.place.reviews.length > 0) sections.push({ id: "danh-gia", label: "Đánh giá" });
+  if (article.place?.mapEmbedUrl) sections.push({ id: "ban-do", label: "Bản đồ" });
+  if (comboSale) sections.push({ id: "uu-dai", label: "Ưu đãi" });
+  sections.push({ id: "dich-vu", label: "Dịch vụ" });
+  if (related.length > 0) sections.push({ id: "bai-lien-quan", label: "Bài liên quan" });
+
   return (
     <>
       <ReadingProgressBar />
       <Header />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdGraph) }} />
 
-      <div className="bg-white border-b border-slate-100">
-        <div className="container-custom py-3 flex items-center gap-2 text-[13px] text-slate-400 overflow-x-auto scrollbar-none">
-          <Link href="/" className="hover:text-brand-blue shrink-0">
+      <div className="max-w-[1240px] mx-auto px-6 sm:px-8 py-8">
+        <nav className="text-[13px] text-food-textMuted font-semibold flex items-center gap-1.5 mb-5 flex-wrap">
+          <Link href="/" className="hover:text-food-primary transition-colors">
             Trang chủ
           </Link>
-          <span aria-hidden="true">/</span>
-          <Link href="/tin-tuc" className="hover:text-brand-blue shrink-0">
+          <i className="fa-solid fa-chevron-right text-[9px]" aria-hidden="true" />
+          <Link href="/tin-tuc" className="hover:text-food-primary transition-colors">
             Blog
           </Link>
-          <span aria-hidden="true">/</span>
-          <span className="shrink-0">{article.category}</span>
-          <span aria-hidden="true">/</span>
-          <span className="text-slate-600 font-medium truncate">{article.title}</span>
-        </div>
-      </div>
+          <i className="fa-solid fa-chevron-right text-[9px]" aria-hidden="true" />
+          <span>{article.category}</span>
+          <i className="fa-solid fa-chevron-right text-[9px]" aria-hidden="true" />
+          <span className="text-food-text">{article.title}</span>
+        </nav>
 
-      <section className="container-custom py-7 lg:py-9">
-        <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_320px] gap-8 items-start">
-          <article className="min-w-0" id="noi-dung">
-            <span
-              className={`inline-block text-xs font-bold text-white px-3 py-1.5 rounded-full uppercase tracking-wide mb-3 ${
-                CATEGORY_BADGE[article.category] ?? "bg-brand-blue"
-              }`}
-            >
-              Khám phá Phan Thiết
-            </span>
-
-            <h1 className="font-display font-bold text-[28px] sm:text-[34px] leading-[1.2] text-slate-800 mb-3">{article.title}</h1>
-
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm text-slate-400 mb-4">
-              <span className="flex items-center gap-1.5">
-                <i className="fa-regular fa-user" aria-hidden="true" /> {article.author?.name || "Booking Phan Thiết"}
+        <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_360px] gap-6">
+          <article className="min-w-0">
+            <div className="group relative aspect-[16/9] sm:aspect-[2/1] rounded-2xl overflow-hidden bg-food-light">
+              <span className="absolute top-3 left-3 z-10 text-[11px] font-bold text-white bg-food-primary px-2.5 py-1 rounded-full flex items-center gap-1">
+                <i className="fa-solid fa-newspaper" aria-hidden="true" /> {article.category}
               </span>
-              <span className="flex items-center gap-1.5">
-                <i className="fa-regular fa-calendar" aria-hidden="true" /> {formatDate(article.createdAt)}
-              </span>
-              <span className="flex items-center gap-1.5">
-                <i className="fa-regular fa-eye" aria-hidden="true" /> {article.views.toLocaleString("vi-VN")} lượt xem
-              </span>
-              <span className="flex items-center gap-1.5">
-                <i className="fa-regular fa-clock" aria-hidden="true" /> {readingTime} phút đọc
-              </span>
-              <SaveArticleButton articleId={article.id} compact />
-            </div>
-
-            <p className="text-slate-600 text-[15px] sm:text-base leading-relaxed mb-6">{article.excerpt}</p>
-
-            <div className="relative aspect-[2/1] rounded-3xl overflow-hidden shadow-lg mb-6">
               <NewsCoverImage src={article.coverImage} alt={article.title} fit="cover" />
             </div>
+
+            <header className="mt-5 mb-5">
+              <h1 className="font-display font-extrabold text-food-text text-[26px] sm:text-[34px] leading-[1.2] mb-3">{article.title}</h1>
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm text-food-textMuted mb-4">
+                <span className="flex items-center gap-1.5">
+                  <i className="fa-regular fa-user" aria-hidden="true" /> {article.author?.name || "Booking Phan Thiết"}
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <i className="fa-regular fa-calendar" aria-hidden="true" /> {formatDate(article.createdAt)}
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <i className="fa-regular fa-eye" aria-hidden="true" /> {article.views.toLocaleString("vi-VN")} lượt xem
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <i className="fa-regular fa-clock" aria-hidden="true" /> {readingTime} phút đọc
+                </span>
+                <SaveArticleButton articleId={article.id} compact />
+              </div>
+              <p className="text-slate-600 text-[15px] sm:text-base leading-relaxed bg-food-light rounded-2xl px-5 py-4 border-l-4 border-food-primary">
+                {article.excerpt}
+              </p>
+            </header>
 
             {article.place && (
               <PlaceQuickFacts
@@ -197,150 +199,209 @@ export default async function NewsDetailPage({ params }: { params: Promise<{ slu
               <PlaceActionBar articleId={article.id} phone={article.place.phone} address={article.place.address} placeName={article.place.name} />
             )}
 
-            <div
-              className="article-content text-[15px] sm:text-base text-slate-700 leading-relaxed"
-              dangerouslySetInnerHTML={{ __html: before }}
-            />
+            <ArticleSectionNav sections={sections} />
 
-            {afterRaw && (
-              <div className="my-10 rounded-3xl bg-brand-sky/60 border border-brand-blue/10 text-slate-800 p-6 sm:p-8 flex flex-col sm:flex-row items-center gap-5 sm:justify-between">
-                <div className="flex items-center gap-4">
-                  <span className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center text-xl shrink-0 text-brand-blue shadow-card">
-                    <i className="fa-solid fa-map-location-dot" aria-hidden="true" />
-                  </span>
-                  <p className="text-lg sm:text-xl font-bold leading-snug">Bạn muốn khám phá địa điểm này?</p>
+            <div id="noi-dung" className="scroll-mt-40 mt-6 bg-white rounded-2xl shadow-game-card p-5 sm:p-8">
+              <div className="article-content text-[15px] sm:text-base text-slate-600 leading-relaxed" dangerouslySetInnerHTML={{ __html: before }} />
+
+              {afterRaw && (
+                <div className="my-8 rounded-2xl bg-food-light border border-brand-blue/10 text-food-text p-5 sm:p-6 flex flex-col sm:flex-row items-center gap-4 sm:justify-between">
+                  <div className="flex items-center gap-4">
+                    <span className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center text-xl shrink-0 text-food-primary shadow-game-card">
+                      <i className="fa-solid fa-map-location-dot" aria-hidden="true" />
+                    </span>
+                    <p className="text-lg font-bold leading-snug">Bạn muốn khám phá địa điểm này?</p>
+                  </div>
+                  <Link href="/luu-tru" className="shrink-0 bg-food-primary text-white font-bold rounded-full px-6 py-3 hover:brightness-95 transition">
+                    Đặt tour ngay
+                  </Link>
                 </div>
-                <Link
-                  href="/luu-tru"
-                  className="shrink-0 bg-brand-blue text-white font-bold rounded-full px-6 py-3 hover:brightness-95 transition"
-                >
-                  Đặt tour ngay
-                </Link>
+              )}
+
+              {afterRaw && (
+                <div className="article-content text-[15px] sm:text-base text-slate-600 leading-relaxed" dangerouslySetInnerHTML={{ __html: after }} />
+              )}
+
+              <div className="mt-8 rounded-2xl bg-food-light p-5 sm:p-6">
+                <p className="font-display font-bold text-lg text-food-text mb-2 flex items-center gap-2">
+                  <i className="fa-solid fa-flag-checkered text-food-primary" aria-hidden="true" /> Tổng kết
+                </p>
+                <p className="text-slate-600 leading-relaxed">{article.excerpt}</p>
               </div>
-            )}
-
-            {afterRaw && <div className="article-content text-[15px] sm:text-base text-slate-700 leading-relaxed" dangerouslySetInnerHTML={{ __html: after }} />}
-
-            <div className="mt-10 bg-white border border-slate-100 shadow-card rounded-2xl p-6 sm:p-8">
-              <p className="font-display font-bold text-lg text-slate-800 mb-2 flex items-center gap-2">
-                <i className="fa-solid fa-flag-checkered text-brand-blue" aria-hidden="true" /> Tổng kết
-              </p>
-              <p className="text-slate-600 leading-relaxed">{article.excerpt}</p>
             </div>
 
-            {article.place && <PlaceReviews reviews={article.place.reviews} placeName={article.place.name} />}
+            {article.place && article.place.reviews.length > 0 && (
+              <section id="danh-gia" className="scroll-mt-40 mt-6 bg-white rounded-2xl shadow-game-card p-5 sm:p-6">
+                <PlaceReviews reviews={article.place.reviews} placeName={article.place.name} />
+              </section>
+            )}
 
             {article.place?.mapEmbedUrl && (
-              <div className="mt-10">
-                <p className="font-display font-bold text-lg text-slate-800 mb-4">Bản đồ vị trí</p>
-                <div className="rounded-2xl overflow-hidden shadow-card">
+              <section id="ban-do" className="scroll-mt-40 mt-6 bg-white rounded-2xl shadow-game-card p-5 sm:p-6">
+                <ArticleSectionTitle icon="fa-solid fa-location-dot">Bản đồ vị trí</ArticleSectionTitle>
+                <div className="rounded-xl overflow-hidden">
                   <iframe
                     src={article.place.mapEmbedUrl}
-                    className="w-full border-0"
-                    style={{ height: 450 }}
+                    className="w-full border-0 h-[320px] sm:h-[420px]"
                     loading="lazy"
                     referrerPolicy="no-referrer-when-downgrade"
                     title={`Bản đồ ${article.place.name}`}
                   />
                 </div>
-              </div>
+              </section>
             )}
 
             {comboSale && (
-              <div className="mt-10">
-                <p className="font-display font-bold text-lg text-slate-800 mb-4">Combo nổi bật</p>
+              <section id="uu-dai" className="scroll-mt-40 mt-6">
+                <ArticleSectionTitle icon="fa-solid fa-gift">Combo nổi bật</ArticleSectionTitle>
                 <PromotionCard sale={comboSale} isFeatured className="h-[280px]" />
-              </div>
+              </section>
             )}
 
-            <RelatedServices />
+            <section id="dich-vu" className="scroll-mt-40 mt-6 bg-white rounded-2xl shadow-game-card p-5 sm:p-6">
+              <RelatedServices />
+            </section>
 
-            <div id="chia-se" className="mt-10 flex items-center justify-between flex-wrap gap-4 pt-6 border-t border-slate-100">
-              <p className="font-bold text-slate-700">Chia sẻ bài viết</p>
+            <div id="chia-se" className="mt-6 bg-white rounded-2xl shadow-game-card p-5 sm:p-6 flex items-center justify-between flex-wrap gap-4">
+              <p className="font-display font-bold text-food-text flex items-center gap-2.5">
+                <span className="w-8 h-8 rounded-full bg-food-light text-food-primary flex items-center justify-center text-sm">
+                  <i className="fa-solid fa-share-nodes" aria-hidden="true" />
+                </span>
+                Chia sẻ bài viết
+              </p>
               <ShareButtons path={`/tin-tuc/${article.slug}`} title={article.title} />
             </div>
 
             <EndCTA />
 
-            {article.place && <NearbyPlaces places={nearbyPlaces} currentPlaceName={article.place.name} />}
+            {article.place && nearbyPlaces.length > 0 && (
+              <div className="mt-6 bg-white rounded-2xl shadow-game-card p-5 sm:p-6">
+                <NearbyPlaces places={nearbyPlaces} currentPlaceName={article.place.name} />
+              </div>
+            )}
 
             <AuthorInfo authorName={article.author?.name || "Booking Phan Thiết"} />
           </article>
 
-          <aside className="space-y-5 lg:sticky lg:top-24">
-            {headings.length > 0 && (
-              <div className="bg-white rounded-2xl shadow-card border border-slate-100 p-5">
-                <p className="font-display font-bold text-slate-800 mb-3">Mục lục bài viết</p>
-                <TableOfContents headings={headings} />
+          <aside className="min-w-0 space-y-4 lg:self-stretch">
+            <div className="bg-white rounded-2xl shadow-game-card p-5">
+              <p className="text-xs font-bold text-food-textMuted uppercase tracking-wide mb-1">Chuyên mục</p>
+              <p className="font-display font-extrabold text-food-text text-xl leading-snug mb-1">{article.category}</p>
+              <p className="text-sm text-food-textMuted mb-4">Cập nhật {formatDate(article.updatedAt)}</p>
+
+              <div className="grid grid-cols-3 gap-2 mb-4">
+                {[
+                  { icon: "fa-solid fa-circle-check", label: "Thông tin kiểm chứng" },
+                  { icon: "fa-solid fa-clock-rotate-left", label: "Cập nhật mới nhất" },
+                  { icon: "fa-solid fa-star", label: "Kinh nghiệm thực tế" },
+                ].map((b) => (
+                  <div key={b.label} className="text-center">
+                    <span className="w-9 h-9 mx-auto rounded-full bg-food-light text-food-primary flex items-center justify-center mb-1">
+                      <i className={b.icon} aria-hidden="true" />
+                    </span>
+                    <p className="text-[10px] text-food-textMuted leading-tight">{b.label}</p>
+                  </div>
+                ))}
+              </div>
+
+              <ArticleSaveShare articleId={article.id} title={article.title} />
+            </div>
+
+            {article.place && mapsUrl && (
+              <div className="bg-white rounded-2xl shadow-game-card p-5">
+                <p className="font-bold text-sm text-food-text mb-1 flex items-center gap-2">
+                  <i className="fa-solid fa-location-dot text-food-primary" aria-hidden="true" /> {article.place.name}
+                </p>
+                {article.place.address && <p className="text-sm text-food-textMuted mb-3">{article.place.address}</p>}
+                {article.place.mapEmbedUrl && (
+                  <div className="relative aspect-[4/3] rounded-xl overflow-hidden bg-food-light mb-3">
+                    <iframe
+                      src={article.place.mapEmbedUrl}
+                      className="absolute inset-0 w-full h-full border-0"
+                      loading="lazy"
+                      referrerPolicy="no-referrer-when-downgrade"
+                      title={`Bản đồ ${article.place.name}`}
+                    />
+                  </div>
+                )}
+                <a
+                  href={mapsUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2 w-full h-10 border-2 border-food-primary text-food-primary hover:bg-food-primary hover:text-white transition rounded-full text-sm font-bold"
+                >
+                  <i className="fa-solid fa-diamond-turn-right" aria-hidden="true" /> Xem đường đi
+                </a>
+                {article.place.phone && (
+                  <a
+                    href={`tel:${article.place.phone}`}
+                    className="block text-center mt-2 bg-food-primary hover:brightness-95 transition text-white text-sm font-bold rounded-full py-2.5"
+                  >
+                    <i className="fa-solid fa-phone mr-1.5" aria-hidden="true" /> {article.place.phone}
+                  </a>
+                )}
               </div>
             )}
 
-            <div className="rounded-2xl overflow-hidden bg-brand-blue text-white p-5">
-              <p className="text-2xl mb-1" aria-hidden="true">
-                🌊
-              </p>
-              <p className="font-display font-bold text-lg leading-snug mb-1.5">Khám phá Phan Thiết cùng chúng tôi!</p>
-              <p className="text-sm text-white/80 mb-4">Đặt phòng, thuê xe, tour du lịch và nhiều dịch vụ tiện ích khác.</p>
-              <Link
-                href="/luu-tru"
-                className="inline-flex items-center gap-2 bg-white text-brand-blue font-bold rounded-full px-4 py-2.5 text-sm hover:brightness-95 transition"
-              >
-                <i className="fa-solid fa-phone text-xs" aria-hidden="true" /> Liên hệ ngay
-              </Link>
-            </div>
-
-            <div className="bg-white rounded-2xl shadow-card border border-slate-100 p-5">
-              <p className="font-display font-bold text-slate-800 mb-3">Thông tin nhanh</p>
-              <ul className="space-y-2 text-sm text-slate-600">
-                <li className="flex items-center gap-2">
-                  <i className="fa-solid fa-location-dot text-brand-blue w-4" aria-hidden="true" /> Phan Thiết, Bình Thuận
-                </li>
-                <li className="flex items-center gap-2">
-                  <i className="fa-solid fa-sun text-amber-500 w-4" aria-hidden="true" /> Nắng quanh năm
-                </li>
-                <li className="flex items-center gap-2">
-                  <i className="fa-solid fa-umbrella-beach text-brand-blue w-4" aria-hidden="true" /> Nhiều bãi biển đẹp
-                </li>
-              </ul>
-            </div>
-
-            {related.length > 0 && (
-              <div className="bg-white rounded-2xl shadow-card border border-slate-100 p-5">
-                <p className="font-display font-bold text-slate-800 mb-3">Bài viết liên quan</p>
-                <div className="space-y-3">
-                  {related.map((item) => (
-                    <Link key={item.id} href={`/tin-tuc/${item.slug}`} className="flex items-center gap-3 group">
-                      <div className="relative w-16 h-16 rounded-xl overflow-hidden bg-slate-100 shrink-0">
-                        <NewsCoverImage src={item.coverImage} alt={item.title} />
-                      </div>
-                      <div className="min-w-0">
-                        <p className="text-sm font-bold text-slate-700 line-clamp-2 leading-snug group-hover:text-brand-blue transition-colors">
-                          {item.title}
-                        </p>
-                        <p className="text-xs text-slate-400 mt-0.5">{formatDate(item.createdAt)}</p>
-                      </div>
-                    </Link>
-                  ))}
+            <div className="space-y-4 lg:sticky lg:top-[124px] lg:max-h-[calc(100vh-148px)] lg:overflow-y-auto scrollbar-none">
+              {headings.length > 0 && (
+                <div className="bg-white rounded-2xl shadow-game-card p-5">
+                  <p className="font-bold text-sm text-food-text mb-3 flex items-center gap-2">
+                    <i className="fa-solid fa-list-ul text-food-primary" aria-hidden="true" /> Mục lục bài viết
+                  </p>
+                  <TableOfContents headings={headings} />
                 </div>
+              )}
+
+              <div className="rounded-2xl overflow-hidden bg-food-navy text-white p-5">
+                <p className="font-display font-bold text-lg leading-snug mb-1.5">Khám phá Phan Thiết cùng chúng tôi!</p>
+                <p className="text-sm text-white/80 mb-4">Đặt phòng, thuê xe, tour du lịch và nhiều dịch vụ tiện ích khác.</p>
+                <Link
+                  href="/luu-tru"
+                  className="inline-flex items-center gap-2 bg-white text-food-navy font-bold rounded-full px-4 py-2.5 text-sm hover:brightness-95 transition"
+                >
+                  Xem lưu trú <i className="fa-solid fa-arrow-right text-xs" aria-hidden="true" />
+                </Link>
               </div>
-            )}
+
+              {related.length > 0 && (
+                <div className="bg-white rounded-2xl shadow-game-card p-5">
+                  <p className="font-bold text-sm text-food-text mb-3 flex items-center gap-2">
+                    <i className="fa-regular fa-newspaper text-food-primary" aria-hidden="true" /> Bài viết cùng chuyên mục
+                  </p>
+                  <div className="space-y-3">
+                    {related.slice(0, 3).map((item) => (
+                      <Link key={item.id} href={`/tin-tuc/${item.slug}`} className="flex items-center gap-3 group">
+                        <div className="relative w-16 h-16 rounded-xl overflow-hidden bg-food-light shrink-0">
+                          <NewsCoverImage src={item.coverImage} alt={item.title} fit="cover" />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-sm font-bold text-food-text line-clamp-2 leading-snug group-hover:text-food-primary transition-colors">{item.title}</p>
+                          <p className="text-xs text-food-textMuted mt-0.5">{formatDate(item.createdAt)}</p>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
           </aside>
         </div>
-      </section>
+      </div>
 
       {related.length > 0 && (
-        <section className="bg-slate-50 py-12 lg:py-16">
-          <div className="container-custom">
-            <h2 className="font-display font-bold text-2xl text-slate-800 mb-6">Bài viết liên quan</h2>
+        <section id="bai-lien-quan" className="scroll-mt-40 bg-food-bg py-12 lg:py-14">
+          <div className="max-w-[1240px] mx-auto px-6 sm:px-8">
+            <h2 className="font-display font-extrabold text-2xl text-food-text mb-6">Bài viết liên quan</h2>
             <div className="grid sm:grid-cols-3 gap-5">
               {related.slice(0, 3).map((item) => (
-                <Link key={item.id} href={`/tin-tuc/${item.slug}`} className="bg-white rounded-2xl shadow-card overflow-hidden hover-lift">
-                  <div className="relative aspect-video bg-slate-100">
-                    <NewsCoverImage src={item.coverImage} alt={item.title} />
+                <Link key={item.id} href={`/tin-tuc/${item.slug}`} className="group bg-white rounded-2xl shadow-game-card overflow-hidden hover-lift">
+                  <div className="relative aspect-video bg-food-light">
+                    <NewsCoverImage src={item.coverImage} alt={item.title} fit="cover" />
                   </div>
                   <div className="p-4">
-                    <p className="font-display font-bold text-slate-800 line-clamp-2 leading-snug mb-1.5">{item.title}</p>
-                    <p className="text-sm text-slate-400 line-clamp-2">{item.excerpt}</p>
+                    <p className="font-display font-bold text-food-text line-clamp-2 leading-snug mb-1.5">{item.title}</p>
+                    <p className="text-sm text-food-textMuted line-clamp-2">{item.excerpt}</p>
                   </div>
                 </Link>
               ))}

@@ -35,10 +35,10 @@ export default function PlaceQuickFacts({
   if (items.length === 0) return null;
 
   return (
-    <div className="bg-white border border-slate-100 shadow-card rounded-2xl p-4 sm:p-5 mb-6">
+    <div className="bg-white shadow-game-card rounded-2xl p-4 sm:p-5 mb-4">
       <div className="flex flex-wrap gap-x-6 gap-y-2.5">
         {items.map((item, i) => (
-          <span key={i} className="flex items-center gap-2 text-sm font-semibold text-slate-700">
+          <span key={i} className="flex items-center gap-2 text-sm font-semibold text-food-text">
             <i className={item.icon} aria-hidden="true" /> {item.label}
           </span>
         ))}

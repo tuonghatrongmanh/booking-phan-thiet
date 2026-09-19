@@ -21,7 +21,8 @@ export default function SaveArticleButton({ articleId, compact = false }: { arti
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
-    setSaved(readSaved().includes(articleId));
+    const t = setTimeout(() => setSaved(readSaved().includes(articleId)), 0);
+    return () => clearTimeout(t);
   }, [articleId]);
 
   function toggle() {
