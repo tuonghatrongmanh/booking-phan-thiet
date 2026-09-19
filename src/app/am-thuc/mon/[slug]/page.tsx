@@ -114,7 +114,7 @@ export default async function FoodDetailPage({ params }: Params) {
           {food.name}
         </nav>
 
-        <div className="grid lg:grid-cols-[1fr_360px] gap-6 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_360px] gap-6 items-start">
           <div>
             <FoodGallery items={galleryItems} badge={food.badge || undefined} />
 

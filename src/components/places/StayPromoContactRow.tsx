@@ -2,7 +2,7 @@ import StayCountdownBadge from "@/components/places/StayCountdownBadge";
 
 export default function StayPromoContactRow({ phone, zaloUrl }: { phone: string | null; zaloUrl: string | null }) {
   return (
-    <div className="grid lg:grid-cols-[1fr_390px] gap-4">
+    <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_390px] gap-4">
       <div className="flex items-center gap-4 bg-[#F0F0FF] rounded-2xl px-5 py-4">
         <span className="w-11 h-11 rounded-full bg-white flex items-center justify-center text-2xl shrink-0 shadow-sm">
           <i className="fa-solid fa-gift text-[#8B5CE0]" aria-hidden="true" />

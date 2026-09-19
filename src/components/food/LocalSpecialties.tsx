@@ -16,7 +16,7 @@ export default function LocalSpecialties({ specialties }: { specialties: LocalSp
           </div>
 
           <div className="flex-1 min-w-0">
-            <div className="flex gap-5 overflow-x-auto scrollbar-none -mx-5 px-5 sm:mx-0 sm:px-1 sm:py-1">
+            <div data-swipe-hint className="flex gap-5 overflow-x-auto scrollbar-none -mx-5 px-5 sm:mx-0 sm:px-1 sm:py-1">
               {specialties.map((item) => (
                 <div key={item.id} className="shrink-0 w-[128px] text-center">
                   <div className="w-[112px] h-[112px] mx-auto rounded-full bg-white shadow-card border border-white overflow-hidden flex items-center justify-center text-food-primary/30 text-3xl">

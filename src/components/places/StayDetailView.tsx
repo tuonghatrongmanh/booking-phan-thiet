@@ -123,8 +123,8 @@ export default async function StayDetailView({ placeId }: { placeId: string }) {
       </div>
 
       <main className="mx-auto max-w-[1360px] px-4 sm:px-6 lg:px-8 pb-16 space-y-6">
-        <div className="grid lg:grid-cols-[1fr_390px] gap-7 items-start">
-          <div className="space-y-5">
+        <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_390px] gap-7 items-start">
+          <div className="space-y-5 min-w-0">
             <StayGallery
               images={place.images.map((img) => ({ id: img.id, url: img.url, caption: img.caption }))}
               name={place.name}
@@ -191,7 +191,7 @@ export default async function StayDetailView({ placeId }: { placeId: string }) {
 
         <StaySubNav reviewCount={place.reviews.length} />
 
-        <section id="tong-quan" className="scroll-mt-[140px] grid lg:grid-cols-[1fr_320px] gap-6 items-start">
+        <section id="tong-quan" className="scroll-mt-[140px] grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_320px] gap-6 items-start">
           <div className="space-y-6">
             <Section>
               <SectionTitle>Về chỗ nghỉ này</SectionTitle>

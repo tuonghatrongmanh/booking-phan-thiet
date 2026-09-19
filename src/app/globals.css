@@ -804,3 +804,30 @@ body {
   color: var(--theme-primary);
   font-size: 0.875rem;
 }
+
+/* Gợi ý vuốt (SwipeHints): bàn tay lướt từ phải sang trái rồi mờ dần */
+.swipe-hint-hand {
+  position: fixed;
+  z-index: 60;
+  width: 120px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.55);
+  pointer-events: none;
+  animation: swipe-hint-move 1.9s ease-in-out both;
+}
+.swipe-hint-hand i {
+  font-size: 34px;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.5));
+}
+@keyframes swipe-hint-move {
+  0% { opacity: 0; transform: translateX(44px); }
+  20% { opacity: 1; }
+  70% { opacity: 1; transform: translateX(-44px); }
+  100% { opacity: 0; transform: translateX(-44px); }
+}

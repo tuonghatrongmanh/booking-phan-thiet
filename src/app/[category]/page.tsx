@@ -86,7 +86,7 @@ export default async function ForumCategoryPage({
             members={members}
           />
 
-          <div className="xl:col-span-2 grid xl:grid-cols-[1fr_300px] gap-5 items-start">
+          <div className="xl:col-span-2 grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_300px] gap-5 items-start">
             <div>
               <div id="composer" className="scroll-mt-24 mb-4">
                 {loggedIn ? (

@@ -8,7 +8,7 @@ import Image from "next/image";
 
 function LoginSkeleton() {
   return (
-    <div className="min-h-screen bg-hero-gradient flex items-center justify-center px-4">
+    <div className="min-h-dvh bg-hero-gradient flex items-center justify-center px-4 py-20">
       <div className="bg-white rounded-2xl shadow-card p-8 w-full max-w-md animate-pulse">
         <div className="flex flex-col items-center mb-6">
           <div className="w-[90px] h-[90px] rounded-2xl bg-slate-200 mb-3" />
@@ -115,7 +115,7 @@ function LoginForm() {
   if (!ready) return <LoginSkeleton />;
 
   return (
-    <div className="relative min-h-screen bg-hero-gradient flex items-center justify-center px-4">
+    <div className="relative min-h-dvh bg-hero-gradient flex items-center justify-center px-4 py-20">
       <Link
         href="/"
         className="absolute top-4 left-4 sm:top-6 sm:left-6 flex items-center gap-1.5 bg-white/80 hover:bg-brand-blue transition-colors rounded-full pl-2.5 pr-4 py-2 text-sm font-bold text-brand-blue hover:text-white shadow"

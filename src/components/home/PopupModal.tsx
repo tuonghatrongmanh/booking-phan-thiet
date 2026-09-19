@@ -42,7 +42,7 @@ export default function PopupModal() {
 
   const image = (
     // eslint-disable-next-line @next/next/no-img-element
-    <img src={popup.image} alt={popup.title ?? ""} className="max-w-full max-h-[80vh] rounded-2xl shadow-2xl object-contain" />
+    <img src={popup.image} alt={popup.title ?? ""} className="max-w-full max-h-[80dvh] rounded-2xl shadow-2xl object-contain" />
   );
 
   return (

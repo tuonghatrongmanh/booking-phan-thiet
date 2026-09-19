@@ -14,7 +14,7 @@ export default function FoodCategories({
   onSelect: (id: string) => void;
 }) {
   return (
-    <div className="flex gap-3 overflow-x-auto scrollbar-none -mx-5 px-5 sm:mx-0 sm:px-0 sm:flex-wrap">
+    <div data-swipe-hint className="flex gap-3 overflow-x-auto scrollbar-none -mx-5 px-5 sm:mx-0 sm:px-0 sm:flex-wrap">
       {categories.map((cat) => {
         const active = cat.id === activeCategory;
         return (

@@ -34,7 +34,7 @@ export default function VehicleQuickViewModal({ vehicle, onClose }: { vehicle: V
   return createPortal(
     <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-3 sm:p-6" onClick={onClose}>
       <div
-        className="bg-white rounded-2xl w-full max-w-5xl max-h-[90vh] overflow-hidden flex flex-col"
+        className="bg-white rounded-2xl w-full max-w-5xl max-h-[90dvh] overflow-hidden flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="border-b border-slate-100 px-5 py-3.5 flex items-center justify-between shrink-0">

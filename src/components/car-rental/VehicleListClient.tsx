@@ -433,7 +433,7 @@ export default function VehicleListClient({ vehicles }: { vehicles: VehicleData[
         createPortal(
           <div className="fixed inset-0 z-[200] lg:hidden">
             <div className="absolute inset-0 bg-black/50" onClick={() => setMobileFilterOpen(false)} />
-            <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl max-h-[85vh] overflow-y-auto p-5">
+            <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl max-h-[85dvh] overflow-y-auto p-5">
               <div className="flex items-center justify-between mb-4">
                 <p className="font-display font-bold text-lg text-slate-800">Bộ lọc</p>
                 <button type="button" onClick={() => setMobileFilterOpen(false)} aria-label="Đóng" className="text-slate-400 hover:text-slate-600">

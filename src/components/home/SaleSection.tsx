@@ -100,6 +100,19 @@ export default function SaleSection({ sales }: { sales: Sale[] }) {
           <div className="hidden xl:block">
             <DesktopMasonry sales={visibleSales} />
           </div>
+
+          {/* Con nhieu hon so hien o day -> nut xem them (trang /khuyen-mai co phan trang day du) */}
+          {sales.length > MAX_VISIBLE && (
+            <div className="mt-6 text-center">
+              <Link
+                href="/khuyen-mai"
+                className="inline-flex items-center gap-2 text-[15px] font-bold text-white bg-promo-oceanPrimary rounded-full px-7 py-3 shadow hover:brightness-110 transition"
+              >
+                Xem thêm khuyến mãi
+                <ArrowRight size={16} strokeWidth={2} aria-hidden="true" />
+              </Link>
+            </div>
+          )}
         </>
       )}
     </section>

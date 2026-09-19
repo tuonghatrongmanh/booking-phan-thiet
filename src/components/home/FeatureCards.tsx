@@ -70,7 +70,7 @@ const FEATURES = [
 export default function FeatureCards() {
   return (
     <section className="container-custom -mt-2 py-10">
-      <div className="flex gap-4 overflow-x-auto scrollbar-none snap-x snap-mandatory -mx-6 px-6 py-3 sm:mx-0 sm:px-0 sm:py-0 sm:grid sm:grid-cols-2 sm:overflow-visible lg:grid-cols-4 sm:gap-5">
+      <div data-swipe-hint className="flex gap-4 overflow-x-auto scrollbar-none snap-x snap-mandatory -mx-6 px-6 py-3 sm:mx-0 sm:px-0 sm:py-0 sm:grid sm:grid-cols-2 sm:overflow-visible lg:grid-cols-4 sm:gap-5">
         {FEATURES.map((f, i) => (
           <div
             key={f.title}

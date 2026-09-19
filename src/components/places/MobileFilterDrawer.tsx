@@ -35,7 +35,7 @@ export default function MobileFilterDrawer({ children }: { children: React.React
           <div className="lg:hidden fixed inset-0 z-50 flex flex-col justify-end">
             <div className="absolute inset-0 bg-black/40" onClick={() => setOpen(false)} />
             <div
-              className="relative bg-slate-50 rounded-t-2xl max-h-[85vh] overflow-y-auto p-4 pb-24 animate-fade-up"
+              className="relative bg-slate-50 rounded-t-2xl max-h-[85dvh] overflow-y-auto p-4 pb-24 animate-fade-up"
               style={{ animationDuration: "200ms" }}
               onClick={(e) => {
                 if ((e.target as HTMLElement).closest("a")) setOpen(false);

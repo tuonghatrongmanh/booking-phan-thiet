@@ -169,7 +169,7 @@ export default function ForumPostForm({
             if (e.target === e.currentTarget) closeModal();
           }}
         >
-          <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] flex flex-col">
+          <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[90dvh] flex flex-col">
             <div className="flex items-center justify-center relative px-4 py-3 border-b border-slate-200 shrink-0">
               <h2 className="font-display font-bold text-lg text-slate-800">Tạo bài viết</h2>
               <button

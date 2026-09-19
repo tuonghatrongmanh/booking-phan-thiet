@@ -17,7 +17,7 @@ export default function NearbyPlaces({ places, currentPlaceName }: { places: Nea
   return (
     <div className="mt-10">
       <p className="font-display font-bold text-lg text-slate-800 mb-4">Địa điểm gần {currentPlaceName}</p>
-      <div className="flex gap-4 overflow-x-auto scrollbar-none pb-1">
+      <div data-swipe-hint className="flex gap-4 overflow-x-auto scrollbar-none pb-1">
         {places.map((p) => (
           <Link
             key={p.id}

@@ -163,7 +163,7 @@ export default async function Hero() {
 
         {/* quick category — mobile: carousel phân trang 2 cột x 2 dòng, vuốt trái/phải */}
         <div className="sm:hidden mt-8 -mx-6 px-6">
-          <div className="flex items-start overflow-x-auto scrollbar-none snap-x snap-mandatory gap-0 py-2">
+          <div data-swipe-hint className="flex items-start overflow-x-auto scrollbar-none snap-x snap-mandatory gap-0 py-2">
             {chunk(tiles, 4).map((page, pi) => (
               <div key={pi} className="shrink-0 w-full snap-start grid grid-cols-2 gap-3 pr-3">
                 {page.map((t, i) => (

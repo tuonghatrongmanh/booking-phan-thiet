@@ -45,7 +45,7 @@ export default function SaleAgentsSection({ agents }: { agents: SaleAgent[] }) {
           Chưa có sale uy tín nào được đăng. Vào trang quản trị để thêm mới (danh mục &quot;Sale uy tín&quot;).
         </div>
       ) : (
-        <div className="flex gap-4 overflow-x-auto scrollbar-none snap-x snap-mandatory -mx-6 px-6 py-3 sm:mx-0 sm:px-0 sm:py-0 sm:grid sm:grid-cols-2 sm:overflow-visible lg:grid-cols-4 sm:gap-5">
+        <div data-swipe-hint className="flex gap-4 overflow-x-auto scrollbar-none snap-x snap-mandatory -mx-6 px-6 py-3 sm:mx-0 sm:px-0 sm:py-0 sm:grid sm:grid-cols-2 sm:overflow-visible lg:grid-cols-4 sm:gap-5">
           {agents.map((agent, i) => {
             const n = (i % 4) + 1;
             const bgImg = `/images/background_0${n}.png`;

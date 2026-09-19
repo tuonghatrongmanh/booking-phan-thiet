@@ -148,7 +148,7 @@ export default async function NewsDetailPage({ params }: { params: Promise<{ slu
       </div>
 
       <section className="container-custom py-7 lg:py-9">
-        <div className="grid lg:grid-cols-[1fr_320px] gap-8 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_320px] gap-8 items-start">
           <article className="min-w-0" id="noi-dung">
             <span
               className={`inline-block text-xs font-bold text-white px-3 py-1.5 rounded-full uppercase tracking-wide mb-3 ${

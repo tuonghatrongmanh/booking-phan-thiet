@@ -32,6 +32,12 @@ export const SEO_PAGES: SeoPageDef[] = [
     defaultDescription: "Khám phá các điểm tham quan, trải nghiệm hấp dẫn tại Phan Thiết - Mũi Né: đồi cát, suối tiên, hải đăng, làng chài, di tích lịch sử...",
   },
   {
+    key: "/khuyen-mai",
+    label: "Khuyến mãi",
+    defaultTitle: "Khuyến mãi hot tại Phan Thiết - Ưu đãi homestay, thuê xe, ẩm thực | Booking Phan Thiết",
+    defaultDescription: "Tổng hợp ưu đãi hấp dẫn từ homestay, villa, thuê xe, quán ăn và điểm tham quan tại Phan Thiết - Mũi Né, cập nhật thường xuyên.",
+  },
+  {
     key: "/tin-tuc",
     label: "Blog / Tin tức",
     defaultTitle: "Blog - Khám phá Phan Thiết | Booking Phan Thiết",

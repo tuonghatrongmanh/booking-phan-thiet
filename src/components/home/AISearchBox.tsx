@@ -116,7 +116,7 @@ export default function AISearchBox() {
 
         {/* Mobile: cuộn ngang 1 hàng duy nhất để tiết kiệm không gian dọc, thay vì
             xuống dòng thành 1 cột dài như trước. Desktop: giữ cách xuống dòng cũ. */}
-        <div className="flex gap-2 overflow-x-auto scrollbar-none snap-x snap-mandatory -mx-5 px-5 sm:mx-0 sm:px-0 sm:flex-wrap sm:overflow-visible">
+        <div data-swipe-hint className="flex gap-2 overflow-x-auto scrollbar-none snap-x snap-mandatory -mx-5 px-5 sm:mx-0 sm:px-0 sm:flex-wrap sm:overflow-visible">
           {SUGGESTED_QUESTIONS.map((q) => (
             <button
               key={q}

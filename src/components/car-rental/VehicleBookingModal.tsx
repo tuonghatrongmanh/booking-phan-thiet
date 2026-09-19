@@ -145,15 +145,15 @@ export default function VehicleBookingModal({ vehicle, onClose }: { vehicle: Veh
   if (typeof document === "undefined") return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-[200] bg-black/50 flex items-center justify-center p-4" onClick={onClose}>
+    <div className="fixed inset-0 z-[200] bg-black/50 flex items-end sm:items-center justify-center p-0 sm:p-4" onClick={onClose}>
       <div
         role="dialog"
         aria-modal="true"
         aria-label="Đặt thuê xe"
         onClick={(e) => e.stopPropagation()}
-        className="bg-white rounded-[20px] shadow-2xl w-full max-w-[560px] max-h-[90vh] overflow-y-auto"
+        className="bg-white rounded-t-[20px] sm:rounded-[20px] shadow-2xl w-full sm:max-w-[560px] max-h-[100dvh] sm:max-h-[90dvh] flex flex-col overflow-hidden"
       >
-        <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 sticky top-0 bg-white z-10">
+        <div className="shrink-0 flex items-center justify-between px-5 py-4 border-b border-slate-100 bg-white">
           <p className="font-display font-bold text-lg text-slate-800">Đặt thuê xe</p>
           <button type="button" onClick={onClose} aria-label="Đóng" className="text-slate-400 hover:text-slate-600">
             <i className="fa-solid fa-xmark text-lg" aria-hidden="true" />
@@ -161,7 +161,7 @@ export default function VehicleBookingModal({ vehicle, onClose }: { vehicle: Veh
         </div>
 
         {done && deposit ? (
-          <div className="p-5">
+          <div className="p-5 overflow-y-auto overscroll-contain">
             <DepositQrPanel
               deposit={deposit}
               phone={phone}
@@ -172,7 +172,7 @@ export default function VehicleBookingModal({ vehicle, onClose }: { vehicle: Veh
             </button>
           </div>
         ) : done ? (
-          <div className="p-6 text-center">
+          <div className="p-6 text-center overflow-y-auto">
             <div className="w-14 h-14 rounded-full bg-brand-greenBg text-brand-green flex items-center justify-center mx-auto mb-3 text-2xl">
               <i className="fa-solid fa-check" aria-hidden="true" />
             </div>
@@ -195,7 +195,8 @@ export default function VehicleBookingModal({ vehicle, onClose }: { vehicle: Veh
             </button>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="p-5 space-y-4">
+          <form onSubmit={handleSubmit} className="flex flex-col min-h-0 flex-1">
+            <div className="p-5 space-y-4 overflow-y-auto flex-1 overscroll-contain">
             <RememberedOrderBanner kind="rental" placeId={vehicle.id} />
             <div className="flex items-center gap-3 bg-slate-50 rounded-xl p-3">
               <div className="relative w-16 h-14 rounded-lg overflow-hidden shrink-0 bg-slate-100">
@@ -343,15 +344,18 @@ export default function VehicleBookingModal({ vehicle, onClose }: { vehicle: Veh
               )}
             </div>
 
-            {errors.form && <p className="text-sm text-brand-red bg-brand-redBg rounded-lg px-3 py-2">{errors.form}</p>}
+            </div>
 
-            <button
-              type="submit"
-              disabled={submitting}
-              className="w-full bg-brand-blue hover:brightness-95 transition text-white font-bold rounded-xl py-3 disabled:opacity-60"
-            >
-              {submitting ? "Đang gửi..." : "Xác nhận đặt xe"}
-            </button>
+            <div className="shrink-0 border-t border-slate-100 bg-white px-5 pt-3 pb-[max(1rem,env(safe-area-inset-bottom))] space-y-2">
+              {errors.form && <p className="text-sm text-brand-red bg-brand-redBg rounded-lg px-3 py-2">{errors.form}</p>}
+              <button
+                type="submit"
+                disabled={submitting}
+                className="w-full bg-brand-blue hover:brightness-95 transition text-white font-bold rounded-xl py-3 disabled:opacity-60"
+              >
+                {submitting ? "Đang gửi..." : "Xác nhận đặt xe"}
+              </button>
+            </div>
           </form>
         )}
       </div>
