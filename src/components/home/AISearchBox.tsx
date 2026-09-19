@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import type { SearchResultItem } from "@/lib/search";
+import { useSpeechRecognition } from "@/lib/use-speech-recognition";
 
 const SUGGESTED_QUESTIONS = [
   "Homestay nào còn trống cuối tuần này?",
@@ -30,6 +31,14 @@ export default function AISearchBox() {
   const [visible, setVisible] = useState(true);
   const [value, setValue] = useState("");
   const [state, setState] = useState<SearchState>({ status: "idle" });
+  const speech = useSpeechRecognition({
+    onInterim: (t) => setValue(t),
+    onFinal: (t) => {
+      setValue(t);
+      runSearchRef.current(t);
+    },
+  });
+  const runSearchRef = useRef<(q: string) => void>(() => {});
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -60,6 +69,10 @@ export default function AISearchBox() {
       setState({ status: "idle" });
     }
   }
+
+  useEffect(() => {
+    runSearchRef.current = runSearch;
+  });
 
   return (
     <div className="relative w-full animate-fade-up [animation-delay:100ms] px-5 sm:px-16">
@@ -97,9 +110,19 @@ export default function AISearchBox() {
               </span>
             )}
           </div>
-          <button type="button" className="text-slate-400 hover:text-brand-blue transition-colors shrink-0 px-1" aria-label="Nói bằng giọng nói">
-            <i className="fa-solid fa-microphone" aria-hidden="true" />
-          </button>
+          {speech.supported && (
+            <button
+              type="button"
+              onClick={() => (speech.listening ? speech.stop() : speech.start())}
+              className={`shrink-0 w-9 h-9 rounded-full flex items-center justify-center transition-colors ${
+                speech.listening ? "bg-red-500 text-white animate-pulse" : "text-slate-400 hover:text-brand-blue"
+              }`}
+              aria-label={speech.listening ? "Dừng nghe" : "Nói bằng giọng nói"}
+              title={speech.listening ? "Đang nghe... bấm để dừng" : "Nói bằng giọng nói"}
+            >
+              <i className={speech.listening ? "fa-solid fa-stop" : "fa-solid fa-microphone"} aria-hidden="true" />
+            </button>
+          )}
           <button
             type="submit"
             disabled={state.status === "loading"}
@@ -131,6 +154,8 @@ export default function AISearchBox() {
             </button>
           ))}
         </div>
+
+        {speech.error && <p className="mb-2 text-xs text-red-600">{speech.error}</p>}
 
         {state.status === "loading" && (
           <div className="mt-4 flex items-center gap-2 text-sm text-slate-400">

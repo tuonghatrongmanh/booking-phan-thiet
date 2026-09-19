@@ -8,6 +8,7 @@ import { getSiteSettings } from "@/lib/settings";
 import SiteJsonLd from "@/components/seo/SiteJsonLd";
 import GoogleAnalytics from "@/components/seo/GoogleAnalytics";
 import SwipeHints from "@/components/ui/SwipeHints";
+import AiChatWidget from "@/components/chat/AiChatWidget";
 import { SITE_URL } from "@/lib/site-url";
 
 // Day la metadata MAC DINH cho toan site - trang nao khong tu khai bao metadata rieng
@@ -67,6 +68,7 @@ export default async function RootLayout({
           <SaleStandingGate />
           <RapidNavGuard />
           <SwipeHints />
+          <AiChatWidget />
         </DialogProvider>
       </body>
     </html>

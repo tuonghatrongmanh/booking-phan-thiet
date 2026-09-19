@@ -832,3 +832,25 @@ body {
   70% { opacity: 1; transform: translateX(-44px); }
   100% { opacity: 0; transform: translateX(-44px); }
 }
+
+/* Robot tro ly AI noi o goc phai: nhun nhe len xuong + bong chat chao hien dan. */
+@keyframes robot-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+@keyframes chat-bubble-in {
+  from { opacity: 0; transform: translateY(6px) scale(0.94); }
+  to { opacity: 1; transform: none; }
+}
+.robot-float {
+  animation: robot-float 2.8s ease-in-out infinite;
+}
+.chat-bubble-in {
+  animation: chat-bubble-in 0.3s ease-out both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .robot-float,
+  .chat-bubble-in {
+    animation: none;
+  }
+}

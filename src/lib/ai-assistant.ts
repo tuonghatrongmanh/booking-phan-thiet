@@ -2,7 +2,7 @@
 // khi tim kiem trong he thong khong ra ket qua nao - AI tro chuyen tu nhien voi khach,
 // nhung PHAI trung thuc: khong duoc bia ra ten quan/homestay/gia cu the khong co that
 // trong he thong, chi tu van chung hoac huong dan khach lien he/quay lai sau.
-const GEMINI_MODEL = "gemini-3.5-flash-lite";
+export const AI_GEMINI_MODEL = "gemini-3.5-flash-lite";
 
 const NO_KEY_MESSAGE = "Xin lỗi, trợ lý AI hiện chưa sẵn sàng. Bạn vui lòng thử từ khóa khác hoặc liên hệ bộ phận hỗ trợ nhé.";
 const ERROR_MESSAGE = "Trợ lý AI đang tạm thời gián đoạn, bạn vui lòng thử lại sau ít phút nhé.";
@@ -24,7 +24,7 @@ export async function askAI(question: string): Promise<string> {
 
   try {
     const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/${AI_GEMINI_MODEL}:generateContent?key=${apiKey}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -96,7 +96,7 @@ QUY TẮC LỌC - PHẢI TUÂN THỦ NGHIÊM NGẶT:
 
   try {
     const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/${AI_GEMINI_MODEL}:generateContent?key=${apiKey}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
