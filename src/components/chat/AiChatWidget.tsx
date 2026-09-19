@@ -5,7 +5,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import ChatText from "@/components/chat/ChatText";
-import { useSpeechRecognition } from "@/lib/use-speech-recognition";
+import { useVoiceInput } from "@/lib/use-voice-input";
+import VoiceMeter from "@/components/ui/VoiceMeter";
 import { useUiSlot } from "@/components/ui/UiSlots";
 import type { SearchResultItem } from "@/lib/search";
 import type { ChatSource } from "@/lib/ai-chat-utils";
@@ -130,9 +131,9 @@ export default function AiChatWidget() {
     return () => window.removeEventListener("keydown", onKey);
   }, [open]);
 
-  const speech = useSpeechRecognition({
-    onInterim: (t) => setInput(t),
-    onFinal: (t) => {
+  // Nói xong (tự nhận biết khi im lặng) -> gửi thẳng câu vừa nói
+  const speech = useVoiceInput({
+    onText: (t) => {
       setInput("");
       sendRef.current(t);
     },
@@ -206,11 +207,11 @@ export default function AiChatWidget() {
   return (
     <>
       {!open && (
-        <div className="fixed z-[45] right-2 sm:right-4 bottom-[80px]">
+        <div className="fixed z-[45] right-2 sm:right-4 bottom-[56px] sm:bottom-[80px]">
           {greetVisible && (
             <div
               key={greetIdx}
-              className="chat-bubble-in absolute right-full top-[22%] mr-0.5 w-max max-w-[170px] sm:max-w-[210px] rounded-2xl rounded-br-sm bg-white border border-brand-blueMid px-3 py-2 text-[13px] font-bold leading-snug text-brand-blue shadow-lg pointer-events-none"
+              className="chat-bubble-in absolute right-full top-[22%] mr-0.5 w-max max-w-[124px] sm:max-w-[210px] rounded-xl sm:rounded-2xl rounded-br-sm bg-white border border-brand-blueMid px-2 py-1 sm:px-3 sm:py-2 text-[11px] sm:text-[13px] font-bold leading-snug text-brand-blue shadow-lg pointer-events-none"
             >
               {GREETINGS[greetIdx]}
               <span className="absolute -right-1.5 bottom-2.5 w-3 h-3 rotate-45 bg-white border-r border-b border-brand-blueMid" aria-hidden="true" />
@@ -220,7 +221,7 @@ export default function AiChatWidget() {
             type="button"
             onClick={openChat}
             aria-label="Mở trợ lý AI để trò chuyện"
-            className="group relative block w-[84px] sm:w-[100px] focus:outline-none focus-visible:ring-4 focus-visible:ring-brand-blue/30 rounded-3xl"
+            className="group relative block w-[56px] sm:w-[100px] focus:outline-none focus-visible:ring-4 focus-visible:ring-brand-blue/30 rounded-3xl"
           >
             {customRobot ? (
               // eslint-disable-next-line @next/next/no-img-element
@@ -238,7 +239,7 @@ export default function AiChatWidget() {
                 className="robot-float w-full h-auto drop-shadow-[0_8px_14px_rgba(0,59,149,0.35)] select-none group-hover:scale-105 transition-transform"
               />
             )}
-            <span className="absolute left-1/2 -translate-x-1/2 -bottom-1 rounded-full bg-brand-blue px-2.5 py-0.5 text-[11px] font-bold text-white shadow whitespace-nowrap">
+            <span className="absolute left-1/2 -translate-x-1/2 -bottom-1 rounded-full bg-brand-blue px-1.5 sm:px-2.5 py-0.5 text-[9px] sm:text-[11px] font-bold text-white shadow whitespace-nowrap">
               Hỏi AI
             </span>
           </button>
@@ -390,10 +391,16 @@ export default function AiChatWidget() {
             </div>
 
             <div className="border-t border-slate-200 bg-white px-3 pt-2.5 pb-3">
-              {speech.listening && (
-                <div className="mb-2 flex items-center gap-2 rounded-xl bg-red-50 px-3 py-2 text-[13px] font-semibold text-red-600">
-                  <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse" aria-hidden="true" />
-                  Đang nghe... bạn cứ nói, nói xong mình tự gửi
+              {speech.status === "listening" && (
+                <div className="mb-2 flex items-center gap-2.5 rounded-xl bg-red-50 px-3 py-2 text-[13px] font-semibold text-red-600">
+                  <VoiceMeter level={speech.level} />
+                  Đang nghe... bạn cứ nói, ngừng nói là mình tự gửi
+                </div>
+              )}
+              {(speech.status === "processing" || speech.status === "starting") && (
+                <div className="mb-2 flex items-center gap-2.5 rounded-xl bg-brand-sky px-3 py-2 text-[13px] font-semibold text-brand-blue">
+                  <i className="fa-solid fa-spinner fa-spin" aria-hidden="true" />
+                  {speech.status === "starting" ? "Đang mở micro…" : "Đang chuyển thành chữ…"}
                 </div>
               )}
               {speech.error && <p className="mb-2 text-[13px] text-red-600">{speech.error}</p>}
@@ -416,13 +423,17 @@ export default function AiChatWidget() {
                   <button
                     type="button"
                     onClick={() => (speech.listening ? speech.stop() : speech.start())}
+                    disabled={speech.busy && !speech.listening}
                     aria-label={speech.listening ? "Dừng nghe" : "Nói bằng micro"}
                     title={speech.listening ? "Dừng nghe" : "Nói bằng micro"}
                     className={`w-12 h-12 shrink-0 rounded-full flex items-center justify-center text-lg transition ${
                       speech.listening ? "bg-red-500 text-white animate-pulse" : "bg-brand-sky text-brand-blue hover:bg-brand-blueMid"
                     }`}
                   >
-                    <i className={speech.listening ? "fa-solid fa-stop" : "fa-solid fa-microphone"} aria-hidden="true" />
+                    <i
+                      className={speech.busy && !speech.listening ? "fa-solid fa-spinner fa-spin" : speech.listening ? "fa-solid fa-stop" : "fa-solid fa-microphone"}
+                      aria-hidden="true"
+                    />
                   </button>
                 )}
                 <button

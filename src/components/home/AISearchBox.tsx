@@ -4,7 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import type { SearchResultItem } from "@/lib/search";
-import { useSpeechRecognition } from "@/lib/use-speech-recognition";
+import { useVoiceInput } from "@/lib/use-voice-input";
+import VoiceMeter from "@/components/ui/VoiceMeter";
 import { useUiSlot } from "@/components/ui/UiSlots";
 
 const SUGGESTED_QUESTIONS = [
@@ -34,9 +35,9 @@ export default function AISearchBox() {
   const [state, setState] = useState<SearchState>({ status: "idle" });
   const mascotImage = useUiSlot("hero-mascot");
   const sendIcon = useUiSlot("search-send");
-  const speech = useSpeechRecognition({
-    onInterim: (t) => setValue(t),
-    onFinal: (t) => {
+  // Nói xong (tự nhận biết khi im lặng) -> chữ hiện vào ô và tự tìm kiếm luôn
+  const speech = useVoiceInput({
+    onText: (t) => {
       setValue(t);
       runSearchRef.current(t);
     },
@@ -106,10 +107,18 @@ export default function AISearchBox() {
             {!value && (
               <span
                 className={`pointer-events-none absolute inset-y-0 left-0 right-0 flex items-center truncate whitespace-nowrap text-sm sm:text-[15px] text-slate-400 transition-opacity duration-350 ${
-                  visible ? "opacity-100" : "opacity-0"
+                  visible || speech.busy ? "opacity-100" : "opacity-0"
                 }`}
               >
-                {SUGGESTED_QUESTIONS[index]}
+                {speech.status === "listening" ? (
+                  <span className="flex items-center gap-2 font-semibold text-red-500">
+                    <VoiceMeter level={speech.level} /> Đang nghe... bạn cứ nói
+                  </span>
+                ) : speech.busy ? (
+                  <span className="font-semibold text-brand-blue">Đang chuyển thành chữ…</span>
+                ) : (
+                  SUGGESTED_QUESTIONS[index]
+                )}
               </span>
             )}
           </div>
@@ -117,13 +126,17 @@ export default function AISearchBox() {
             <button
               type="button"
               onClick={() => (speech.listening ? speech.stop() : speech.start())}
+              disabled={speech.busy && !speech.listening}
               className={`shrink-0 w-9 h-9 rounded-full flex items-center justify-center transition-colors ${
                 speech.listening ? "bg-red-500 text-white animate-pulse" : "text-slate-400 hover:text-brand-blue"
               }`}
               aria-label={speech.listening ? "Dừng nghe" : "Nói bằng giọng nói"}
               title={speech.listening ? "Đang nghe... bấm để dừng" : "Nói bằng giọng nói"}
             >
-              <i className={speech.listening ? "fa-solid fa-stop" : "fa-solid fa-microphone"} aria-hidden="true" />
+              <i
+                className={speech.busy && !speech.listening ? "fa-solid fa-spinner fa-spin" : speech.listening ? "fa-solid fa-stop" : "fa-solid fa-microphone"}
+                aria-hidden="true"
+              />
             </button>
           )}
           <button

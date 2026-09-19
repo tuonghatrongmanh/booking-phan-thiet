@@ -854,3 +854,12 @@ body {
     animation: none;
   }
 }
+
+/* Không cho phóng to/thu nhỏ bằng 2 ngón hoặc chạm đúp trên điện thoại (chỉ còn cuộn 1 ngón).
+   Kết hợp với viewport maximum-scale=1 trong layout.tsx và NoPinchZoom (iOS). */
+html,
+body {
+  touch-action: pan-x pan-y;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}

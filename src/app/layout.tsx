@@ -9,6 +9,7 @@ import SiteJsonLd from "@/components/seo/SiteJsonLd";
 import GoogleAnalytics from "@/components/seo/GoogleAnalytics";
 import SwipeHints from "@/components/ui/SwipeHints";
 import AiChatWidget from "@/components/chat/AiChatWidget";
+import NoPinchZoom from "@/components/ui/NoPinchZoom";
 import { SITE_URL } from "@/lib/site-url";
 import { getActiveTheme } from "@/lib/site-theme";
 import { getUiSlots } from "@/lib/ui-slots";
@@ -43,7 +44,8 @@ export async function generateMetadata(): Promise<Metadata> {
 // Màu thanh trình duyệt trên điện thoại = màu chủ đạo của giao diện đang áp dụng (mùa lễ hội đổi theo)
 export async function generateViewport(): Promise<Viewport> {
   const theme = await getActiveTheme();
-  return { themeColor: theme.primary };
+  // Khóa phóng to trên điện thoại (maximum-scale=1): xem thêm NoPinchZoom + touch-action trong globals.css
+  return { themeColor: theme.primary, width: "device-width", initialScale: 1, maximumScale: 1, userScalable: false };
 }
 
 export default async function RootLayout({
@@ -79,6 +81,7 @@ export default async function RootLayout({
           <RapidNavGuard />
           <SwipeHints />
           <AiChatWidget />
+          <NoPinchZoom />
           </UiSlotsProvider>
         </DialogProvider>
       </body>
