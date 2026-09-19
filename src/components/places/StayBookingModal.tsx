@@ -1,5 +1,6 @@
 "use client";
 
+import { emitSuccess } from "@/lib/success-sound";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import DepositQrPanel, { type DepositInfo } from "@/components/booking/DepositQrPanel";
@@ -167,6 +168,7 @@ export default function StayBookingModal({
     }
     setDeposit(data.deposit ?? null);
     setDone(true);
+    emitSuccess({ voice: true }); // "ting" + lời cảm ơn khi đặt phòng thành công
     clearDraft("stay", placeId);
     // Nhớ đơn trên thiết bị để khách tra cứu / quay lại thanh toán mà không cần đăng nhập
     if (data.deposit?.ref) {

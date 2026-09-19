@@ -45,7 +45,7 @@ export default function DepositBadge({
   if (status === "PAID") {
     return (
       <div className="flex flex-col gap-1">
-        <span className="inline-flex items-center gap-1.5 text-xs font-bold text-brand-green bg-brand-greenBg rounded-full px-2.5 py-1 w-fit">
+        <span className="inline-flex items-center gap-1.5 whitespace-nowrap text-xs font-bold text-brand-green bg-brand-greenBg rounded-full px-2.5 py-1 w-fit">
           <i className="fa-solid fa-circle-check" aria-hidden="true" />
           Đã nhận cọc{amount ? ` (${formatVnd(amount)})` : ""}
         </span>
@@ -84,46 +84,45 @@ export default function DepositBadge({
   }
 
   return (
-    <div className="flex flex-col gap-1">
-      <span className="text-xs font-bold text-amber-600 bg-amber-50 rounded-full px-2.5 py-1 w-fit">
-        Chờ chuyển khoản{amount ? ` (${formatVnd(amount)})` : ""}
+    <div className="flex flex-col items-start gap-1.5">
+      <span className="inline-flex items-center gap-1.5 whitespace-nowrap text-xs font-bold text-amber-700 bg-amber-50 rounded-full px-2.5 py-1">
+        <i className="fa-regular fa-clock" aria-hidden="true" />
+        Chờ chuyển khoản{amount ? ` · ${formatVnd(amount)}` : ""}
       </span>
       {depositRef && <span className="text-[11px] text-slate-500 font-mono">Mã CK: {depositRef}</span>}
       {expired && !reportedPaid && (
-        <span className="text-[11px] font-bold text-slate-500 bg-slate-100 rounded-full px-2 py-0.5 w-fit">
-          Quá hạn cọc (&gt;24 giờ) - nên huỷ đơn
-        </span>
+        <span className="text-[11px] font-semibold text-slate-500 bg-slate-100 rounded-full px-2 py-0.5">Quá hạn cọc (&gt;24 giờ) - nên huỷ đơn</span>
       )}
       {claimRejected && (
-        <span className="text-[11px] font-bold text-amber-700 bg-amber-100 rounded-full px-2 py-0.5 w-fit">
-          Đã báo khách: chưa nhận được tiền{claimCount ? ` (khách đã báo ${claimCount} lần)` : ""}
+        <span className="text-[11px] font-semibold text-amber-700 bg-amber-100 rounded-full px-2 py-0.5">
+          Đã báo khách chưa nhận được tiền{claimCount ? ` (báo ${claimCount} lần)` : ""}
         </span>
       )}
       {reportedPaid && (
         <>
-          <span className="text-[11px] font-bold text-white bg-brand-red rounded-full px-2 py-0.5 w-fit">
-            Khách báo đã chuyển (chưa xác minh) - kiểm tra ngân hàng
+          <span className="inline-flex items-center gap-1.5 text-[11px] font-bold text-white bg-brand-red rounded-full px-2.5 py-1">
+            <i className="fa-solid fa-bell" aria-hidden="true" /> Khách báo đã chuyển - cần kiểm tra
           </span>
           {claimNote && <span className="text-[11px] text-slate-500">Khách ghi: {claimNote}</span>}
         </>
       )}
-      <div className="flex flex-col items-start gap-0.5 mt-0.5">
+      <div className="flex flex-wrap items-center gap-2 mt-0.5">
         <button
           type="button"
           onClick={handleConfirm}
           disabled={loading !== null}
-          className="text-xs font-bold text-brand-blue hover:underline disabled:opacity-60 text-left"
+          className="text-xs font-bold text-white bg-brand-green hover:brightness-95 rounded-lg px-3 py-1.5 disabled:opacity-60 whitespace-nowrap"
         >
-          {loading === "confirm" ? "Đang xác nhận..." : "Xác nhận đã nhận cọc"}
+          {loading === "confirm" ? "Đang xác nhận..." : "✓ Đã nhận cọc"}
         </button>
         {reportedPaid && (
           <button
             type="button"
             onClick={handleReject}
             disabled={loading !== null}
-            className="text-xs font-bold text-brand-red hover:underline disabled:opacity-60 text-left"
+            className="text-xs font-bold text-brand-red border border-brand-red/40 hover:bg-brand-redBg rounded-lg px-3 py-1.5 disabled:opacity-60 whitespace-nowrap"
           >
-            {loading === "reject" ? "Đang gửi..." : "Chưa nhận được tiền"}
+            {loading === "reject" ? "Đang gửi..." : "Chưa nhận được"}
           </button>
         )}
       </div>

@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import HeaderNav from "./HeaderNav";
 import MobileNavToggle from "./MobileNavToggle";
+import HeaderSettingsButton from "./HeaderSettingsButton";
 import HeaderCoinBadge from "./HeaderCoinBadge";
 import UserNotificationBell from "./UserNotificationBell";
 import { auth } from "@/lib/auth";
@@ -23,6 +24,12 @@ export default async function Header() {
         select: { name: true, avatar: true, warnedAt: true, coins: true },
       })
     : null;
+
+  // Sale uy tín đã được duyệt: avatar/menu dẫn thẳng tới hồ sơ Sale của mình
+  const saleProfile = user
+    ? await prisma.place.findFirst({ where: { userId: (session!.user as { id: string }).id, category: "SALE", hidden: false }, select: { id: true } })
+    : null;
+  const account = user ? { name: user.name, avatar: user.avatar || "/images/avatar-world.png", saleProfileId: saleProfile?.id ?? null } : null;
 
   return (
     <header className="bg-navbar-gradient header-ocean-sheen sticky top-0 z-50 shadow-[0_2px_12px_rgba(0,59,149,0.10)]">
@@ -48,7 +55,7 @@ export default async function Header() {
             <span className="hidden xl:block w-px h-7 bg-white/25" aria-hidden="true" />
             {user && <HeaderCoinBadge initialCoins={user.coins} avatar={user.avatar || "/images/avatar-world.png"} name={user.name} />}
             {user ? (
-              <UserNotificationBell avatar={user.avatar || "/images/avatar-world.png"} name={user.name} warned={Boolean(user.warnedAt)} />
+              <UserNotificationBell avatar={user.avatar || "/images/avatar-world.png"} name={user.name} warned={Boolean(user.warnedAt)} saleProfileId={saleProfile?.id ?? null} />
             ) : (
               <Link
                 href="/dang-nhap"
@@ -66,7 +73,8 @@ export default async function Header() {
                 </span>
               </Link>
             )}
-            <MobileNavToggle />
+            <HeaderSettingsButton />
+            <MobileNavToggle account={account} />
           </div>
         </div>
       </div>

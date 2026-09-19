@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import type { ActivityItem } from "@/lib/recent-activity-feed";
-import { armNotificationSound, playNotificationChime, readSoundMuted, writeSoundMuted } from "@/lib/notification-sound";
+import { armNotificationSound, playNotificationChime } from "@/lib/notification-sound";
+import { setPref, usePrefs } from "@/lib/client-prefs";
 
 const SHOW_MS = 2600;
 const HIDE_GAP_MS = 400;
@@ -25,13 +26,11 @@ export default function RecentActivityTicker({ items }: { items: ActivityItem[] 
   const [index, setIndex] = useState(0);
   const [visible, setVisible] = useState(false);
   const [dismissed, setDismissed] = useState(false);
-  const [muted, setMuted] = useState(false);
+  // Công tắc âm thanh chung của khách (Cài đặt trong menu) - đổi ở đâu cũng đồng bộ
+  const muted = !usePrefs().sound;
 
-  // Doc trang thai tat tieng da luu + cho cu chi dau tien de mo khoa am thanh (hoan tick: tranh setState dong bo trong effect)
   useEffect(() => {
     armNotificationSound();
-    const t = setTimeout(() => setMuted(readSoundMuted()), 0);
-    return () => clearTimeout(t);
   }, []);
 
   // Moi lan toast hien ra (va khi vua bat lai tieng - nghe thu) thi phat tieng ting
@@ -40,9 +39,7 @@ export default function RecentActivityTicker({ items }: { items: ActivityItem[] 
   }, [visible, muted, dismissed]);
 
   function toggleMuted() {
-    const next = !muted;
-    setMuted(next);
-    writeSoundMuted(next);
+    setPref("sound", muted);
   }
 
   useEffect(() => {

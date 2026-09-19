@@ -5,6 +5,7 @@ import DepositBadge from "@/components/admin/DepositBadge";
 import { isDepositExpired } from "@/lib/booking-status";
 import CustomerContact from "@/components/admin/CustomerContact";
 import { buildCustomerMessage } from "@/lib/booking-message";
+import InquiryCard from "@/components/admin/InquiryCard";
 
 export const dynamic = "force-dynamic";
 
@@ -59,77 +60,59 @@ export default async function AdminRentalInquiriesPage({
         ))}
       </div>
 
-      <div className="bg-white rounded-2xl shadow-card overflow-x-auto">
-        {inquiries.length === 0 ? (
-          <p className="p-8 text-center text-slate-400">Không có yêu cầu nào.</p>
-        ) : (
-          <table className="w-full text-sm min-w-[900px]">
-            <thead className="bg-slate-50 text-slate-500 text-left">
-              <tr>
-                <th className="px-5 py-3 font-semibold">Xe</th>
-                <th className="px-5 py-3 font-semibold">Khách hàng</th>
-                <th className="px-5 py-3 font-semibold">Nhận xe</th>
-                <th className="px-5 py-3 font-semibold">Ngày thuê</th>
-                <th className="px-5 py-3 font-semibold">Ghi chú</th>
-                <th className="px-5 py-3 font-semibold">Ngày gửi</th>
-                <th className="px-5 py-3 font-semibold">Cọc</th>
-                <th className="px-5 py-3 font-semibold">Trạng thái</th>
-              </tr>
-            </thead>
-            <tbody>
-              {inquiries.map((r) => (
-                <tr key={r.id} className="border-t border-slate-100 align-top">
-                  <td className="px-5 py-3">
-                    <p className="font-semibold text-slate-800">{r.place.name}</p>
-                    {r.place.phone && <p className="text-xs text-slate-400">{r.place.phone}</p>}
-                    {r.quantity > 1 && <p className="text-xs font-bold text-brand-blue">{r.quantity} xe</p>}
-                  </td>
-                  <td className="px-5 py-3">
-                    <CustomerContact
-                      name={r.customerName}
-                      phone={r.customerPhone}
-                      email={r.customerEmail}
-                      message={buildCustomerMessage({
-                        customerName: r.customerName,
-                        placeName: r.place.name,
-                        dateText: `${formatDateOnly(r.pickupDate)} - ${formatDateOnly(r.returnDate)}`,
-                        detailText: `${r.quantity} xe`,
-                        depositStatus: r.depositStatus,
-                        depositAmount: r.depositAmount,
-                        depositRef: r.depositRef,
-                        cancelled: r.status === "CANCELLED",
-                      })}
-                    />
-                  </td>
-                  <td className="px-5 py-3 text-slate-500 max-w-[200px]">{r.pickupLocation || <span className="text-slate-300">—</span>}</td>
-                  <td className="px-5 py-3 text-slate-500 whitespace-nowrap">
-                    {formatDateOnly(r.pickupDate)} - {formatDateOnly(r.returnDate)}
-                  </td>
-                  <td className="px-5 py-3 text-slate-500 max-w-[220px]">{r.note || <span className="text-slate-300">—</span>}</td>
-                  <td className="px-5 py-3 text-slate-500 whitespace-nowrap">{formatDateTime(r.createdAt)}</td>
-                  <td className="px-5 py-3">
-                    <DepositBadge
-                      status={r.depositStatus}
-                      amount={r.depositAmount}
-                      depositRef={r.depositRef}
-                      reportedPaid={Boolean(r.customerReportedPaidAt)}
-                      claimNote={r.paymentClaimNote}
-                      claimRejected={Boolean(r.paymentClaimRejectedAt) && !r.customerReportedPaidAt}
-                      claimCount={r.paymentClaimCount}
-                      expired={isDepositExpired(r.createdAt)}
-                      rejectUrl={`/api/admin/rental-inquiries/${r.id}/reject-claim`}
-                      confirmUrl={`/api/admin/rental-inquiries/${r.id}/confirm-deposit`}
-                    />
-                  </td>
-                  <td className="px-5 py-3">
-                    <RentalInquiryStatusControl id={r.id} status={r.status} />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </div>
+      {inquiries.length === 0 ? (
+        <p className="bg-white rounded-2xl shadow-card p-8 text-center text-slate-400">Không có yêu cầu nào.</p>
+      ) : (
+        <div className="space-y-4">
+          {inquiries.map((r) => (
+            <InquiryCard
+              key={r.id}
+              title={r.place.name}
+              subtitle={r.place.phone}
+              chips={[
+                { icon: "fa-regular fa-calendar", text: `${formatDateOnly(r.pickupDate)} → ${formatDateOnly(r.returnDate)}` },
+                ...(r.quantity > 1 ? [{ icon: "fa-solid fa-motorcycle", text: `${r.quantity} xe`, tone: "blue" as const }] : []),
+              ]}
+              locationLabel="Nhận xe tại"
+              location={r.pickupLocation}
+              note={r.note}
+              sentAt={formatDateTime(r.createdAt)}
+              customer={
+                <CustomerContact
+                  name={r.customerName}
+                  phone={r.customerPhone}
+                  email={r.customerEmail}
+                  message={buildCustomerMessage({
+                    customerName: r.customerName,
+                    placeName: r.place.name,
+                    dateText: `${formatDateOnly(r.pickupDate)} - ${formatDateOnly(r.returnDate)}`,
+                    detailText: `${r.quantity} xe`,
+                    depositStatus: r.depositStatus,
+                    depositAmount: r.depositAmount,
+                    depositRef: r.depositRef,
+                    cancelled: r.status === "CANCELLED",
+                  })}
+                />
+              }
+              deposit={
+                <DepositBadge
+                  status={r.depositStatus}
+                  amount={r.depositAmount}
+                  depositRef={r.depositRef}
+                  reportedPaid={Boolean(r.customerReportedPaidAt)}
+                  claimNote={r.paymentClaimNote}
+                  claimRejected={Boolean(r.paymentClaimRejectedAt) && !r.customerReportedPaidAt}
+                  claimCount={r.paymentClaimCount}
+                  expired={isDepositExpired(r.createdAt)}
+                  rejectUrl={`/api/admin/rental-inquiries/${r.id}/reject-claim`}
+                  confirmUrl={`/api/admin/rental-inquiries/${r.id}/confirm-deposit`}
+                />
+              }
+              status={<RentalInquiryStatusControl id={r.id} status={r.status} />}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }

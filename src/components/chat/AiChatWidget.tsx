@@ -8,6 +8,7 @@ import ChatText from "@/components/chat/ChatText";
 import { useVoiceInput } from "@/lib/use-voice-input";
 import VoiceMeter from "@/components/ui/VoiceMeter";
 import { useUiSlot } from "@/components/ui/UiSlots";
+import { setPref, usePrefs } from "@/lib/client-prefs";
 import type { SearchResultItem } from "@/lib/search";
 import type { ChatSource } from "@/lib/ai-chat-utils";
 
@@ -74,6 +75,7 @@ function loadSaved(): ChatMessage[] {
 export default function AiChatWidget() {
   const pathname = usePathname();
   const customRobot = useUiSlot("ai-robot");
+  const aiVisible = usePrefs().ai;
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([WELCOME]);
   const [input, setInput] = useState("");
@@ -200,7 +202,8 @@ export default function AiChatWidget() {
     setInput("");
   }
 
-  if (pathname.startsWith("/admin")) return null;
+  // Khách có thể ẩn hẳn trợ lý (nút × trên robot hoặc Cài đặt trong menu)
+  if (pathname.startsWith("/admin") || !aiVisible) return null;
 
   const onlyWelcome = messages.length === 1 && messages[0].welcome;
 
@@ -217,6 +220,15 @@ export default function AiChatWidget() {
               <span className="absolute -right-1.5 bottom-2.5 w-3 h-3 rotate-45 bg-white border-r border-b border-brand-blueMid" aria-hidden="true" />
             </div>
           )}
+          <button
+            type="button"
+            onClick={() => setPref("ai", false)}
+            aria-label="Ẩn trợ lý AI"
+            title="Ẩn trợ lý AI (bật lại trong Cài đặt ở menu)"
+            className="absolute -top-1 -left-1 z-10 w-6 h-6 rounded-full bg-white text-slate-500 shadow border border-slate-200 flex items-center justify-center text-[10px] hover:text-brand-red"
+          >
+            <i className="fa-solid fa-xmark" aria-hidden="true" />
+          </button>
           <button
             type="button"
             onClick={openChat}

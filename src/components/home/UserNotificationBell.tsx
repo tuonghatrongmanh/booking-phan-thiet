@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { signOut } from "next-auth/react";
 
 type NotificationItem = {
   id: string;
@@ -38,10 +39,12 @@ export default function UserNotificationBell({
   avatar,
   name,
   warned,
+  saleProfileId = null,
 }: {
   avatar: string;
   name: string | null;
   warned: boolean;
+  saleProfileId?: string | null;
 }) {
   const router = useRouter();
   const [items, setItems] = useState<NotificationItem[]>([]);
@@ -92,7 +95,7 @@ export default function UserNotificationBell({
           if (!open) markAllRead();
         }}
         className="relative flex items-center shrink-0"
-        aria-label="Thông báo & tài khoản"
+        aria-label="Tài khoản của tôi và thông báo"
       >
         <Image
           src={avatar}
@@ -117,14 +120,34 @@ export default function UserNotificationBell({
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full mt-2 z-50 w-80 bg-white rounded-xl shadow-2xl border border-slate-100">
-          <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100">
-            <p className="font-bold text-sm text-slate-800">Thông báo</p>
-            <Link href="/tai-khoan" onClick={() => setOpen(false)} className="text-xs font-semibold text-brand-blue hover:underline">
-              Trang tài khoản
+        // Điện thoại: hộp cố định trong khung màn hình (không bị cắt bên trái); máy tính: thả xuống ngay dưới avatar
+        <div className="fixed inset-x-3 top-[80px] sm:absolute sm:inset-x-auto sm:right-0 sm:top-full sm:mt-2 z-50 sm:w-80 bg-white rounded-2xl shadow-2xl border border-slate-100 overflow-hidden">
+          <div className="p-3 border-b border-slate-100 space-y-2">
+            <Link
+              href={saleProfileId ? `/sale/${saleProfileId}` : "/tai-khoan"}
+              onClick={() => setOpen(false)}
+              className="flex items-center gap-3 rounded-xl bg-brand-blue text-white p-3 hover:brightness-95 transition"
+            >
+              <Image src={avatar} alt="" width={40} height={40} className="w-10 h-10 rounded-full object-cover ring-2 ring-white/60 shrink-0" />
+              <span className="min-w-0 flex-1">
+                <span className="block font-bold text-[15px] truncate">{name || "Tài khoản"}</span>
+                <span className="block text-xs text-white/85">{saleProfileId ? "Xem hồ sơ Sale của tôi" : "Xem trang cá nhân"}</span>
+              </span>
+              <i className="fa-solid fa-chevron-right text-xs" aria-hidden="true" />
             </Link>
+            <div className="flex gap-2">
+              {saleProfileId && (
+                <Link href="/tai-khoan" onClick={() => setOpen(false)} className="flex-1 text-center text-xs font-bold text-brand-blue border border-brand-blueMid rounded-full py-2 hover:bg-brand-tint">
+                  Thông tin tài khoản
+                </Link>
+              )}
+              <button type="button" onClick={() => signOut({ callbackUrl: "/" })} className="flex-1 text-center text-xs font-bold text-slate-600 border border-slate-200 rounded-full py-2 hover:bg-slate-50">
+                Đăng xuất
+              </button>
+            </div>
           </div>
-          <div className="max-h-80 overflow-y-auto scrollbar-none">
+          <p className="px-4 pt-3 pb-1 font-bold text-sm text-slate-800">Thông báo</p>
+          <div className="max-h-[50vh] sm:max-h-80 overflow-y-auto scrollbar-none">
             {items.length === 0 ? (
               <p className="p-6 text-sm text-slate-400 text-center">Chưa có thông báo nào.</p>
             ) : (

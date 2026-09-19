@@ -1,5 +1,6 @@
 "use client";
 
+import { emitSuccess } from "@/lib/success-sound";
 import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import Image from "next/image";
@@ -142,6 +143,7 @@ export default function VehicleBookingModal({
     }
     setDeposit(data.deposit ?? null);
     setDone(true);
+    emitSuccess({ voice: true }); // "ting" + lời cảm ơn khi đặt xe thành công
     clearDraft("rental", vehicle.id);
     // Nhớ đơn trên thiết bị để khách tra cứu / quay lại thanh toán mà không cần đăng nhập
     if (data.deposit?.ref) {

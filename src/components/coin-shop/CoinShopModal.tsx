@@ -1,5 +1,6 @@
 "use client";
 
+import { emitSuccess } from "@/lib/success-sound";
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { createPortal } from "react-dom";
@@ -157,6 +158,7 @@ export default function CoinShopModal({
     emitCoinsChanged(data.newBalance);
     setLastOrder(data.redemption);
     setView("confirm");
+    emitSuccess({ voice: true }); // đổi quà thành công
   }
 
   if (!open || typeof document === "undefined") return null;
