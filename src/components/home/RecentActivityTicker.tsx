@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import type { ActivityItem } from "@/lib/recent-activity-feed";
+import { armNotificationSound, playNotificationChime, readSoundMuted, writeSoundMuted } from "@/lib/notification-sound";
 
 const SHOW_MS = 2600;
 const HIDE_GAP_MS = 400;
@@ -24,13 +25,35 @@ export default function RecentActivityTicker({ items }: { items: ActivityItem[] 
   const [index, setIndex] = useState(0);
   const [visible, setVisible] = useState(false);
   const [dismissed, setDismissed] = useState(false);
+  const [muted, setMuted] = useState(false);
+
+  // Doc trang thai tat tieng da luu + cho cu chi dau tien de mo khoa am thanh (hoan tick: tranh setState dong bo trong effect)
+  useEffect(() => {
+    armNotificationSound();
+    const t = setTimeout(() => setMuted(readSoundMuted()), 0);
+    return () => clearTimeout(t);
+  }, []);
+
+  // Moi lan toast hien ra (va khi vua bat lai tieng - nghe thu) thi phat tieng ting
+  useEffect(() => {
+    if (visible && !muted && !dismissed) playNotificationChime();
+  }, [visible, muted, dismissed]);
+
+  function toggleMuted() {
+    const next = !muted;
+    setMuted(next);
+    writeSoundMuted(next);
+  }
 
   useEffect(() => {
-    try {
-      if (sessionStorage.getItem("activity-ticker-dismissed") === "1") setDismissed(true);
-    } catch {
-      // ignore - private browsing co the chan sessionStorage
-    }
+    const t = setTimeout(() => {
+      try {
+        if (sessionStorage.getItem("activity-ticker-dismissed") === "1") setDismissed(true);
+      } catch {
+        // ignore - private browsing co the chan sessionStorage
+      }
+    }, 0);
+    return () => clearTimeout(t);
   }, []);
 
   useEffect(() => {
@@ -55,7 +78,6 @@ export default function RecentActivityTicker({ items }: { items: ActivityItem[] 
       clearTimeout(showTimer);
       clearTimeout(timeoutId);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [items.length, dismissed]);
 
   if (items.length === 0 || dismissed) return null;
@@ -92,14 +114,28 @@ export default function RecentActivityTicker({ items }: { items: ActivityItem[] 
           </p>
           <p className="text-[11px] text-slate-400 mt-0.5">{formatActivityTime(item.createdAt)}</p>
         </div>
-        <button
-          type="button"
-          onClick={handleDismiss}
-          aria-label="Đóng"
-          className="shrink-0 self-start text-slate-300 hover:text-slate-500 transition"
-        >
-          <i className="fa-solid fa-xmark text-sm" aria-hidden="true" />
-        </button>
+        <div className="shrink-0 self-start flex flex-col items-center gap-1.5">
+          <button
+            type="button"
+            onClick={handleDismiss}
+            aria-label="Đóng"
+            className="text-slate-300 hover:text-slate-500 transition"
+          >
+            <i className="fa-solid fa-xmark text-sm" aria-hidden="true" />
+          </button>
+          <button
+            type="button"
+            onClick={toggleMuted}
+            aria-label={muted ? "Bật âm thanh thông báo" : "Tắt âm thanh thông báo"}
+            title={muted ? "Bật âm thanh" : "Tắt âm thanh"}
+            aria-pressed={muted}
+            className={`w-6 h-6 rounded-full flex items-center justify-center text-[11px] transition ${
+              muted ? "bg-slate-100 text-slate-400 hover:text-slate-600" : "bg-brand-sky text-brand-blue hover:bg-brand-blueMid"
+            }`}
+          >
+            <i className={muted ? "fa-solid fa-volume-xmark" : "fa-solid fa-volume-high"} aria-hidden="true" />
+          </button>
+        </div>
       </div>
     </div>
   );
