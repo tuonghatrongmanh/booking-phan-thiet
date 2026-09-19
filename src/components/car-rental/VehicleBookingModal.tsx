@@ -37,15 +37,29 @@ function diffDays(a: string, b: string) {
   return Math.round(ms / (24 * 60 * 60 * 1000));
 }
 
-export default function VehicleBookingModal({ vehicle, onClose }: { vehicle: VehicleData; onClose: () => void }) {
+export default function VehicleBookingModal({
+  vehicle,
+  onClose,
+  initialPickup,
+  initialReturn,
+}: {
+  vehicle: VehicleData;
+  onClose: () => void;
+  // Ngày khách đã chọn ở ô tìm kiếm - điền sẵn để khỏi nhập lại
+  initialPickup?: string;
+  initialReturn?: string;
+}) {
   // Khôi phục thông tin khách đã nhập lần trước (liên hệ dùng chung + nháp riêng của xe này)
   // để lỡ thoát form rồi mở lại không phải nhập lại từ đầu.
   const [saved] = useState(() => ({ contact: loadContact(), draft: loadDraft("rental", vehicle.id) }));
   const draftPickup = draftStr(saved.draft, "pickupDate");
-  const startDate = draftPickup && draftPickup >= todayStr() ? draftPickup : todayStr();
+  const startDate =
+    initialPickup && initialPickup >= todayStr() ? initialPickup : draftPickup && draftPickup >= todayStr() ? draftPickup : todayStr();
   const draftReturn = draftStr(saved.draft, "returnDate");
   const [pickupDate, setPickupDate] = useState(startDate);
-  const [returnDate, setReturnDate] = useState(draftReturn && draftReturn >= startDate ? draftReturn : addDaysStr(startDate, 1));
+  const [returnDate, setReturnDate] = useState(
+    initialReturn && initialReturn >= startDate ? initialReturn : draftReturn && draftReturn >= startDate ? draftReturn : addDaysStr(startDate, 1)
+  );
   const [pickupLocation, setPickupLocation] = useState(draftStr(saved.draft, "pickupLocation") || (vehicle.address ?? ""));
   const [name, setName] = useState(saved.contact.name);
   const [phone, setPhone] = useState(saved.contact.phone);

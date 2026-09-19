@@ -6,6 +6,7 @@ import VehicleCard from "./VehicleCard";
 import VehicleQuickViewModal from "./VehicleQuickViewModal";
 import VehicleBookingModal from "./VehicleBookingModal";
 import type { AvailabilityStatusKey } from "@/lib/places";
+import { normalizeText, remainingUnits } from "@/lib/vehicle-search";
 
 export type VehicleData = {
   id: string;
@@ -35,9 +36,27 @@ export type VehicleData = {
   phone: string | null;
   mapEmbedUrl: string | null;
   images: { url: string }[];
+  // Các đợt xe đã được khách ĐẶT CỌC xong (chỉ ngày + số lượng, không có thông tin khách) - dùng để lọc theo ngày
+  bookedRanges: { from: string; to: string; qty: number }[];
 };
 
+
 const FAVORITES_KEY = "bookingphanthiet_favorite_vehicles";
+
+// Dãy số trang gọn: 1 ... 4 5 6 ... 12
+function pageNumbers(current: number, total: number): (number | "gap")[] {
+  const out: (number | "gap")[] = [];
+  for (let p = 1; p <= total; p++) {
+    if (p === 1 || p === total || Math.abs(p - current) <= 1) out.push(p);
+    else if (out[out.length - 1] !== "gap") out.push("gap");
+  }
+  return out;
+}
+
+function formatShort(dateStr: string) {
+  const [, m, d] = dateStr.split("-");
+  return d + "/" + m;
+}
 
 const AREA_OPTIONS = ["Tất cả khu vực", "Phan Thiết", "Mũi Né", "Hàm Tiến", "Hưng Long", "Tiến Thành", "Phú Hài"];
 
@@ -67,6 +86,9 @@ export default function VehicleListClient({ vehicles }: { vehicles: VehicleData[
   const [area, setArea] = useState(AREA_OPTIONS[0]);
   const [pickupDate, setPickupDate] = useState(todayStr());
   const [returnDate, setReturnDate] = useState(todayStr());
+  // Ngày đã "áp dụng" khi bấm Tìm xe: từ đó thẻ xe hiện đúng số xe còn trống trong khoảng ngày này
+  const [appliedDates, setAppliedDates] = useState<{ from: string; to: string } | null>(null);
+  const [selectedTransmissions, setSelectedTransmissions] = useState<string[]>([]);
 
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
@@ -76,14 +98,17 @@ export default function VehicleListClient({ vehicles }: { vehicles: VehicleData[
 
   const [sortBy, setSortBy] = useState("popular");
   const [page, setPage] = useState(1);
-  const PAGE_SIZE = 6;
+  const [dateError, setDateError] = useState<string | null>(null);
+  const PAGE_SIZE = 8; // 4 cột x 2 dòng
 
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [quickViewId, setQuickViewId] = useState<string | null>(null);
   const [bookingId, setBookingId] = useState<string | null>(null);
 
   useEffect(() => {
-    setFavorites(new Set(readFavorites()));
+    // Đọc yêu thích từ localStorage sau khi hydrate (hoãn 1 tick để không setState đồng bộ trong effect)
+    const t = setTimeout(() => setFavorites(new Set(readFavorites())), 0);
+    return () => clearTimeout(t);
   }, []);
 
   function toggleFavorite(id: string) {
@@ -108,6 +133,10 @@ export default function VehicleListClient({ vehicles }: { vehicles: VehicleData[
     () => Array.from(new Set(vehicles.map((v) => v.brand).filter((t): t is string => Boolean(t)))),
     [vehicles]
   );
+  const transmissions = useMemo(
+    () => Array.from(new Set(vehicles.map((v) => v.transmission).filter((t): t is string => Boolean(t)))),
+    [vehicles]
+  );
   const priceCeiling = useMemo(() => {
     const prices = vehicles.map((v) => v.priceFromVnd).filter((p): p is number => p != null);
     return prices.length ? Math.max(...prices) : 0;
@@ -120,6 +149,8 @@ export default function VehicleListClient({ vehicles }: { vehicles: VehicleData[
   function resetFilters() {
     setSelectedTypes([]);
     setSelectedBrands([]);
+    setSelectedTransmissions([]);
+    setAppliedDates(null);
     setOnlyAvailable(false);
     setMaxPrice(null);
     setArea(AREA_OPTIONS[0]);
@@ -127,28 +158,61 @@ export default function VehicleListClient({ vehicles }: { vehicles: VehicleData[
     setPage(1);
   }
 
-  const normalizedSearch = search.trim().toLowerCase();
+  // Tìm kiếm toàn diện: bỏ dấu, tách thành nhiều từ (khớp đủ TẤT CẢ các từ), tìm trong tên, loại, hãng, dung tích,
+  // hộp số, khu vực, mô tả, tiện ích, nhãn... - vd "xe ga honda mui ne 150cc" hay "so 110".
+  const searchIndex = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const v of vehicles) {
+      map.set(
+        v.id,
+        normalizeText(
+          [
+            v.name,
+            v.vehicleType,
+            v.brand,
+            v.engineCc != null ? v.engineCc + "cc " + v.engineCc : null,
+            v.transmission,
+            v.seats != null ? v.seats + " nguoi" : null,
+            v.badge,
+            v.address,
+            v.returnLocation,
+            v.description,
+            v.amenities.join(" "),
+            v.priceFromVnd != null ? String(v.priceFromVnd) : null,
+          ]
+            .filter(Boolean)
+            .join(" ")
+        )
+      );
+    }
+    return map;
+  }, [vehicles]);
+
+  const searchTokens = useMemo(() => normalizeText(search).split(/\s+/).filter(Boolean), [search]);
+  const normalizedArea = normalizeText(area);
+
+  const dateStatusOf = (v: VehicleData): { remaining: number } | null =>
+    appliedDates ? { remaining: remainingUnits(v, appliedDates.from, appliedDates.to) } : null;
 
   const filtered = useMemo(() => {
     return vehicles.filter((v) => {
-      const isAvailable = v.availabilityStatus ? v.availabilityStatus === "AVAILABLE" : v.availableRooms == null || v.availableRooms > 0;
+      const baseAvailable = v.availabilityStatus ? v.availabilityStatus === "AVAILABLE" : v.availableRooms == null || v.availableRooms > 0;
+      const forDates = appliedDates ? remainingUnits(v, appliedDates.from, appliedDates.to) > 0 : true;
+      const isAvailable = baseAvailable && forDates;
 
-      const matchesSearch =
-        !normalizedSearch ||
-        v.name.toLowerCase().includes(normalizedSearch) ||
-        (v.vehicleType ?? "").toLowerCase().includes(normalizedSearch) ||
-        (v.brand ?? "").toLowerCase().includes(normalizedSearch) ||
-        (v.address ?? "").toLowerCase().includes(normalizedSearch);
-
-      const matchesArea = area === AREA_OPTIONS[0] || (v.address ?? "").toLowerCase().includes(area.toLowerCase());
+      const haystack = searchIndex.get(v.id) ?? "";
+      const matchesSearch = searchTokens.every((t) => haystack.includes(t));
+      const matchesArea = area === AREA_OPTIONS[0] || normalizeText(v.address ?? "").includes(normalizedArea);
       const matchesType = selectedTypes.length === 0 || (v.vehicleType != null && selectedTypes.includes(v.vehicleType));
       const matchesBrand = selectedBrands.length === 0 || (v.brand != null && selectedBrands.includes(v.brand));
+      const matchesTransmission = selectedTransmissions.length === 0 || (v.transmission != null && selectedTransmissions.includes(v.transmission));
       const matchesPrice = maxPrice == null || v.priceFromVnd == null || v.priceFromVnd <= maxPrice;
-      const matchesAvailability = !onlyAvailable || isAvailable;
+      // Đã chọn ngày thì luôn ẩn xe hết trong khoảng đó; nếu không thì chỉ ẩn khi tick "Chỉ hiện xe còn"
+      const matchesAvailability = appliedDates ? forDates && (!onlyAvailable || isAvailable) : !onlyAvailable || isAvailable;
 
-      return matchesSearch && matchesArea && matchesType && matchesBrand && matchesPrice && matchesAvailability;
+      return matchesSearch && matchesArea && matchesType && matchesBrand && matchesTransmission && matchesPrice && matchesAvailability;
     });
-  }, [vehicles, normalizedSearch, area, selectedTypes, selectedBrands, maxPrice, onlyAvailable]);
+  }, [vehicles, searchIndex, searchTokens, area, normalizedArea, selectedTypes, selectedBrands, selectedTransmissions, maxPrice, onlyAvailable, appliedDates]);
 
   const sorted = useMemo(() => {
     const list = [...filtered];
@@ -175,6 +239,27 @@ export default function VehicleListClient({ vehicles }: { vehicles: VehicleData[
 
   function handleFilterChange() {
     setPage(1);
+  }
+
+  function scrollToList() {
+    document.getElementById("danh-sach-xe")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  // Bấm "Tìm xe" (hoặc Enter): áp dụng ngày nhận/trả để biết xe nào còn trống trong khoảng đó
+  function applySearch() {
+    if (returnDate < pickupDate) {
+      setDateError("Ngày trả xe không được trước ngày nhận xe");
+      return;
+    }
+    setDateError(null);
+    setAppliedDates({ from: pickupDate, to: returnDate });
+    setPage(1);
+    scrollToList();
+  }
+
+  function goToPage(p: number) {
+    setPage(p);
+    scrollToList();
   }
 
   const filterPanel = (
@@ -243,6 +328,28 @@ export default function VehicleListClient({ vehicles }: { vehicles: VehicleData[
         </div>
       )}
 
+      {transmissions.length > 0 && (
+        <div>
+          <p className="font-bold text-sm text-slate-700 mb-2.5">Hộp số</p>
+          <div className="space-y-2">
+            {transmissions.map((t) => (
+              <label key={t} className="flex items-center gap-2 text-sm text-slate-600 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={selectedTransmissions.includes(t)}
+                  onChange={() => {
+                    toggleInArray(selectedTransmissions, t, setSelectedTransmissions);
+                    handleFilterChange();
+                  }}
+                  className="w-4 h-4 rounded accent-brand-blue"
+                />
+                {t}
+              </label>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div>
         <p className="font-bold text-sm text-slate-700 mb-2.5">Trạng thái</p>
         <label className="flex items-center gap-2 text-sm text-slate-600 cursor-pointer">
@@ -274,7 +381,13 @@ export default function VehicleListClient({ vehicles }: { vehicles: VehicleData[
     <>
       <div className="container-custom">
         <div className="relative z-10 -mt-[110px] sm:-mt-[60px] bg-white rounded-[20px] shadow-[0_20px_50px_-18px_rgba(2,60,120,0.28)] p-4 sm:p-5">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[1.2fr_1fr_1fr_auto] gap-3">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              applySearch();
+            }}
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[1.2fr_1fr_1fr_auto] gap-3"
+          >
             <div className="relative">
               <i className="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" aria-hidden="true" />
               <input
@@ -283,7 +396,7 @@ export default function VehicleListClient({ vehicles }: { vehicles: VehicleData[
                   setSearch(e.target.value);
                   handleFilterChange();
                 }}
-                placeholder="Tìm theo tên xe, loại xe..."
+                placeholder="Tìm xe: tên, hãng, loại, 110cc, tay ga, khu vực..."
                 className="w-full border border-slate-200 rounded-xl pl-11 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-blue/40"
               />
             </div>
@@ -323,14 +436,14 @@ export default function VehicleListClient({ vehicles }: { vehicles: VehicleData[
             </div>
 
             <button
-              type="button"
-              onClick={() => handleFilterChange()}
+              type="submit"
               className="bg-brand-blue hover:brightness-95 transition text-white font-bold rounded-xl px-5 py-2.5 text-sm flex items-center justify-center gap-2"
             >
               <i className="fa-solid fa-magnifying-glass" aria-hidden="true" />
               Tìm xe
             </button>
-          </div>
+          </form>
+          {dateError && <p className="text-xs text-brand-red mt-2">{dateError}</p>}
         </div>
       </div>
 
@@ -338,6 +451,16 @@ export default function VehicleListClient({ vehicles }: { vehicles: VehicleData[
         <div className="flex items-center justify-between mb-4 gap-3">
           <p className="text-sm text-slate-500">
             Tìm thấy <span className="font-bold text-slate-700">{sorted.length}</span> xe
+            {appliedDates && (
+              <>
+                {" "}
+                trống {formatShort(appliedDates.from)}
+                {appliedDates.to !== appliedDates.from ? " - " + formatShort(appliedDates.to) : ""}
+                <button type="button" onClick={() => { setAppliedDates(null); setPage(1); }} className="ml-2 text-brand-blue font-semibold hover:underline">
+                  Bỏ lọc ngày
+                </button>
+              </>
+            )}
           </p>
           <div className="flex items-center gap-2">
             <button
@@ -362,10 +485,53 @@ export default function VehicleListClient({ vehicles }: { vehicles: VehicleData[
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-[240px_1fr] gap-6">
-          <aside className="hidden lg:block bg-white rounded-2xl shadow-card p-5 h-fit">{filterPanel}</aside>
+        <div className="grid grid-cols-1 lg:grid-cols-[230px_minmax(0,1fr)] gap-6">
+          <aside className="hidden lg:block bg-white rounded-2xl shadow-card p-5 h-fit lg:sticky lg:top-[110px]">{filterPanel}</aside>
 
           <div>
+            {(searchTokens.length > 0 || selectedTypes.length + selectedBrands.length + selectedTransmissions.length > 0 || area !== AREA_OPTIONS[0] || onlyAvailable || maxPrice != null) && (
+              <div className="flex flex-wrap items-center gap-2 mb-4">
+                {searchTokens.length > 0 && (
+                  <button type="button" onClick={() => { setSearch(""); setPage(1); }} className="inline-flex items-center gap-1.5 text-xs font-semibold bg-brand-sky text-brand-blue rounded-full px-3 py-1.5">
+                    &quot;{search.trim()}&quot; <i className="fa-solid fa-xmark" aria-hidden="true" />
+                  </button>
+                )}
+                {area !== AREA_OPTIONS[0] && (
+                  <button type="button" onClick={() => { setArea(AREA_OPTIONS[0]); setPage(1); }} className="inline-flex items-center gap-1.5 text-xs font-semibold bg-brand-sky text-brand-blue rounded-full px-3 py-1.5">
+                    {area} <i className="fa-solid fa-xmark" aria-hidden="true" />
+                  </button>
+                )}
+                {selectedTypes.map((t) => (
+                  <button key={"t" + t} type="button" onClick={() => { toggleInArray(selectedTypes, t, setSelectedTypes); setPage(1); }} className="inline-flex items-center gap-1.5 text-xs font-semibold bg-brand-sky text-brand-blue rounded-full px-3 py-1.5">
+                    {t} <i className="fa-solid fa-xmark" aria-hidden="true" />
+                  </button>
+                ))}
+                {selectedBrands.map((b) => (
+                  <button key={"b" + b} type="button" onClick={() => { toggleInArray(selectedBrands, b, setSelectedBrands); setPage(1); }} className="inline-flex items-center gap-1.5 text-xs font-semibold bg-brand-sky text-brand-blue rounded-full px-3 py-1.5">
+                    {b} <i className="fa-solid fa-xmark" aria-hidden="true" />
+                  </button>
+                ))}
+                {selectedTransmissions.map((t) => (
+                  <button key={"m" + t} type="button" onClick={() => { toggleInArray(selectedTransmissions, t, setSelectedTransmissions); setPage(1); }} className="inline-flex items-center gap-1.5 text-xs font-semibold bg-brand-sky text-brand-blue rounded-full px-3 py-1.5">
+                    {t} <i className="fa-solid fa-xmark" aria-hidden="true" />
+                  </button>
+                ))}
+                {maxPrice != null && (
+                  <button type="button" onClick={() => { setMaxPrice(null); setPage(1); }} className="inline-flex items-center gap-1.5 text-xs font-semibold bg-brand-sky text-brand-blue rounded-full px-3 py-1.5">
+                    Dưới {maxPrice.toLocaleString("vi-VN")}đ <i className="fa-solid fa-xmark" aria-hidden="true" />
+                  </button>
+                )}
+                {onlyAvailable && (
+                  <button type="button" onClick={() => { setOnlyAvailable(false); setPage(1); }} className="inline-flex items-center gap-1.5 text-xs font-semibold bg-brand-sky text-brand-blue rounded-full px-3 py-1.5">
+                    Chỉ xe còn <i className="fa-solid fa-xmark" aria-hidden="true" />
+                  </button>
+                )}
+                <button type="button" onClick={resetFilters} className="text-xs font-bold text-slate-500 hover:text-brand-red underline ml-1">
+                  Xóa tất cả
+                </button>
+              </div>
+            )}
+
             {sorted.length === 0 ? (
               <div className="bg-white rounded-2xl shadow-card p-10 text-center text-slate-400">
                 <i className="fa-solid fa-magnifying-glass text-3xl mb-3 text-slate-300" aria-hidden="true" />
@@ -375,12 +541,13 @@ export default function VehicleListClient({ vehicles }: { vehicles: VehicleData[
                 </button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
                 {pageItems.map((v) => (
                   <VehicleCard
                     key={v.id}
                     vehicle={v}
                     isFavorite={favorites.has(v.id)}
+                    dateStatus={dateStatusOf(v)}
                     onToggleFavorite={() => toggleFavorite(v.id)}
                     onQuickView={() => setQuickViewId(v.id)}
                     onBook={() => setBookingId(v.id)}
@@ -390,38 +557,45 @@ export default function VehicleListClient({ vehicles }: { vehicles: VehicleData[
             )}
 
             {totalPages > 1 && (
-              <nav className="flex items-center justify-center gap-1.5 mt-6" aria-label="Phân trang">
+              <nav className="flex items-center justify-center gap-1.5 mt-8 flex-wrap" aria-label="Phân trang">
                 <button
                   type="button"
-                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  onClick={() => goToPage(Math.max(1, currentPage - 1))}
                   disabled={currentPage === 1}
                   aria-label="Trang trước"
                   className="w-9 h-9 flex items-center justify-center rounded-lg text-sm font-semibold border border-slate-200 text-slate-500 hover:bg-slate-50 transition disabled:opacity-40 disabled:pointer-events-none"
                 >
                   <i className="fa-solid fa-chevron-left text-xs" aria-hidden="true" />
                 </button>
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
-                  <button
-                    key={p}
-                    type="button"
-                    onClick={() => setPage(p)}
-                    aria-current={p === currentPage ? "page" : undefined}
-                    className={`w-9 h-9 flex items-center justify-center rounded-lg text-sm font-semibold transition ${
-                      p === currentPage ? "bg-brand-blue text-white" : "border border-slate-200 text-slate-600 hover:bg-slate-50"
-                    }`}
-                  >
-                    {p}
-                  </button>
-                ))}
+                {pageNumbers(currentPage, totalPages).map((p, i) =>
+                  p === "gap" ? (
+                    <span key={"gap" + i} className="w-7 text-center text-slate-400">…</span>
+                  ) : (
+                    <button
+                      key={p}
+                      type="button"
+                      onClick={() => goToPage(p)}
+                      aria-current={p === currentPage ? "page" : undefined}
+                      className={`w-9 h-9 flex items-center justify-center rounded-lg text-sm font-semibold transition ${
+                        p === currentPage ? "bg-brand-blue text-white" : "border border-slate-200 text-slate-600 hover:bg-slate-50"
+                      }`}
+                    >
+                      {p}
+                    </button>
+                  )
+                )}
                 <button
                   type="button"
-                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                  onClick={() => goToPage(Math.min(totalPages, currentPage + 1))}
                   disabled={currentPage === totalPages}
                   aria-label="Trang sau"
                   className="w-9 h-9 flex items-center justify-center rounded-lg text-sm font-semibold border border-slate-200 text-slate-500 hover:bg-slate-50 transition disabled:opacity-40 disabled:pointer-events-none"
                 >
                   <i className="fa-solid fa-chevron-right text-xs" aria-hidden="true" />
                 </button>
+                <span className="w-full text-center text-xs text-slate-400 mt-1">
+                  Trang {currentPage} / {totalPages} - hiển thị {pageItems.length} trên {sorted.length} xe
+                </span>
               </nav>
             )}
           </div>
@@ -454,7 +628,14 @@ export default function VehicleListClient({ vehicles }: { vehicles: VehicleData[
         )}
 
       {quickViewVehicle && <VehicleQuickViewModal vehicle={quickViewVehicle} onClose={() => setQuickViewId(null)} />}
-      {bookingVehicle && <VehicleBookingModal vehicle={bookingVehicle} onClose={() => setBookingId(null)} />}
+      {bookingVehicle && (
+        <VehicleBookingModal
+          vehicle={bookingVehicle}
+          initialPickup={appliedDates?.from}
+          initialReturn={appliedDates?.to}
+          onClose={() => setBookingId(null)}
+        />
+      )}
     </>
   );
 }

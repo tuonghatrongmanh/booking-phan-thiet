@@ -4,6 +4,7 @@ import Footer from "@/components/home/Footer";
 import Reveal from "@/components/home/Reveal";
 import { prisma } from "@/lib/prisma";
 import { avgOf } from "@/lib/places";
+import { startOfToday } from "@/lib/date-utils";
 import { getPaymentSettings } from "@/lib/payment-settings";
 import { canTakeDeposit } from "@/lib/booking-deposit";
 import RentalHero from "@/components/car-rental/RentalHero";
@@ -27,6 +28,18 @@ export default async function ThueXePage() {
   });
 
   const paymentSettings = await getPaymentSettings();
+
+  // Các đợt xe đã được đặt cọc xong (chưa trả xe) - chỉ lấy ngày + số lượng để lọc "xe còn trống theo ngày"
+  const paidBookings = await prisma.rentalInquiry.findMany({
+    where: { depositStatus: "PAID", status: { not: "CANCELLED" }, returnDate: { gte: startOfToday() } },
+    select: { placeId: true, pickupDate: true, returnDate: true, quantity: true },
+  });
+  const bookedByPlace = new Map<string, { from: string; to: string; qty: number }[]>();
+  for (const b of paidBookings) {
+    const list = bookedByPlace.get(b.placeId) ?? [];
+    list.push({ from: b.pickupDate.toISOString().slice(0, 10), to: b.returnDate.toISOString().slice(0, 10), qty: b.quantity });
+    bookedByPlace.set(b.placeId, list);
+  }
   const depositEnabled = canTakeDeposit(paymentSettings);
 
   const vehicleData = vehicles.map((v) => ({
@@ -57,6 +70,7 @@ export default async function ThueXePage() {
     phone: v.phone,
     mapEmbedUrl: v.mapEmbedUrl,
     images: v.images,
+    bookedRanges: bookedByPlace.get(v.id) ?? [],
   }));
 
   return (
