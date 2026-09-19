@@ -7,6 +7,7 @@ import Header from "@/components/home/Header";
 import Footer from "@/components/home/Footer";
 import ScrollCarousel from "@/components/home/ScrollCarousel";
 import SaleRankBadge from "@/components/sale/SaleRankBadge";
+import { buildSaleStats, buildTrustFacts, nextRankInfo } from "@/lib/sale-profile-view";
 
 export const dynamic = "force-dynamic";
 
@@ -43,246 +44,380 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
 }
 
 const SOCIAL_LINKS = [
-  { key: "zaloUrl" as const, icon: "fa-solid fa-comment-dots", label: "Zalo" },
-  { key: "fanpageUrl" as const, icon: "fa-brands fa-facebook-f", label: "Facebook" },
-  { key: "tiktokUrl" as const, icon: "fa-brands fa-tiktok", label: "TikTok" },
-  { key: "youtubeUrl" as const, icon: "fa-brands fa-youtube", label: "YouTube" },
-  { key: "instagramUrl" as const, icon: "fa-brands fa-instagram", label: "Instagram" },
+  { key: "zaloUrl" as const, icon: "fa-solid fa-comment-dots", label: "Zalo", color: "bg-[#0068FF]" },
+  { key: "fanpageUrl" as const, icon: "fa-brands fa-facebook-f", label: "Facebook", color: "bg-[#1877F2]" },
+  { key: "tiktokUrl" as const, icon: "fa-brands fa-tiktok", label: "TikTok", color: "bg-slate-900" },
+  { key: "youtubeUrl" as const, icon: "fa-brands fa-youtube", label: "YouTube", color: "bg-[#FF0000]" },
+  { key: "instagramUrl" as const, icon: "fa-brands fa-instagram", label: "Instagram", color: "bg-[#C13584]" },
 ];
+
+const PLATFORM_LABEL: Record<string, string> = { ZALO: "Zalo", FACEBOOK: "Facebook", TIKTOK: "TikTok", INSTAGRAM: "Instagram" };
 
 export default async function SaleAgentDetailPage({ params }: Params) {
   const { id } = await params;
-  const place = await prisma.place.findUnique({
-    where: { id },
-    include: {
-      reviews: { select: { rating: true } },
-      videos: { orderBy: { sortOrder: "asc" }, take: MAX_ROWS_SHOWN },
-      socialComments: { orderBy: { createdAt: "desc" }, take: MAX_ROWS_SHOWN },
-    },
-  });
+  const [place, latestReviews] = await Promise.all([
+    prisma.place.findUnique({
+      where: { id },
+      include: {
+        reviews: { select: { rating: true } },
+        videos: { orderBy: { sortOrder: "asc" }, take: MAX_ROWS_SHOWN },
+        socialComments: { orderBy: { createdAt: "desc" }, take: MAX_ROWS_SHOWN },
+      },
+    }),
+    prisma.review.findMany({ where: { placeId: id }, orderBy: { createdAt: "desc" }, take: 6, include: { images: { take: 3 } } }),
+  ]);
   if (!place || place.category !== "SALE" || place.hidden) notFound();
 
   const ratingAverage = avgOf(place.reviews.map((r) => r.rating));
   const ratingTotal = place.reviews.length;
   const verified = place.status === "TRUSTED";
+  const rankInfo = nextRankInfo(place.salePoints);
+  const stats = buildSaleStats({
+    ratingAverage,
+    ratingTotal,
+    clientsServedCount: place.clientsServedCount,
+    yearsExperience: place.yearsExperience,
+    workArea: place.workArea,
+    videoCount: place.videos.length,
+    createdAt: place.createdAt,
+    now: new Date(),
+  });
+  const trustFacts = buildTrustFacts({
+    verified,
+    ratingAverage,
+    ratingTotal,
+    videoCount: place.videos.length,
+    feedbackCount: place.socialComments.length,
+    rankLabel: rankInfo.current.label,
+    points: place.salePoints,
+  });
+  const socials = SOCIAL_LINKS.filter((s) => place[s.key]);
+  const hasContact = Boolean(place.phone) || socials.length > 0;
 
   return (
     <>
       <Header />
 
-      <div className="bg-slate-50 min-h-screen py-6 sm:py-10">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6">
-          {/* Card 1: hero + identity + contact + stats, fused as one card */}
-          <div className="bg-white rounded-3xl shadow-card overflow-hidden mb-5">
-            <div className="relative w-full h-40 sm:h-52 bg-slate-200">
+      {/* Nền: dải màu thương hiệu phía trên + họa tiết logo Booking Phan Thiết lặp mờ toàn trang */}
+      <div className="relative bg-[#eef4fc] bg-[url('/images/pattern-bpt.png')] bg-[length:520px_420px] min-h-screen pb-24 lg:pb-14">
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-[380px] bg-gradient-to-b from-brand-blue/12 via-brand-blue/5 to-transparent" aria-hidden="true" />
+
+        <div className="relative max-w-5xl mx-auto px-4 sm:px-6 pt-6 sm:pt-10">
+          <nav className="text-[13px] text-slate-500 font-semibold flex items-center gap-1.5 mb-4 flex-wrap">
+            <Link href="/" className="hover:text-brand-blue">Trang chủ</Link>
+            <i className="fa-solid fa-chevron-right text-[9px]" aria-hidden="true" />
+            <Link href="/sale" className="hover:text-brand-blue">Sale uy tín</Link>
+            <i className="fa-solid fa-chevron-right text-[9px]" aria-hidden="true" />
+            <span className="text-slate-700">{place.name}</span>
+          </nav>
+
+          {/* Thẻ danh tính */}
+          <div className="bg-white rounded-3xl shadow-game-card overflow-hidden mb-5 ring-1 ring-brand-blue/10">
+            <div className="relative w-full h-44 sm:h-60 bg-slate-200">
               <Image
                 src={place.coverImage || FALLBACK_COVER}
                 alt={place.name}
                 fill
-                sizes="(min-width: 1024px) 900px, 100vw"
+                sizes="(min-width: 1024px) 1000px, 100vw"
                 priority
                 className="object-cover"
               />
-              <div className="absolute top-4 right-5 text-right text-white/90 font-display italic text-sm sm:text-base leading-tight drop-shadow hidden sm:block">
+              <div className="absolute inset-0 bg-gradient-to-t from-brand-blueDark/55 via-transparent to-brand-blueDark/10" />
+              <div className="absolute top-4 right-5 text-right text-white font-display italic text-sm sm:text-lg leading-tight drop-shadow hidden sm:block">
                 Phan Thiết –<br />Mũi Né ♡
               </div>
+              {verified && (
+                <span className="absolute top-3 left-3 sm:top-4 sm:left-5 inline-flex items-center gap-1.5 bg-white/95 text-brand-blue text-xs sm:text-sm font-bold px-3 py-1.5 rounded-full shadow">
+                  <i className="fa-solid fa-shield-halved" aria-hidden="true" /> Sale uy tín đã xác thực
+                </span>
+              )}
             </div>
 
-            <div className="relative px-5 sm:px-8">
-              <div className="absolute -top-10 sm:-top-14 left-5 sm:left-8 w-20 h-20 sm:w-28 sm:h-28 rounded-full overflow-hidden ring-4 ring-white shadow-lg bg-white shrink-0">
-                <Image src={place.avatar || FALLBACK_AVATAR} alt={place.name} fill className="object-cover" />
+            <div className="relative px-5 sm:px-8 pb-5 sm:pb-6">
+              <div className="absolute -top-12 sm:-top-16 left-5 sm:left-8 w-24 h-24 sm:w-32 sm:h-32 rounded-full overflow-hidden ring-4 ring-white shadow-xl bg-white">
+                <Image src={place.avatar || FALLBACK_AVATAR} alt={place.name} fill sizes="128px" className="object-cover" />
               </div>
 
-              <div className="pt-2 sm:pt-3 pl-24 sm:pl-32 pb-4 sm:pb-5 min-h-[3rem]">
-                <p className="font-display font-bold text-lg sm:text-2xl text-slate-800 flex items-center gap-2 flex-wrap">
-                  {place.name}
+              <div className="pt-14 sm:pt-4 sm:pl-40 min-h-[4rem]">
+                <div className="flex items-center gap-2.5 flex-wrap">
+                  <h1 className="font-display font-extrabold text-2xl sm:text-3xl text-slate-800">{place.name}</h1>
                   {verified && (
-                    <span className="shrink-0 w-5 h-5 rounded-full bg-brand-blue flex items-center justify-center">
-                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3.5">
+                    <span className="shrink-0 w-6 h-6 rounded-full bg-brand-blue flex items-center justify-center" title="Đã xác thực" aria-label="Đã xác thực">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3.5">
                         <path d="M5 13l4 4L19 7" />
                       </svg>
                     </span>
                   )}
-                </p>
-                {place.roleTitle && <p className="text-xs sm:text-base text-slate-500 mt-0.5">{place.roleTitle}</p>}
+                  <SaleRankBadge points={place.salePoints} size="md" />
+                </div>
+                {place.roleTitle && <p className="text-sm sm:text-base font-semibold text-brand-blue mt-1">{place.roleTitle}</p>}
+                {place.slogan && <p className="text-sm text-slate-500 italic mt-1">&ldquo;{place.slogan}&rdquo;</p>}
               </div>
-            </div>
 
-            {place.slogan && (
-              <p className="px-5 sm:px-8 -mt-2 pb-4 text-xs sm:text-sm text-slate-400 italic">&ldquo;{place.slogan}&rdquo;</p>
-            )}
-
-            <div className="border-t border-slate-100 px-5 sm:px-8 py-4 sm:py-5">
-              <div className="flex items-start justify-between flex-wrap gap-4 mb-4">
-                {place.phone && (
-                  <div>
-                    <p className="font-bold text-slate-800 flex items-center gap-1.5">
-                      <i className="fa-solid fa-phone text-brand-blue text-sm" aria-hidden="true" />
-                      {place.phone}
+              <div className={`grid grid-cols-2 ${stats.length >= 5 ? "sm:grid-cols-3 lg:grid-cols-6" : "sm:grid-cols-4"} gap-3 mt-5`}>
+                {stats.map((s) => (
+                  <div key={s.key} className="rounded-2xl bg-brand-tint border border-brand-blueMid/60 px-3 py-3 text-center">
+                    <p className="font-display font-bold text-lg text-slate-800 flex items-center justify-center gap-1.5 leading-tight">
+                      <i className={`${s.icon} ${s.iconClass} text-sm`} aria-hidden="true" />
+                      <span className="truncate">{s.value}</span>
                     </p>
-                    <p className="text-xs text-slate-400 mt-0.5">Liên hệ trực tiếp (Zalo/Call)</p>
+                    <p className="text-[11px] text-slate-500 mt-1 leading-tight">{s.label}</p>
                   </div>
-                )}
-
-                <div className="flex items-center gap-4 sm:gap-5 flex-wrap">
-                  {place.phone && (
-                    <a href={`tel:${place.phone}`} className="flex flex-col items-center gap-1 text-slate-500 hover:text-brand-blue transition">
-                      <span className="w-9 h-9 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center">
-                        <i className="fa-solid fa-phone text-sm" aria-hidden="true" />
-                      </span>
-                      <span className="text-[11px] font-semibold">Gọi ngay</span>
-                    </a>
-                  )}
-                  {SOCIAL_LINKS.map((s) => {
-                    const url = place[s.key];
-                    if (!url) return null;
-                    return (
-                      <a
-                        key={s.key}
-                        href={url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex flex-col items-center gap-1 text-slate-500 hover:text-brand-blue transition"
-                      >
-                        <span className="w-9 h-9 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center">
-                          <i className={`${s.icon} text-sm`} aria-hidden="true" />
-                        </span>
-                        <span className="text-[11px] font-semibold">{s.label}</span>
-                      </a>
-                    );
-                  })}
-                </div>
-
-                {verified && (
-                  <div className="flex items-center gap-1.5 bg-brand-sky/40 text-brand-blue text-xs sm:text-sm font-bold px-3 py-2 rounded-xl shrink-0">
-                    <i className="fa-solid fa-shield-halved" aria-hidden="true" />
-                    <span>
-                      Đã xác thực
-                      <span className="hidden sm:inline"> — Saler uy tín đã được Admin xác nhận</span>
-                    </span>
-                  </div>
-                )}
-
-                <SaleRankBadge points={place.salePoints} size="md" />
-              </div>
-
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center border-t border-slate-100 pt-4">
-                <div>
-                  <p className="font-display font-bold text-lg text-slate-800 flex items-center justify-center gap-1.5">
-                    <i className="fa-solid fa-star text-brand-gold text-sm" aria-hidden="true" /> {ratingAverage.toFixed(1)}
-                  </p>
-                  <p className="text-xs text-slate-400 mt-0.5">Đánh giá ({ratingTotal})</p>
-                </div>
-                <div>
-                  <p className="font-display font-bold text-lg text-slate-800 flex items-center justify-center gap-1.5">
-                    <i className="fa-solid fa-users text-brand-blue text-sm" aria-hidden="true" />
-                    {place.clientsServedCount != null ? place.clientsServedCount.toLocaleString("vi-VN") : "—"}
-                  </p>
-                  <p className="text-xs text-slate-400 mt-0.5">Khách hàng đã tư vấn</p>
-                </div>
-                <div>
-                  <p className="font-display font-bold text-lg text-slate-800 flex items-center justify-center gap-1.5">
-                    <i className="fa-solid fa-calendar-check text-brand-green text-sm" aria-hidden="true" />
-                    {place.yearsExperience ?? "—"}
-                  </p>
-                  <p className="text-xs text-slate-400 mt-0.5">Năm kinh nghiệm</p>
-                </div>
-                <div>
-                  <p className="font-display font-bold text-sm sm:text-base text-slate-800 flex items-center justify-center gap-1.5">
-                    <i className="fa-solid fa-location-dot text-brand-red text-sm" aria-hidden="true" />
-                    {place.workArea || "Phan Thiết"}
-                  </p>
-                  <p className="text-xs text-slate-400 mt-0.5">Khu vực hoạt động</p>
-                </div>
+                ))}
               </div>
             </div>
           </div>
 
-          {place.description && (
-            <div className="bg-white rounded-2xl shadow-card p-5 sm:p-6 mb-5">
-              <p className="font-bold text-slate-700 mb-2 flex items-center gap-2">
-                <i className="fa-solid fa-user text-brand-blue" aria-hidden="true" /> Về tôi
-              </p>
-              <p className="text-sm text-slate-500 whitespace-pre-line leading-relaxed">{place.description}</p>
-            </div>
-          )}
+          <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_330px] gap-5 items-start">
+            <div className="min-w-0 space-y-5">
+              {place.description && (
+                <section className="bg-white rounded-2xl shadow-game-card p-5 sm:p-6">
+                  <h2 className="font-display font-bold text-lg text-slate-800 mb-3 flex items-center gap-2.5">
+                    <span className="w-8 h-8 rounded-full bg-brand-sky text-brand-blue flex items-center justify-center text-sm">
+                      <i className="fa-solid fa-user" aria-hidden="true" />
+                    </span>
+                    Về {place.name}
+                  </h2>
+                  <p className="text-[15px] text-slate-600 whitespace-pre-line leading-relaxed">{place.description}</p>
+                </section>
+              )}
 
-          {place.videos.length > 0 && (
-            <div className="bg-white rounded-2xl shadow-card p-5 sm:p-6 mb-5">
-              <div className="flex items-center justify-between mb-3">
-                <p className="font-bold text-slate-700 flex items-center gap-2">
-                  <i className="fa-brands fa-tiktok text-slate-700" aria-hidden="true" /> Video review &amp; chia sẻ từ mình
-                </p>
-                {place.tiktokUrl && (
-                  <a href={place.tiktokUrl} target="_blank" rel="noopener noreferrer" className="text-xs font-bold text-brand-blue hover:underline shrink-0">
-                    Xem kênh TikTok <i className="fa-solid fa-chevron-right text-[10px]" aria-hidden="true" />
-                  </a>
-                )}
-              </div>
-              <ScrollCarousel showLeftArrow>
-                {place.videos.map((v) => (
-                  <a
-                    key={v.id}
-                    href={v.sourceUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="shrink-0 w-36 sm:w-40 snap-start rounded-xl overflow-hidden border border-slate-100 hover:shadow-lg transition"
-                  >
-                    <div className="relative w-full aspect-[9/16] bg-slate-100">
-                      {v.thumbnailUrl ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={v.thumbnailUrl} alt="" className="absolute inset-0 w-full h-full object-cover" />
-                      ) : (
-                        <div className="absolute inset-0 flex items-center justify-center text-slate-300">
-                          <i className="fa-brands fa-tiktok text-3xl" aria-hidden="true" />
+              <section className="bg-white rounded-2xl shadow-game-card p-5 sm:p-6">
+                <h2 className="font-display font-bold text-lg text-slate-800 mb-3 flex items-center gap-2.5">
+                  <span className="w-8 h-8 rounded-full bg-brand-sky text-brand-blue flex items-center justify-center text-sm">
+                    <i className="fa-solid fa-shield-halved" aria-hidden="true" />
+                  </span>
+                  Vì sao có thể tin tưởng
+                </h2>
+                <ul className="space-y-2.5">
+                  {trustFacts.map((f) => (
+                    <li key={f.text} className="flex items-start gap-3 text-[15px] text-slate-600">
+                      <span className="mt-0.5 w-7 h-7 shrink-0 rounded-full bg-brand-green/10 text-brand-green flex items-center justify-center text-xs">
+                        <i className={f.icon} aria-hidden="true" />
+                      </span>
+                      <span className="leading-relaxed">{f.text}</span>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+
+              {place.videos.length > 0 && (
+                <section className="bg-white rounded-2xl shadow-game-card p-5 sm:p-6">
+                  <div className="flex items-center justify-between mb-3 gap-3">
+                    <h2 className="font-display font-bold text-lg text-slate-800 flex items-center gap-2.5">
+                      <span className="w-8 h-8 rounded-full bg-slate-900 text-white flex items-center justify-center text-sm">
+                        <i className="fa-brands fa-tiktok" aria-hidden="true" />
+                      </span>
+                      Video review &amp; chia sẻ
+                    </h2>
+                    {place.tiktokUrl && (
+                      <a href={place.tiktokUrl} target="_blank" rel="noopener noreferrer" className="text-xs font-bold text-brand-blue hover:underline shrink-0">
+                        Xem kênh <i className="fa-solid fa-chevron-right text-[10px]" aria-hidden="true" />
+                      </a>
+                    )}
+                  </div>
+                  <ScrollCarousel showLeftArrow>
+                    {place.videos.map((v) => (
+                      <a
+                        key={v.id}
+                        href={v.sourceUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="shrink-0 w-36 sm:w-40 snap-start rounded-xl overflow-hidden border border-slate-100 hover:shadow-lg transition"
+                      >
+                        <div className="relative w-full aspect-[9/16] bg-slate-100">
+                          {v.thumbnailUrl ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src={v.thumbnailUrl} alt="" className="absolute inset-0 w-full h-full object-cover" />
+                          ) : (
+                            <div className="absolute inset-0 flex items-center justify-center text-slate-300">
+                              <i className="fa-brands fa-tiktok text-3xl" aria-hidden="true" />
+                            </div>
+                          )}
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <div className="w-9 h-9 rounded-full bg-black/50 flex items-center justify-center">
+                              <i className="fa-solid fa-play text-white text-xs" aria-hidden="true" />
+                            </div>
+                          </div>
+                          <span className="absolute bottom-1.5 left-1.5 text-[10px] font-bold text-white bg-black/50 px-1.5 py-0.5 rounded-full flex items-center gap-1">
+                            <i className="fa-brands fa-tiktok" aria-hidden="true" /> {timeAgo(v.createdAt)}
+                          </span>
                         </div>
-                      )}
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="w-9 h-9 rounded-full bg-black/50 flex items-center justify-center">
-                          <i className="fa-solid fa-play text-white text-xs" aria-hidden="true" />
+                        <p className="text-xs text-slate-600 p-2 line-clamp-2 leading-snug">{v.title || "Xem video"}</p>
+                      </a>
+                    ))}
+                  </ScrollCarousel>
+                </section>
+              )}
+
+              {place.socialComments.length > 0 && (
+                <section className="bg-white rounded-2xl shadow-game-card p-5 sm:p-6">
+                  <h2 className="font-display font-bold text-lg text-slate-800 mb-3 flex items-center gap-2.5">
+                    <span className="w-8 h-8 rounded-full bg-brand-sky text-brand-blue flex items-center justify-center text-sm">
+                      <i className="fa-solid fa-comment-dots" aria-hidden="true" />
+                    </span>
+                    Khách hàng nói gì về mình
+                  </h2>
+                  <ScrollCarousel showLeftArrow>
+                    {place.socialComments.map((c) => (
+                      <div key={c.id} className="shrink-0 w-40 sm:w-44 snap-start rounded-xl overflow-hidden border border-slate-100">
+                        <div className="relative w-full aspect-[4/5] bg-slate-100">
+                          <Image src={c.imageUrl} alt="" fill sizes="180px" className="object-cover" />
+                        </div>
+                        <div className="px-2.5 py-2">
+                          <p className="text-xs font-semibold text-slate-600 truncate">
+                            {c.authorName || "Khách hàng"} <span className="text-slate-300">·</span> {PLATFORM_LABEL[c.platform] ?? "Khác"}
+                          </p>
+                          <p className="text-[11px] text-slate-400">{timeAgo(c.createdAt)}</p>
                         </div>
                       </div>
-                      <span className="absolute bottom-1.5 left-1.5 text-[10px] font-bold text-white bg-black/50 px-1.5 py-0.5 rounded-full flex items-center gap-1">
-                        <i className="fa-brands fa-tiktok" aria-hidden="true" /> {timeAgo(v.createdAt)}
+                    ))}
+                  </ScrollCarousel>
+                </section>
+              )}
+
+              {latestReviews.length > 0 && (
+                <section className="bg-white rounded-2xl shadow-game-card p-5 sm:p-6">
+                  <div className="flex items-center justify-between mb-4 gap-3">
+                    <h2 className="font-display font-bold text-lg text-slate-800 flex items-center gap-2.5">
+                      <span className="w-8 h-8 rounded-full bg-amber-50 text-brand-gold flex items-center justify-center text-sm">
+                        <i className="fa-solid fa-star" aria-hidden="true" />
                       </span>
-                    </div>
-                    <p className="text-xs text-slate-600 p-2 line-clamp-2 leading-snug">{v.title || "Xem video"}</p>
-                  </a>
-                ))}
-              </ScrollCarousel>
-            </div>
-          )}
-
-          {place.socialComments.length > 0 && (
-            <div className="bg-white rounded-2xl shadow-card p-5 sm:p-6">
-              <p className="font-bold text-slate-700 mb-3 flex items-center gap-2">
-                <i className="fa-solid fa-comment-dots text-brand-blue" aria-hidden="true" /> Khách hàng nói gì về mình
-              </p>
-              <ScrollCarousel showLeftArrow>
-                {place.socialComments.map((c) => (
-                  <div key={c.id} className="shrink-0 w-40 sm:w-44 snap-start rounded-xl overflow-hidden border border-slate-100">
-                    <div className="relative w-full aspect-[4/5] bg-slate-100">
-                      <Image src={c.imageUrl} alt="" fill sizes="180px" className="object-cover" />
-                    </div>
-                    <div className="px-2.5 py-2">
-                      <p className="text-xs font-semibold text-slate-600 truncate">
-                        {c.authorName || "Khách hàng"} <span className="text-slate-300">·</span>{" "}
-                        {c.platform === "ZALO" ? "Zalo" : c.platform === "FACEBOOK" ? "Facebook" : c.platform === "TIKTOK" ? "TikTok" : c.platform === "INSTAGRAM" ? "Instagram" : "Khác"}
-                      </p>
-                      <p className="text-[11px] text-slate-400">{timeAgo(c.createdAt)}</p>
-                    </div>
+                      Đánh giá từ khách
+                    </h2>
+                    <span className="text-sm font-bold text-slate-700">
+                      {ratingAverage.toFixed(1)}<span className="text-slate-400 font-medium">/5 · {ratingTotal} đánh giá</span>
+                    </span>
                   </div>
-                ))}
-              </ScrollCarousel>
+                  <div className="space-y-3">
+                    {latestReviews.map((r) => (
+                      <article key={r.id} className="rounded-xl bg-brand-tint/70 border border-brand-blueMid/50 p-4">
+                        <div className="flex items-center gap-3 mb-2">
+                          <span className="relative w-9 h-9 rounded-full overflow-hidden bg-brand-sky text-brand-blue flex items-center justify-center font-bold text-sm shrink-0">
+                            {r.reviewerAvatar ? (
+                              <Image src={r.reviewerAvatar} alt="" fill sizes="36px" className="object-cover" />
+                            ) : (
+                              r.reviewerName.charAt(0).toUpperCase()
+                            )}
+                          </span>
+                          <div className="min-w-0 flex-1">
+                            <p className="text-sm font-bold text-slate-700 truncate">{r.reviewerName}</p>
+                            <p className="text-[11px] text-slate-400">{timeAgo(r.createdAt)}</p>
+                          </div>
+                          <span className="flex text-brand-gold text-xs shrink-0">
+                            {Array.from({ length: 5 }, (_, i) => (
+                              <i key={i} className={i < r.rating ? "fa-solid fa-star" : "fa-regular fa-star"} aria-hidden="true" />
+                            ))}
+                          </span>
+                        </div>
+                        <p className="text-sm text-slate-600 leading-relaxed">{r.content}</p>
+                        {r.images.length > 0 && (
+                          <div className="flex gap-2 mt-2.5">
+                            {r.images.map((img) => (
+                              <span key={img.id} className="relative w-16 h-16 rounded-lg overflow-hidden bg-slate-100">
+                                <Image src={img.url} alt="" fill sizes="64px" className="object-cover" />
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </article>
+                    ))}
+                  </div>
+                </section>
+              )}
             </div>
-          )}
 
-          <div className="text-center mt-6">
-            <Link href="/sale" className="text-sm font-semibold text-slate-400 hover:text-brand-blue transition">
+            <aside className="min-w-0 space-y-4 lg:sticky lg:top-[124px]">
+              {hasContact && (
+                <div className="bg-white rounded-2xl shadow-game-card p-5 ring-1 ring-brand-blue/10">
+                  <p className="font-display font-bold text-slate-800 mb-3 flex items-center gap-2">
+                    <i className="fa-solid fa-headset text-brand-blue" aria-hidden="true" /> Liên hệ trực tiếp
+                  </p>
+                  {place.phone && (
+                    <>
+                      <p className="font-display font-extrabold text-2xl text-slate-800 tracking-wide">{place.phone}</p>
+                      <a
+                        href={`tel:${place.phone}`}
+                        className="mt-3 flex items-center justify-center gap-2 w-full h-12 rounded-full bg-brand-blue text-white font-bold hover:brightness-95 transition"
+                      >
+                        <i className="fa-solid fa-phone" aria-hidden="true" /> Gọi ngay
+                      </a>
+                    </>
+                  )}
+                  {socials.length > 0 && (
+                    <div className={`grid grid-cols-2 gap-2 ${place.phone ? "mt-2.5" : ""}`}>
+                      {socials.map((s) => (
+                        <a
+                          key={s.key}
+                          href={place[s.key] as string}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={`flex items-center justify-center gap-2 h-11 rounded-full text-white text-sm font-bold hover:brightness-110 transition ${s.color}`}
+                        >
+                          <i className={s.icon} aria-hidden="true" /> {s.label}
+                        </a>
+                      ))}
+                    </div>
+                  )}
+                  <p className="text-[12px] text-slate-400 mt-3 leading-snug">Khi liên hệ, hãy nói bạn biết Sale qua BookingPhanThiet.com.</p>
+                </div>
+              )}
+
+              <div className="bg-white rounded-2xl shadow-game-card p-5">
+                <div className="flex items-center justify-between gap-2 mb-3">
+                  <p className="font-display font-bold text-slate-800 flex items-center gap-2">
+                    <i className="fa-solid fa-ranking-star text-brand-blue" aria-hidden="true" /> Điểm uy tín
+                  </p>
+                  <SaleRankBadge points={place.salePoints} size="md" />
+                </div>
+                <p className="font-display font-extrabold text-3xl text-slate-800 leading-none">
+                  {place.salePoints}
+                  <span className="text-sm font-semibold text-slate-400"> điểm</span>
+                </p>
+                <div className="h-2.5 rounded-full bg-brand-sky overflow-hidden mt-3">
+                  <div className="h-full rounded-full bg-gradient-to-r from-brand-blueLight to-brand-blue" style={{ width: `${rankInfo.percent}%` }} />
+                </div>
+                <p className="text-xs text-slate-500 mt-2">
+                  {rankInfo.next ? `Còn ${rankInfo.missing} điểm để lên hạng “${rankInfo.next.label}”` : "Đã đạt hạng uy tín cao nhất"}
+                </p>
+                <p className="text-[11px] text-slate-400 mt-1.5 leading-snug">Điểm tính tự động từ mức hoàn thiện hồ sơ, video, phản hồi và đánh giá thật của khách.</p>
+              </div>
+
+              <div className="rounded-2xl bg-brand-tint border border-brand-blueMid/70 p-5">
+                <p className="font-bold text-sm text-brand-blueDark mb-2 flex items-center gap-2">
+                  <i className="fa-solid fa-lightbulb" aria-hidden="true" /> Mẹo an toàn khi đặt dịch vụ
+                </p>
+                <ul className="text-[13px] text-slate-600 space-y-1.5 list-disc pl-4 leading-snug">
+                  <li>Xem đánh giá và video thật của Sale trước khi liên hệ.</li>
+                  <li>Chốt giá, thời gian và điều kiện bằng tin nhắn trước khi đặt cọc.</li>
+                  <li>Gặp vấn đề? Báo cho quản trị viên để hồ sơ được xem xét.</li>
+                </ul>
+              </div>
+            </aside>
+          </div>
+
+          <div className="text-center mt-8">
+            <Link href="/sale" className="text-sm font-semibold text-slate-500 hover:text-brand-blue transition">
               <i className="fa-solid fa-arrow-left mr-1.5" aria-hidden="true" /> Xem tất cả Sale uy tín
             </Link>
           </div>
         </div>
+
+        {/* Thanh liên hệ dính đáy màn hình điện thoại */}
+        {hasContact && (
+          <div className="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-white/95 backdrop-blur border-t border-slate-200 px-4 py-2.5 flex items-center gap-2.5 shadow-[0_-4px_20px_rgba(0,0,0,0.08)]">
+            {place.phone && (
+              <a href={`tel:${place.phone}`} className="flex-1 h-11 rounded-full bg-brand-blue text-white font-bold flex items-center justify-center gap-2">
+                <i className="fa-solid fa-phone" aria-hidden="true" /> Gọi ngay
+              </a>
+            )}
+            {place.zaloUrl && (
+              <a href={place.zaloUrl} target="_blank" rel="noopener noreferrer" className="flex-1 h-11 rounded-full bg-[#0068FF] text-white font-bold flex items-center justify-center gap-2">
+                <i className="fa-solid fa-comment-dots" aria-hidden="true" /> Zalo
+              </a>
+            )}
+          </div>
+        )}
       </div>
 
       <Footer />

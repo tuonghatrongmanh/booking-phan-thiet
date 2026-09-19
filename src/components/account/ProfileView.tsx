@@ -1,12 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
 import Link from "next/link";
 import Image from "next/image";
 import ImageUploader from "@/components/admin/ImageUploader";
 import SaleApplicationModal from "@/components/account/SaleApplicationModal";
+import { MASKED_DATE, maskEmail, maskPhone } from "@/lib/mask";
+
+const HIDE_KEY = "bpt_profile_info_hidden";
 
 type UserInfo = {
   name: string;
@@ -219,6 +222,31 @@ export default function ProfileView({
   const [resending, setResending] = useState(false);
   const [resendMessage, setResendMessage] = useState<string | null>(null);
 
+  // Nút "Ẩn thông tin" chỉ dành cho khách thường: Sale uy tín công khai SĐT/liên hệ của mình nên không cần che.
+  const isSale = saleApplication?.status === "APPROVED";
+  const [hidden, setHidden] = useState(false);
+  useEffect(() => {
+    const t = setTimeout(() => {
+      try {
+        setHidden(localStorage.getItem(HIDE_KEY) === "1");
+      } catch {
+        // storage bị chặn - mặc định hiện
+      }
+    }, 0);
+    return () => clearTimeout(t);
+  }, []);
+  const masked = hidden && !isSale;
+
+  function toggleHidden() {
+    const next = !hidden;
+    setHidden(next);
+    try {
+      localStorage.setItem(HIDE_KEY, next ? "1" : "0");
+    } catch {
+      // bỏ qua
+    }
+  }
+
   async function handleResendVerification() {
     setResending(true);
     setResendMessage(null);
@@ -318,7 +346,7 @@ export default function ProfileView({
                   Thành viên
                 </span>
               </div>
-              <p className="text-sm text-slate-400 mt-1">{user.email}</p>
+              <p className="text-sm text-slate-400 mt-1">{masked ? maskEmail(user.email) : user.email}</p>
             </div>
           </div>
 
@@ -366,17 +394,28 @@ export default function ProfileView({
                 {ICON.person}
               </span>
               <h2 className="font-display font-bold text-slate-800">Thông tin cá nhân</h2>
+              {!isSale && !editing && (
+                <button
+                  type="button"
+                  onClick={toggleHidden}
+                  aria-pressed={masked}
+                  className="ml-auto flex items-center gap-2 text-sm font-semibold text-brand-blue border border-brand-blueMid rounded-full px-3.5 py-1.5 hover:bg-brand-tint transition"
+                >
+                  <i className={masked ? "fa-solid fa-eye" : "fa-solid fa-eye-slash"} aria-hidden="true" />
+                  {masked ? "Hiện thông tin" : "Ẩn thông tin"}
+                </button>
+              )}
             </div>
 
             {!editing ? (
               <div className="grid sm:grid-cols-2 gap-4">
                 <InfoBox icon={ICON.person} label="Họ và tên" value={user.name} />
-                <InfoBox icon={ICON.phone} label="Số điện thoại" value={user.phone || "Chưa cập nhật"} />
-                <InfoBox icon={ICON.mail} label="Email" value={user.email} />
+                <InfoBox icon={ICON.phone} label="Số điện thoại" value={user.phone ? (masked ? maskPhone(user.phone) : user.phone) : "Chưa cập nhật"} />
+                <InfoBox icon={ICON.mail} label="Email" value={masked ? maskEmail(user.email) : user.email} />
                 <InfoBox
                   icon={ICON.calendar}
                   label="Ngày sinh"
-                  value={user.dob ? new Date(user.dob).toLocaleDateString("vi-VN") : "Chưa cập nhật"}
+                  value={user.dob ? (masked ? MASKED_DATE : new Date(user.dob).toLocaleDateString("vi-VN")) : "Chưa cập nhật"}
                 />
               </div>
             ) : (
