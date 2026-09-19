@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
+import { buildPageMetadata } from "@/lib/page-seo";
 import { getActor } from "@/lib/auth-actor";
 import { getGameBannerSettings } from "@/lib/game-banner-settings";
 import Header from "@/components/home/Header";
@@ -16,11 +17,9 @@ import RedeemButton from "@/components/game/RedeemButton";
 
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = {
-  title: "Game Trúng Thưởng Phan Thiết | Chơi Game Nhận Xu & Voucher",
-  description:
-    "Chơi các mini game vui nhộn trên BookingPhanThiet, tích xu và đổi voucher, mã giảm giá cùng nhiều phần thưởng hấp dẫn.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadata("/game-trung-thuong");
+}
 
 const BADGE_BY_SLUG: Record<string, "hot" | "new"> = {
   "vong-quay-may-man": "hot",

@@ -92,6 +92,7 @@ export const NAV: NavEntry[] = [
 // trong group truoc (khop dai hon/cu the hon), sau do moi den muc cap 1.
 const EXTRA_BREADCRUMB_LABELS: Record<string, string> = {
   "/admin/settings": "Cài đặt",
+  "/admin/page-seo": "SEO các trang",
   "/admin/account": "Tài khoản của tôi",
 };
 
@@ -148,5 +149,6 @@ export const HREF_TO_SECTION: Record<string, import("@/lib/admin-permissions").S
   "/admin/forum-comments": "forum-comments",
   "/admin/user-reviews": "forum-comments",
   "/admin/settings": "settings",
+  "/admin/page-seo": "settings",
   "/admin/guide-videos": "guide-videos",
 };

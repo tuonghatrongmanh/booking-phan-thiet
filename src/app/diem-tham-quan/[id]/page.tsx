@@ -22,9 +22,14 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { id } = await params;
   const place = await prisma.place.findUnique({ where: { id } });
   if (!place || place.category !== "ATTRACTION" || place.hidden) return {};
+  const title = place.metaTitle || `${place.name} | Điểm tham quan Phan Thiết`;
+  const description = place.metaDescription || place.description?.slice(0, 160) || undefined;
+  const url = `${SITE_URL}/diem-tham-quan/${place.id}`;
   return {
-    title: `${place.name} | Điểm tham quan Phan Thiết`,
-    description: place.description ?? undefined,
+    title,
+    description,
+    alternates: { canonical: url },
+    openGraph: { title, description, url, type: "website", locale: "vi_VN", ...(place.avatar ? { images: [absoluteUrl(place.avatar)!] } : {}) },
   };
 }
 

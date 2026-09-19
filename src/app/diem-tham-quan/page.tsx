@@ -2,14 +2,14 @@ import Header from "@/components/home/Header";
 import Footer from "@/components/home/Footer";
 import Reveal from "@/components/home/Reveal";
 import { prisma } from "@/lib/prisma";
+import { buildPageMetadata } from "@/lib/page-seo";
 import AttractionCard from "@/components/places-detail/AttractionCard";
 
 export const dynamic = "force-dynamic";
 
-export const metadata = {
-  title: "Trải nghiệm & Điểm tham quan Phan Thiết | Booking Phan Thiết",
-  description: "Khám phá các điểm tham quan, trải nghiệm hấp dẫn tại Phan Thiết - Mũi Né: đồi cát, suối tiên, hải đăng, làng chài, di tích lịch sử...",
-};
+export async function generateMetadata() {
+  return buildPageMetadata("/diem-tham-quan");
+}
 
 export default async function AttractionsListPage() {
   const attractions = await prisma.place.findMany({

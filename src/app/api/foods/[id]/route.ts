@@ -31,6 +31,9 @@ const updateSchema = z.object({
   websiteUrl: z.string().trim().nullable().optional(),
   active: z.boolean().optional(),
   sortOrder: z.number().int().optional(),
+  metaTitle: z.string().trim().max(70).nullable().optional(),
+  metaDescription: z.string().trim().max(160).nullable().optional(),
+  focusKeyword: z.string().trim().max(80).nullable().optional(),
 });
 
 type Params = { params: Promise<{ id: string }> };

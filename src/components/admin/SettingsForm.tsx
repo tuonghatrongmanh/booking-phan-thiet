@@ -41,7 +41,7 @@ export default function SettingsForm({ initial }: { initial: SiteSettingsData })
 
         <ImageUploader label="Logo website" value={logoUrl} onChange={setLogoUrl} folder="settings" />
         <p className="text-xs text-slate-400 -mt-3">
-          Hiển thị ở header và footer. Nên dùng ảnh vuông hoặc gần vuông, nền trong suốt (PNG), tối thiểu 200×200px.
+          Hiển thị ở header và footer (nền xanh đậm). Nên dùng PNG nền trong suốt, logo dạng ngang màu trắng/sáng, rộng tối thiểu 600px.
         </p>
 
         <ImageUploader label="Favicon (icon tab trình duyệt)" value={faviconUrl} onChange={setFaviconUrl} folder="settings" />

@@ -2,6 +2,7 @@ import { getSiteSettings } from "@/lib/settings";
 import SettingsForm from "@/components/admin/SettingsForm";
 import PaymentSettingsForm from "@/components/admin/PaymentSettingsForm";
 import TelegramTestCard from "@/components/admin/TelegramTestCard";
+import SiteIdentityForm from "@/components/admin/SiteIdentityForm";
 import { getPaymentSettings } from "@/lib/payment-settings";
 import { getCurrentAdmin } from "@/lib/current-admin";
 
@@ -18,6 +19,10 @@ export default async function AdminSettingsPage() {
       </div>
 
       <SettingsForm initial={settings} />
+
+      <div className="mt-8">
+        <SiteIdentityForm initial={settings} />
+      </div>
 
       {admin?.role === "SUPER_ADMIN" && (
         <div className="mt-8">

@@ -5,6 +5,9 @@ import SaleStandingGate from "@/components/home/SaleStandingGate";
 import RapidNavGuard from "@/components/ui/RapidNavGuard";
 import DialogProvider from "@/components/ui/DialogProvider";
 import { getSiteSettings } from "@/lib/settings";
+import SiteJsonLd from "@/components/seo/SiteJsonLd";
+import GoogleAnalytics from "@/components/seo/GoogleAnalytics";
+import { SITE_URL } from "@/lib/site-url";
 
 // Day la metadata MAC DINH cho toan site - trang nao khong tu khai bao metadata rieng
 // (vd trang chu page.tsx) se dung nguyen bo nay, nen "SEO trang chu" trong admin Cai
@@ -14,18 +17,32 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: settings.homeSeoTitle,
     description: settings.homeSeoDescription,
+    metadataBase: new URL(SITE_URL),
     icons: { icon: settings.faviconUrl, apple: "/images/apple-touch-icon.png" },
+    // Mã xác minh Search Console / Bing nhập ở Admin > Cài đặt
+    verification: {
+      google: settings.googleSiteVerification || undefined,
+      other: settings.bingSiteVerification ? { "msvalidate.01": settings.bingSiteVerification } : undefined,
+    },
+    openGraph: {
+      type: "website",
+      siteName: settings.orgName || "Booking Phan Thiết",
+      locale: "vi_VN",
+      title: settings.homeSeoTitle,
+      description: settings.homeSeoDescription,
+    },
   };
 }
 
 // Màu thanh trình duyệt trên điện thoại = màu thương hiệu
 export const viewport: Viewport = { themeColor: "#003b95" };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const settings = await getSiteSettings();
   return (
     <html lang="vi">
       <head>
@@ -41,6 +58,8 @@ export default function RootLayout({
         />
       </head>
       <body className="bg-slate-50 text-slate-800 antialiased">
+        <SiteJsonLd />
+        <GoogleAnalytics measurementId={settings.googleAnalyticsId} />
         <DialogProvider>
           {children}
           <PopupModal />

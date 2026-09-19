@@ -33,6 +33,9 @@ const foodSchema = z.object({
   websiteUrl: z.string().trim().nullable().optional(),
   active: z.boolean().optional().default(true),
   sortOrder: z.number().int().optional().default(0),
+  metaTitle: z.string().trim().max(70).nullable().optional(),
+  metaDescription: z.string().trim().max(160).nullable().optional(),
+  focusKeyword: z.string().trim().max(80).nullable().optional(),
 });
 
 // GET /api/foods - danh sach mon an (public, dung cho trang /am-thuc)

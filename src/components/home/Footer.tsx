@@ -3,15 +3,18 @@ import Image from "next/image";
 import FooterNewsletterInput from "./FooterNewsletterInput";
 import { getSiteSettings } from "@/lib/settings";
 
-const SOCIAL_LINKS = [
-  { icon: "fa-brands fa-facebook-f", href: "#", label: "Facebook" },
-  { icon: "fa-brands fa-tiktok", href: "#", label: "TikTok" },
-  { icon: "fa-brands fa-instagram", href: "#", label: "Instagram" },
-  { icon: "fa-solid fa-comment-dots", href: "#", label: "Zalo" },
-];
 
 export default async function Footer() {
   const settings = await getSiteSettings();
+  // Chỉ hiện mạng xã hội đã được điền ở Admin > Cài đặt (không còn liên kết "#" chết)
+  const socialLinks = [
+    { icon: "fa-brands fa-facebook-f", href: settings.facebookUrl, label: "Facebook" },
+    { icon: "fa-brands fa-tiktok", href: settings.tiktokUrl, label: "TikTok" },
+    { icon: "fa-brands fa-youtube", href: settings.youtubeUrl, label: "YouTube" },
+    { icon: "fa-brands fa-instagram", href: settings.instagramUrl, label: "Instagram" },
+    { icon: "fa-brands fa-linkedin-in", href: settings.linkedinUrl, label: "LinkedIn" },
+    { icon: "fa-solid fa-comment-dots", href: settings.zaloUrl, label: "Zalo" },
+  ].filter((x) => x.href);
   return (
     <footer className="bg-brand-footer text-white/70 relative">
       <div className="h-1 bg-gradient-to-r from-brand-blue via-brand-gold to-brand-blue" aria-hidden="true" />
@@ -32,10 +35,12 @@ export default async function Footer() {
               {settings.footerDescription}
             </p>
             <div className="flex items-center gap-2.5">
-              {SOCIAL_LINKS.map((s) => (
+              {socialLinks.map((s) => (
                 <a
                   key={s.label}
                   href={s.href}
+                  target="_blank"
+                  rel="noopener noreferrer me"
                   aria-label={s.label}
                   className="w-9 h-9 rounded-full bg-white/10 hover:bg-brand-gold hover:text-brand-footer transition flex items-center justify-center text-white/80"
                 >
@@ -63,6 +68,7 @@ export default async function Footer() {
               HỖ TRỢ
             </p>
             <ul className="space-y-2.5 text-sm">
+              <li><Link href="/gioi-thieu" className="hover:text-brand-gold hover:pl-1 transition-all inline-block">Về chúng tôi &amp; Người sáng lập</Link></li>
               <li><Link href="/tra-cuu-dat-cho" className="hover:text-brand-gold hover:pl-1 transition-all inline-block">Tra cứu đơn đặt phòng / thuê xe</Link></li>
               <li><a href="#" className="hover:text-brand-gold hover:pl-1 transition-all inline-block">Hướng dẫn sử dụng</a></li>
               <li><a href="#" className="hover:text-brand-gold hover:pl-1 transition-all inline-block">Câu hỏi thường gặp</a></li>

@@ -1,4 +1,5 @@
 import Header from "@/components/home/Header";
+import { buildPageMetadata } from "@/lib/page-seo";
 import Footer from "@/components/home/Footer";
 import Reveal from "@/components/home/Reveal";
 import { prisma } from "@/lib/prisma";
@@ -14,10 +15,9 @@ import RentalCTA from "@/components/car-rental/RentalCTA";
 
 export const dynamic = "force-dynamic";
 
-export const metadata = {
-  title: "Thuê xe máy Phan Thiết - Xe số, tay ga, Vision, SH giá tốt | Booking Phan Thiết",
-  description: "Thuê xe máy tại Phan Thiết - Mũi Né: xe số, xe tay ga, Vision, SH, giá ngày thường/ngày lễ rõ ràng, giao nhận tận nơi.",
-};
+export async function generateMetadata() {
+  return buildPageMetadata("/thue-xe");
+}
 
 export default async function ThueXePage() {
   const vehicles = await prisma.place.findMany({

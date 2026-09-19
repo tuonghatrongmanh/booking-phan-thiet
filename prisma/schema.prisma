@@ -578,6 +578,11 @@ model Place {
   // dung muc mac dinh trong Cai dat > Thanh toan (PaymentSettings.depositAmountVnd).
   depositVnd Int?
 
+  // SEO rieng cho trang chi tiet (Luu tru / Diem tham quan) - nhu bai Tin tuc
+  metaTitle       String? @db.VarChar(70)
+  metaDescription String? @db.VarChar(160)
+  focusKeyword    String? @db.VarChar(80)
+
   // null = chua noi voi Google Sheets nao, dung logic availableRooms/totalRooms cu nhu
   // truoc gio. Khac null = da dong bo tu mau o trong sheet cua chu so huu, UU TIEN hien
   // thi trang thai nay tren cong khai thay vi tinh tu availableRooms.
@@ -937,7 +942,41 @@ model SiteSettings {
   footerDescription  String?  @db.Text
   homeSeoTitle       String?
   homeSeoDescription String?  @db.Text
+
+  // ----- Google & cong cu tim kiem (nhap o Admin > Cai dat) -----
+  googleSiteVerification String? // ma xac minh Google Search Console (chi phan content cua the meta)
+  bingSiteVerification   String? // ma xac minh Bing Webmaster
+  googleAnalyticsId      String? // GA4 Measurement ID dang G-XXXXXXXXXX
+
+  // ----- To chuc + nguoi sang lap (dung cho trang /gioi-thieu va du lieu co cau truc Google) -----
+  orgName        String?
+  orgPhone       String?
+  orgEmail       String?
+  orgAddress     String?
+  founderName    String?
+  founderTitle   String?
+  founderBio     String? @db.Text
+  founderPhoto   String?
+  facebookUrl    String?
+  tiktokUrl      String?
+  youtubeUrl     String?
+  instagramUrl   String?
+  linkedinUrl    String?
+  zaloUrl        String?
+  googleBusinessUrl String? // link Google Business Profile (neu co)
+  sameAsExtra    String? @db.Text // cac trang xac thuc khac (Wikipedia/Wikidata/bao chi...), moi dong 1 link
+
   updatedAt          DateTime @updatedAt
+}
+
+// SEO cho cac TRANG chinh (danh sach, khong phai bai chi tiet): /thue-xe, /luu-tru, /am-thuc...
+// key la duong dan trang, vd "/thue-xe".
+model PageSeoSetting {
+  key             String   @id
+  metaTitle       String?  @db.VarChar(70)
+  metaDescription String?  @db.VarChar(160)
+  focusKeyword    String?  @db.VarChar(80)
+  updatedAt       DateTime @updatedAt
 }
 
 model GameBannerSettings {
@@ -978,6 +1017,9 @@ model Food {
   websiteUrl    String?
   active        Boolean  @default(true)
   sortOrder     Int      @default(0)
+  metaTitle       String? @db.VarChar(70)
+  metaDescription String? @db.VarChar(160)
+  focusKeyword    String? @db.VarChar(80)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 

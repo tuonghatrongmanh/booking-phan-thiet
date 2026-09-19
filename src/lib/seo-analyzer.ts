@@ -52,14 +52,27 @@ function rangeCheck(
   return { id, label, status: "bad", message: `${value} ${unit} - ${dir}. Nên nằm trong khoảng ${ideal[0]}-${ideal[1]}.` };
 }
 
-export function analyzeSeo(input: {
-  title: string;
-  slug: string;
-  metaTitle: string;
-  metaDescription: string;
-  focusKeyword: string;
-  contentHtml: string;
-}): SeoAnalysis {
+// options.listing = true cho trang danh sách / thẻ địa điểm / món ăn (mô tả ngắn, ít heading/link/ảnh
+// trong nội dung): bỏ các mục chỉ hợp với bài viết dài và hạ ngưỡng số từ.
+export type SeoAnalyzeOptions = { skipChecks?: string[]; minWords?: [number, number] };
+
+export const LISTING_SEO_OPTIONS: SeoAnalyzeOptions = {
+  skipChecks: ["heading-structure", "internal-link", "image-alt"],
+  minWords: [40, 90],
+};
+
+export function analyzeSeo(
+  input: {
+    title: string;
+    slug: string;
+    metaTitle: string;
+    metaDescription: string;
+    focusKeyword: string;
+    contentHtml: string;
+  },
+  options: SeoAnalyzeOptions = {}
+): SeoAnalysis {
+  const [badWords, warnWords] = options.minWords ?? [150, 300];
   const effectiveTitle = (input.metaTitle || input.title).trim();
   const metaDescription = input.metaDescription.trim();
   const kw = input.focusKeyword.trim();
@@ -138,12 +151,12 @@ export function analyzeSeo(input: {
 
   let lengthStatus: SeoCheckStatus = "good";
   let lengthMsg = `${wordCount} từ - đủ dài để cung cấp thông tin chi tiết.`;
-  if (wordCount < 150) {
+  if (wordCount < badWords) {
     lengthStatus = "bad";
-    lengthMsg = `${wordCount} từ - quá ngắn, nên viết ít nhất 300 từ để giải quyết đầy đủ ý định tìm kiếm.`;
-  } else if (wordCount < 300) {
+    lengthMsg = `${wordCount} từ - quá ngắn, nên viết ít nhất ${warnWords} từ để giải quyết đầy đủ ý định tìm kiếm.`;
+  } else if (wordCount < warnWords) {
     lengthStatus = "warning";
-    lengthMsg = `${wordCount} từ - nên viết thêm để đạt tối thiểu 300 từ.`;
+    lengthMsg = `${wordCount} từ - nên viết thêm để đạt tối thiểu ${warnWords} từ.`;
   }
   checks.push({ id: "content-length", label: "Độ dài nội dung", status: lengthStatus, message: lengthMsg });
 
@@ -189,10 +202,12 @@ export function analyzeSeo(input: {
           : `${imagesWithoutAlt.length}/${images.length} hình ảnh chưa có thẻ Alt mô tả.`,
   });
 
-  const good = checks.filter((c) => c.status === "good").length;
-  const score = Math.round((good / checks.length) * 100);
+  const skip = new Set(options.skipChecks ?? []);
+  const finalChecks = checks.filter((c) => !skip.has(c.id));
+  const good = finalChecks.filter((c) => c.status === "good").length;
+  const score = Math.round((good / finalChecks.length) * 100);
   const scoreLabel = score >= 80 ? "Tốt" : score >= 50 ? "Cần cải thiện" : "Yếu";
   const scoreColor = score >= 80 ? "text-brand-green" : score >= 50 ? "text-amber-500" : "text-brand-red";
 
-  return { checks, score, scoreLabel, scoreColor };
+  return { checks: finalChecks, score, scoreLabel, scoreColor };
 }

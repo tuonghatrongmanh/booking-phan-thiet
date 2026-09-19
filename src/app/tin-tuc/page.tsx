@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import { buildPageMetadata } from "@/lib/page-seo";
 import Header from "@/components/home/Header";
 import Footer from "@/components/home/Footer";
 import NewsCoverImage from "@/components/home/NewsCoverImage";
@@ -29,10 +30,9 @@ function formatDate(date: Date) {
   return new Date(date).toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" });
 }
 
-export const metadata: Metadata = {
-  title: "Blog - Khám phá Phan Thiết | Booking Phan Thiết",
-  description: "Cẩm nang du lịch, kinh nghiệm, địa điểm đẹp, ẩm thực ngon và những trải nghiệm thú vị tại Phan Thiết - Mũi Né.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadata("/tin-tuc");
+}
 
 export default async function TinTucPage({
   searchParams,

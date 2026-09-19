@@ -2,6 +2,34 @@ import { prisma } from "@/lib/prisma";
 
 const SETTINGS_ID = "singleton";
 
+// Cac truong "danh tinh" (Google + to chuc + nguoi sang lap + mang xa hoi) - mac dinh rong,
+// admin dien o Cai dat. Rong = khong xuat ra (khong dua thong tin gia vao du lieu Google).
+export const IDENTITY_FIELDS = [
+  "googleSiteVerification",
+  "bingSiteVerification",
+  "googleAnalyticsId",
+  "orgName",
+  "orgPhone",
+  "orgEmail",
+  "orgAddress",
+  "founderName",
+  "founderTitle",
+  "founderBio",
+  "founderPhoto",
+  "facebookUrl",
+  "tiktokUrl",
+  "youtubeUrl",
+  "instagramUrl",
+  "linkedinUrl",
+  "zaloUrl",
+  "googleBusinessUrl",
+  "sameAsExtra",
+] as const;
+
+export type IdentityField = (typeof IDENTITY_FIELDS)[number];
+
+const EMPTY_IDENTITY = Object.fromEntries(IDENTITY_FIELDS.map((k) => [k, ""])) as Record<IdentityField, string>;
+
 export const DEFAULT_SITE_SETTINGS = {
   logoUrl: "/images/logo.png",
   faviconUrl: "/favicon.ico",
@@ -9,25 +37,28 @@ export const DEFAULT_SITE_SETTINGS = {
   homeSeoTitle: "Booking Phan Thiết - Tra cứu thông tin uy tín",
   homeSeoDescription:
     "Tra cứu, đánh giá homestay, quán ăn, dịch vụ thuê xe uy tín tại Phan Thiết. Cộng đồng chia sẻ minh bạch, cảnh báo lừa đảo, review thật.",
+  ...EMPTY_IDENTITY,
 };
 
 export type SiteSettingsData = typeof DEFAULT_SITE_SETTINGS;
 
-// Doc cau hinh site - luon tra ve du 5 truong (fallback ve DEFAULT_SITE_SETTINGS cho
+// Doc cau hinh site - luon tra ve du cac truong (fallback ve DEFAULT_SITE_SETTINGS cho
 // tung truong rieng le neu admin chua dien / chua co dong nao trong DB), de moi noi
 // goi ham nay khong bao gio phai tu xu ly null.
 export async function getSiteSettings(): Promise<SiteSettingsData> {
   const row = await prisma.siteSettings.findUnique({ where: { id: SETTINGS_ID } }).catch(() => null);
+  const identity = Object.fromEntries(IDENTITY_FIELDS.map((k) => [k, row?.[k] ?? ""])) as Record<IdentityField, string>;
   return {
     logoUrl: row?.logoUrl || DEFAULT_SITE_SETTINGS.logoUrl,
     faviconUrl: row?.faviconUrl || DEFAULT_SITE_SETTINGS.faviconUrl,
     footerDescription: row?.footerDescription || DEFAULT_SITE_SETTINGS.footerDescription,
     homeSeoTitle: row?.homeSeoTitle || DEFAULT_SITE_SETTINGS.homeSeoTitle,
     homeSeoDescription: row?.homeSeoDescription || DEFAULT_SITE_SETTINGS.homeSeoDescription,
+    ...identity,
   };
 }
 
-export async function updateSiteSettings(data: Partial<SiteSettingsData>) {
+export async function updateSiteSettings(data: Partial<Record<keyof SiteSettingsData, string | null>>) {
   return prisma.siteSettings.upsert({
     where: { id: SETTINGS_ID },
     create: { id: SETTINGS_ID, ...data },

@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import SafeImage from "@/components/places/SafeImage";
 import { prisma } from "@/lib/prisma";
+import { buildPageMetadata } from "@/lib/page-seo";
 import { avgOf } from "@/lib/places";
 import { getLuuTruPageSettings } from "@/lib/luu-tru-settings";
 import AttractionCard from "@/components/places-detail/AttractionCard";
@@ -17,6 +18,10 @@ import type { FilterListItem } from "@/components/places/ExpandableFilterList";
 import Reveal from "@/components/home/Reveal";
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata() {
+  return buildPageMetadata("/luu-tru");
+}
 
 const PAGE_SIZE = 6;
 

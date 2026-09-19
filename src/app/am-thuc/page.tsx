@@ -7,9 +7,14 @@ import TrustFeatures from "@/components/food/TrustFeatures";
 import LocalSpecialties from "@/components/food/LocalSpecialties";
 import Reveal from "@/components/home/Reveal";
 import { prisma } from "@/lib/prisma";
+import { buildPageMetadata } from "@/lib/page-seo";
 import { getAmThucBannerSettings } from "@/lib/am-thuc-banner-settings";
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata() {
+  return buildPageMetadata("/am-thuc");
+}
 
 export default async function AmThucPage() {
   const [foods, categories, bannerSettings, specialties] = await Promise.all([

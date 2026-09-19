@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import ImageUploader from "@/components/admin/ImageUploader";
+import SeoEditor, { type SeoValue } from "@/components/admin/SeoEditor";
+import { slugifyBase } from "@/lib/slug";
 
 const CATEGORIES = [
   { value: "HOMESTAY", label: "Homestay" },
@@ -45,6 +47,9 @@ type PlaceInitial = {
   petFriendly?: boolean;
   totalRooms?: number | null;
   depositVnd?: number | null;
+  metaTitle?: string | null;
+  metaDescription?: string | null;
+  focusKeyword?: string | null;
   availableRooms?: number | null;
   mapEmbedUrl?: string | null;
   videoUrl?: string | null;
@@ -101,6 +106,11 @@ export default function PlaceForm({
   const [petFriendly, setPetFriendly] = useState(initial?.petFriendly ?? false);
   const [totalRooms, setTotalRooms] = useState(initial?.totalRooms?.toString() ?? "");
   const [depositVnd, setDepositVnd] = useState(initial?.depositVnd?.toString() ?? "");
+  const [seo, setSeo] = useState<SeoValue>({
+    metaTitle: initial?.metaTitle ?? "",
+    metaDescription: initial?.metaDescription ?? "",
+    focusKeyword: initial?.focusKeyword ?? "",
+  });
   const [availableRooms, setAvailableRooms] = useState(initial?.availableRooms?.toString() ?? "");
   const [mapEmbedUrl, setMapEmbedUrl] = useState(initial?.mapEmbedUrl ?? "");
   const [videoUrl, setVideoUrl] = useState(initial?.videoUrl ?? "");
@@ -154,6 +164,9 @@ export default function PlaceForm({
       petFriendly,
       totalRooms: totalRooms.trim() === "" ? null : Number(totalRooms),
       depositVnd: depositVnd.trim() === "" ? null : Number(depositVnd),
+      metaTitle: seo.metaTitle.trim() || null,
+      metaDescription: seo.metaDescription.trim() || null,
+      focusKeyword: seo.focusKeyword.trim() || null,
       availableRooms: availableRooms.trim() === "" ? null : Number(availableRooms),
       mapEmbedUrl: mapEmbedUrl.trim() === "" ? null : mapEmbedUrl.trim(),
       videoUrl: videoUrl.trim() === "" ? null : extractYoutubeId(videoUrl),
@@ -845,6 +858,18 @@ export default function PlaceForm({
           placeholder="Giới thiệu ngắn về địa điểm..."
         />
       </div>
+
+      {(category === "HOMESTAY" || category === "ATTRACTION") && (
+        <SeoEditor
+          title={name}
+          slug={slugifyBase(name)}
+          url={`bookingphanthiet.com/${category === "HOMESTAY" ? "luu-tru" : "diem-tham-quan"}/${initial?.id ?? "..."}`}
+          contentHtml={description ? `<p>${description.replace(/</g, " ")}</p>` : ""}
+          value={seo}
+          onChange={setSeo}
+          fallbackDescription={description.slice(0, 160)}
+        />
+      )}
 
       {error && <p className="text-sm text-brand-red bg-brand-redBg rounded-lg px-3 py-2">{error}</p>}
 

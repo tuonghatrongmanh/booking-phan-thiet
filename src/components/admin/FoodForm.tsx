@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import ImageUploader from "@/components/admin/ImageUploader";
 import RichTextEditor from "@/components/admin/RichTextEditor";
+import SeoEditor, { type SeoValue } from "@/components/admin/SeoEditor";
 import { slugifyBase } from "@/lib/slug";
 import type { FoodCategory } from "@prisma/client";
 
@@ -23,6 +24,9 @@ type FoodInitial = {
   image: string | null;
   description: string;
   content: string | null;
+  metaTitle?: string | null;
+  metaDescription?: string | null;
+  focusKeyword?: string | null;
   rating: number;
   reviewCount: number;
   priceFrom: number;
@@ -77,6 +81,11 @@ export default function FoodForm({ initial, categories }: { initial?: FoodInitia
   const [websiteUrl, setWebsiteUrl] = useState(initial?.websiteUrl ?? "");
   const [active, setActive] = useState(initial?.active ?? true);
   const [sortOrder, setSortOrder] = useState(initial?.sortOrder?.toString() ?? "0");
+  const [seo, setSeo] = useState<SeoValue>({
+    metaTitle: initial?.metaTitle ?? "",
+    metaDescription: initial?.metaDescription ?? "",
+    focusKeyword: initial?.focusKeyword ?? "",
+  });
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
@@ -95,6 +104,9 @@ export default function FoodForm({ initial, categories }: { initial?: FoodInitia
       image: image || null,
       description,
       content: content || null,
+      metaTitle: seo.metaTitle.trim() || null,
+      metaDescription: seo.metaDescription.trim() || null,
+      focusKeyword: seo.focusKeyword.trim() || null,
       rating: Number(rating),
       reviewCount: Number(reviewCount),
       priceFrom: Number(priceFrom),
@@ -434,6 +446,16 @@ export default function FoodForm({ initial, categories }: { initial?: FoodInitia
           </label>
         </div>
       </div>
+
+      <SeoEditor
+        title={name}
+        slug={displaySlug}
+        url={`bookingphanthiet.com/am-thuc/mon/${displaySlug || "..."}`}
+        contentHtml={content || `<p>${description.replace(/</g, " ")}</p>`}
+        value={seo}
+        onChange={setSeo}
+        fallbackDescription={description.slice(0, 160)}
+      />
 
       {error && <p className="text-sm text-brand-red bg-brand-redBg rounded-lg px-3 py-2">{error}</p>}
 

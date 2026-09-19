@@ -23,9 +23,14 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { slug } = await params;
   const food = await prisma.food.findUnique({ where: { slug } });
   if (!food) return {};
+  const title = food.metaTitle || `${food.name} - ${food.restaurant} | Ẩm Thực Phan Thiết`;
+  const description = food.metaDescription || food.description.slice(0, 160);
+  const url = `${SITE_URL}/am-thuc/mon/${food.slug}`;
   return {
-    title: `${food.name} - ${food.restaurant} | Ẩm Thực Phan Thiết`,
-    description: food.description,
+    title,
+    description,
+    alternates: { canonical: url },
+    openGraph: { title, description, url, type: "article", locale: "vi_VN", ...(food.image ? { images: [absoluteUrl(food.image)!] } : {}) },
   };
 }
 
