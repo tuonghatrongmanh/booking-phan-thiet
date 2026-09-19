@@ -1,46 +1,35 @@
 import Link from "next/link";
 import type { News } from "@prisma/client";
 import NewsCoverImage from "@/components/home/NewsCoverImage";
-
-function formatDate(date: Date) {
-  return new Date(date).toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" });
-}
+import { formatNewsDate } from "@/components/blog/NewsCard";
 
 export default function BlogFeaturedCard({ article, readingTime }: { article: News; readingTime: number }) {
   return (
-    <Link
-      href={`/tin-tuc/${article.slug}`}
-      className="group grid sm:grid-cols-[55%_1fr] bg-white rounded-[24px] shadow-blog-card overflow-hidden hover-lift h-full sm:h-[420px]"
-    >
-      <div className="relative aspect-[4/3] sm:aspect-auto bg-slate-100">
+    <Link href={`/tin-tuc/${article.slug}`} className="group relative block rounded-3xl overflow-hidden shadow-game-card bg-food-navy hover-lift">
+      <div className="relative aspect-[4/3] sm:aspect-[16/8]">
         <NewsCoverImage src={article.coverImage} alt={article.title} fit="cover" />
-        <span className="absolute top-4 left-4 text-[11px] font-bold text-white px-3 py-1.5 rounded-full uppercase tracking-wide bg-blog-featured">
-          {article.category}
-        </span>
-        <span className="absolute bottom-3 left-4 text-xs font-semibold text-white bg-black/45 px-3 py-1 rounded-full flex items-center gap-1.5">
-          <i className="fa-regular fa-clock" aria-hidden="true" /> {readingTime} phút đọc
-        </span>
-      </div>
+        <div className="absolute inset-0 bg-gradient-to-t from-food-navy/90 via-food-navy/40 to-transparent" />
 
-      <div className="p-6 sm:p-8 flex flex-col justify-center">
-        <p className="flex items-center gap-1.5 text-amber-500 font-bold text-sm mb-2.5">
-          <i className="fa-solid fa-crown" aria-hidden="true" /> Bài viết nổi bật
-        </p>
-        <p className="font-display font-extrabold text-2xl sm:text-[38px] leading-[1.15] text-slate-800 mb-3 line-clamp-3 group-hover:text-blog-primaryDark transition-colors">{article.title}</p>
-        <p className="text-blog-textMuted leading-relaxed mb-5 line-clamp-3">{article.excerpt}</p>
+        <span className="absolute top-4 left-4 inline-flex items-center gap-1.5 text-[11px] font-bold text-food-navy bg-brand-gold px-3 py-1.5 rounded-full uppercase tracking-wide">
+          <i className="fa-solid fa-crown" aria-hidden="true" /> Bài nổi bật
+        </span>
 
-        <div className="flex items-center gap-4 text-xs text-slate-400 mb-6">
-          <span className="flex items-center gap-1.5">
-            <i className="fa-regular fa-calendar" aria-hidden="true" /> {formatDate(article.createdAt)}
-          </span>
-          <span className="flex items-center gap-1.5">
-            <i className="fa-regular fa-eye" aria-hidden="true" /> {article.views.toLocaleString("vi-VN")}
+        <div className="absolute inset-x-0 bottom-0 p-5 sm:p-8">
+          <div className="flex items-center gap-3 text-xs font-semibold text-white/85 mb-2.5 flex-wrap">
+            <span className="bg-white/20 backdrop-blur rounded-full px-3 py-1">{article.category}</span>
+            <span className="flex items-center gap-1.5">
+              <i className="fa-regular fa-clock" aria-hidden="true" /> {readingTime} phút đọc
+            </span>
+            <span className="flex items-center gap-1.5">
+              <i className="fa-regular fa-calendar" aria-hidden="true" /> {formatNewsDate(article.createdAt)}
+            </span>
+          </div>
+          <p className="font-display font-extrabold text-2xl sm:text-4xl leading-[1.15] text-white line-clamp-3 mb-2">{article.title}</p>
+          <p className="hidden sm:block text-white/85 leading-relaxed line-clamp-2 max-w-3xl mb-4">{article.excerpt}</p>
+          <span className="inline-flex items-center gap-2 bg-white text-brand-blue font-bold text-sm rounded-full px-5 py-2.5 group-hover:bg-brand-gold group-hover:text-food-navy transition-colors">
+            Đọc bài viết <i className="fa-solid fa-arrow-right text-xs" aria-hidden="true" />
           </span>
         </div>
-
-        <span className="inline-flex items-center gap-2 border-2 border-blog-primary text-blog-primary font-bold text-sm rounded-full px-5 py-2.5 w-fit group-hover:bg-blog-primary group-hover:text-white transition-colors">
-          Đọc tiếp <i className="fa-solid fa-arrow-right text-xs" aria-hidden="true" />
-        </span>
       </div>
     </Link>
   );
