@@ -11,6 +11,7 @@ import SwipeHints from "@/components/ui/SwipeHints";
 import AiChatWidget from "@/components/chat/AiChatWidget";
 import NoPinchZoom from "@/components/ui/NoPinchZoom";
 import UiSounds from "@/components/ui/UiSounds";
+import SiteTranslator from "@/components/ui/SiteTranslator";
 import { SITE_URL } from "@/lib/site-url";
 import { getActiveTheme } from "@/lib/site-theme";
 import { getUiSlots } from "@/lib/ui-slots";
@@ -84,6 +85,7 @@ export default async function RootLayout({
           <AiChatWidget />
           <NoPinchZoom />
           <UiSounds />
+          <SiteTranslator />
           </UiSlotsProvider>
         </DialogProvider>
       </body>

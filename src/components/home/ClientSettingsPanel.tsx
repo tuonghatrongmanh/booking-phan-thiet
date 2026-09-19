@@ -65,6 +65,7 @@ export default function ClientSettingsPanel({ tone = "dark" }: { tone?: "dark" |
                 type="button"
                 onClick={() => setPref("lang", code)}
                 aria-pressed={prefs.lang === code}
+                translate="no"
                 className={`flex-1 rounded-full px-3 py-1.5 text-sm font-bold border transition ${
                   prefs.lang === code
                     ? dark

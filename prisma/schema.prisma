@@ -1356,3 +1356,13 @@ model UiIconSlot {
   imageUrl  String
   updatedAt DateTime @updatedAt
 }
+
+// Bo nho dem ban dich tu dong (chuyen ngon ngu giao dien sang tieng Anh): moi cau chi dich 1 lan
+// bang Gemini roi dung lai cho moi khach. hash = sha256(ngon ngu + cau goc da chuan hoa).
+model TranslationCache {
+  hash      String   @id
+  lang      String   @default("en")
+  source    String   @db.Text
+  target    String   @db.Text
+  createdAt DateTime @default(now())
+}
