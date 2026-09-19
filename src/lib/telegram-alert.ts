@@ -3,8 +3,9 @@
 // cấu hình TELEGRAM_BOT_TOKEN/TELEGRAM_CHAT_ID thì chỉ log cảnh báo, không throw.
 
 import { rateLimit } from "@/lib/rate-limit";
+import type { InlineKeyboard } from "@/lib/telegram-bot";
 
-export async function sendTelegramAlert(message: string): Promise<{ sent: boolean }> {
+export async function sendTelegramAlert(message: string, opts?: { keyboard?: InlineKeyboard }): Promise<{ sent: boolean }> {
   const token = process.env.TELEGRAM_BOT_TOKEN;
   const chatId = process.env.TELEGRAM_CHAT_ID;
 
@@ -17,7 +18,12 @@ export async function sendTelegramAlert(message: string): Promise<{ sent: boolea
     const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ chat_id: chatId, text: message, parse_mode: "HTML" }),
+      body: JSON.stringify({
+        chat_id: chatId,
+        text: message,
+        parse_mode: "HTML",
+        ...(opts?.keyboard ? { reply_markup: { inline_keyboard: opts.keyboard } } : {}),
+      }),
     });
     if (!res.ok) {
       console.error("[telegram-alert] Telegram trả về lỗi:", await res.text().catch(() => ""));

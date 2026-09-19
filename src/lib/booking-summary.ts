@@ -5,6 +5,7 @@ import { formatBookingDate, type BookingSummary } from "@/lib/booking-notify";
 
 export function summaryFromRental(r: RentalInquiry & { place: { name: string } }): BookingSummary {
   return {
+    id: r.id,
     kind: "rental",
     placeName: r.place.name,
     customerName: r.customerName,
@@ -19,6 +20,7 @@ export function summaryFromRental(r: RentalInquiry & { place: { name: string } }
 
 export function summaryFromStay(s: StayBookingInquiry & { place: { name: string } }): BookingSummary {
   return {
+    id: s.id,
     kind: "stay",
     placeName: s.place.name,
     customerName: s.customerName,

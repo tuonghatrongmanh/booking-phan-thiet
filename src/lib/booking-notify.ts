@@ -1,5 +1,6 @@
 import { sendMail } from "@/lib/mailer";
 import { sendTelegramAlert } from "@/lib/telegram-alert";
+import { initialKeyboard } from "@/lib/telegram-bot";
 import { SITE_URL } from "@/lib/site-url";
 
 // Thông báo cho 2 phía khi có đơn đặt phòng/thuê xe:
@@ -13,6 +14,7 @@ import { SITE_URL } from "@/lib/site-url";
 export type BookingKind = "stay" | "rental";
 
 export type BookingSummary = {
+  id?: string; // id đơn - có thì tin Telegram kèm nút bấm xác nhận cọc
   kind: BookingKind;
   placeName: string;
   customerName: string;
@@ -48,7 +50,7 @@ export function notifyAdminNewBooking(b: BookingSummary): void {
     `Ngày: ${esc(b.dateText)}`,
     b.depositAmount ? `Cọc: ${vnd(b.depositAmount)} - mã CK <code>${esc(b.depositRef ?? "")}</code> (chờ khách chuyển)` : "Chưa yêu cầu cọc",
   ];
-  void sendTelegramAlert(lines.join("\n"));
+  void sendTelegramAlert(lines.join("\n"), b.id && b.depositAmount ? { keyboard: initialKeyboard(b.kind, b.id, false) } : undefined);
 }
 
 export function notifyAdminReportedPaid(b: BookingSummary, note?: string | null): void {
@@ -58,8 +60,11 @@ export function notifyAdminReportedPaid(b: BookingSummary, note?: string | null)
       `${esc(b.placeName)} - ${esc(b.customerName)} (${esc(b.customerPhone)})`,
       `Số tiền: ${b.depositAmount ? vnd(b.depositAmount) : "?"} - mã CK <code>${esc(b.depositRef ?? "")}</code>`,
       ...(note ? [`Khách ghi chú: ${esc(note)}`] : []),
-      `Hãy kiểm tra app ngân hàng: thấy tiền thì bấm "Xác nhận đã nhận cọc", chưa thấy thì bấm "Chưa nhận được tiền" trong Admin.`,
-    ].join("\n")
+      b.id
+        ? "Kiểm tra app ngân hàng rồi bấm nút bên dưới (sẽ hỏi xác nhận lần nữa để tránh bấm nhầm)."
+        : `Hãy kiểm tra app ngân hàng: thấy tiền thì bấm "Xác nhận đã nhận cọc", chưa thấy thì bấm "Chưa nhận được tiền" trong Admin.`,
+    ].join("\n"),
+    b.id ? { keyboard: initialKeyboard(b.kind, b.id, true) } : undefined
   );
 }
 

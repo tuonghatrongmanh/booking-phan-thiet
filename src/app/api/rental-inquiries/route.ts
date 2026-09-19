@@ -112,6 +112,7 @@ export async function POST(req: NextRequest) {
   const deposit = canDeposit && depositRef && depositAmount ? buildDepositInfo(paymentSettings, depositRef, depositAmount) : null;
 
   const summary: BookingSummary = {
+    id: inquiry.id,
     kind: "rental",
     placeName: place.name,
     customerName,
