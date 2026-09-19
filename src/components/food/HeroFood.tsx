@@ -22,15 +22,10 @@ export default function HeroFood({ settings }: { settings: AmThucBannerSettingsD
           <i className={settings.badgeIcon} aria-hidden="true" /> {settings.badgeText}
         </span>
 
-        <h1 className="leading-none">
-          <span className="block font-display italic text-white/90 text-[26px] sm:text-[32px] lg:text-[38px]">
-            {settings.headingTop}
-          </span>
-          <span className="block font-display font-extrabold text-white text-[32px] sm:text-[42px] lg:text-[50px] mt-1">
-            <span className="text-food-primary">{settings.headingBottom}</span>
-          </span>
+        {/* Chỉ giữ 1 dòng tiêu đề: dòng thứ 2 (chữ xanh trên nền xanh đậm) và đoạn mô tả bị che/cắt trên điện thoại nên đã bỏ */}
+        <h1 className="font-display font-extrabold text-white leading-tight text-[30px] sm:text-[40px] lg:text-[48px]">
+          {settings.headingTop.replace(/[,，]\s*$/, "")}
         </h1>
-        <p className="text-white/80 text-sm sm:text-base mt-2 max-w-lg">{settings.subheading}</p>
       </div>
     </section>
   );

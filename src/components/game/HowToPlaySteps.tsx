@@ -1,3 +1,6 @@
+import SwipeCarousel from "@/components/ui/SwipeCarousel";
+import Reveal from "@/components/home/Reveal";
+
 const STEPS = [
   { icon: "fa-gamepad", title: "Chọn game", desc: "Chọn game bạn yêu thích trong danh sách." },
   { icon: "fa-play", title: "Chơi và tích xu", desc: "Chơi trong thời gian ngắn, nhận xu ngay." },
@@ -23,11 +26,12 @@ export default function HowToPlaySteps() {
         <div className="relative">
           <div className="hidden sm:block absolute top-9 left-[12.5%] right-[12.5%] h-0.5 bg-gradient-to-r from-game-primary/0 via-game-primary/25 to-game-primary/0" />
 
-          <div className="grid sm:grid-cols-4 gap-5">
+          <Reveal>
+          <SwipeCarousel desktopGrid="sm:grid-cols-4">
             {STEPS.map((s, i) => (
               <div
                 key={s.title}
-                className="relative bg-white rounded-3xl shadow-game-card hover:shadow-game-cardHover hover:-translate-y-1 transition-all duration-200 p-6 text-center overflow-hidden"
+                className="relative h-full bg-white rounded-3xl shadow-game-card hover:shadow-game-cardHover hover:-translate-y-1 transition-all duration-200 p-6 text-center overflow-hidden"
               >
                 <span className="absolute -top-2 -right-1 font-display font-extrabold text-6xl text-game-primary/[0.06] select-none pointer-events-none">
                   {i + 1}
@@ -43,7 +47,8 @@ export default function HowToPlaySteps() {
                 <p className="relative text-sm text-game-textGray leading-relaxed">{s.desc}</p>
               </div>
             ))}
-          </div>
+          </SwipeCarousel>
+          </Reveal>
         </div>
       </div>
     </section>

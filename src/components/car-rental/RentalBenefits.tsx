@@ -1,3 +1,6 @@
+import SwipeCarousel from "@/components/ui/SwipeCarousel";
+import Reveal from "@/components/home/Reveal";
+
 const BENEFITS = [
   {
     icon: "fa-solid fa-motorcycle",
@@ -25,9 +28,10 @@ export default function RentalBenefits() {
   return (
     <section className="container-custom py-10 sm:py-14">
       <h2 className="font-display font-bold text-2xl sm:text-3xl text-slate-800 text-center mb-8">Vì sao nên thuê xe tại đây</h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      <Reveal>
+      <SwipeCarousel desktopGrid="sm:grid-cols-2 lg:grid-cols-4">
         {BENEFITS.map((b) => (
-          <div key={b.title} className="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm text-center">
+          <div key={b.title} className="h-full bg-white border border-slate-100 rounded-2xl p-5 shadow-sm text-center">
             <div className="w-12 h-12 rounded-full bg-brand-sky/40 text-brand-blue flex items-center justify-center mx-auto mb-3 text-xl">
               <i className={b.icon} aria-hidden="true" />
             </div>
@@ -35,7 +39,8 @@ export default function RentalBenefits() {
             <p className="text-sm text-slate-500 leading-relaxed">{b.desc}</p>
           </div>
         ))}
-      </div>
+      </SwipeCarousel>
+      </Reveal>
     </section>
   );
 }

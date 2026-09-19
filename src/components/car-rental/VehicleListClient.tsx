@@ -43,15 +43,8 @@ export type VehicleData = {
 
 const FAVORITES_KEY = "bookingphanthiet_favorite_vehicles";
 
-// Dãy số trang gọn: 1 ... 4 5 6 ... 12
-function pageNumbers(current: number, total: number): (number | "gap")[] {
-  const out: (number | "gap")[] = [];
-  for (let p = 1; p <= total; p++) {
-    if (p === 1 || p === total || Math.abs(p - current) <= 1) out.push(p);
-    else if (out[out.length - 1] !== "gap") out.push("gap");
-  }
-  return out;
-}
+import { pageNumbers } from "@/lib/pagination";
+import { useMediaQuery } from "@/lib/use-media-query";
 
 function formatShort(dateStr: string) {
   const [, m, d] = dateStr.split("-");
@@ -99,7 +92,9 @@ export default function VehicleListClient({ vehicles }: { vehicles: VehicleData[
   const [sortBy, setSortBy] = useState("popular");
   const [page, setPage] = useState(1);
   const [dateError, setDateError] = useState<string | null>(null);
-  const PAGE_SIZE = 8; // 4 cột x 2 dòng
+  // Điện thoại: 4 xe/trang (2 cột x 2 dòng) - có hơn 4 xe là phân trang; máy tính: 4 cột x 2 dòng
+  const isMobile = useMediaQuery("(max-width: 639px)");
+  const PAGE_SIZE = isMobile ? 4 : 8;
 
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [quickViewId, setQuickViewId] = useState<string | null>(null);

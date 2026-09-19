@@ -1,5 +1,7 @@
 "use client";
 
+import { pageNumbers } from "@/lib/pagination";
+
 // Phan trang dang so, dung chung cho ca luoi mon an va luoi dac san - nhan currentPage
 // (1-based) + totalPages, goi onPageChange khi bam. An hoan toan neu chi co 1 trang.
 export default function FoodPagination({
@@ -25,7 +27,10 @@ export default function FoodPagination({
         <i className="fa-solid fa-chevron-left text-sm" aria-hidden="true" />
       </button>
 
-      {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+      {pageNumbers(currentPage, totalPages).map((page, gi) =>
+        page === "gap" ? (
+          <span key={"gap" + gi} className="w-6 text-center text-food-textMuted">…</span>
+        ) : (
         <button
           key={page}
           type="button"
@@ -37,7 +42,8 @@ export default function FoodPagination({
         >
           {page}
         </button>
-      ))}
+        )
+      )}
 
       <button
         type="button"

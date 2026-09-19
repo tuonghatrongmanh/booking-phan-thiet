@@ -1,3 +1,6 @@
+import SwipeCarousel from "@/components/ui/SwipeCarousel";
+import Reveal from "@/components/home/Reveal";
+
 const STEPS = [
   {
     num: 1,
@@ -24,9 +27,10 @@ export default function RentalSteps() {
     <section className="bg-brand-sky/20 py-10 sm:py-14">
       <div className="container-custom">
         <h2 className="font-display font-bold text-2xl sm:text-3xl text-slate-800 text-center mb-8">Thuê xe chỉ với 3 bước</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+        <Reveal>
+        <SwipeCarousel desktopGrid="sm:grid-cols-3">
           {STEPS.map((s) => (
-            <div key={s.num} className="bg-white rounded-2xl p-6 shadow-sm text-center relative">
+            <div key={s.num} className="h-full bg-white rounded-2xl p-6 shadow-sm text-center relative">
               <div className="absolute -top-3 -left-3 w-8 h-8 rounded-full bg-brand-blue text-white text-sm font-bold flex items-center justify-center">
                 {s.num}
               </div>
@@ -37,7 +41,8 @@ export default function RentalSteps() {
               <p className="text-sm text-slate-500 leading-relaxed">{s.desc}</p>
             </div>
           ))}
-        </div>
+        </SwipeCarousel>
+        </Reveal>
       </div>
     </section>
   );

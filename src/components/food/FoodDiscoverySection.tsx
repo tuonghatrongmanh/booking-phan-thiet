@@ -5,6 +5,7 @@ import FoodSearch from "@/components/food/FoodSearch";
 import FoodCategories from "@/components/food/FoodCategories";
 import SectionHeader from "@/components/food/SectionHeader";
 import FoodGrid from "@/components/food/FoodGrid";
+import FoodPagination from "@/components/food/FoodPagination";
 import type { Food, FoodCategory } from "@prisma/client";
 
 const FAVORITES_KEY = "bpt_food_favorites";
@@ -63,7 +64,7 @@ export default function FoodDiscoverySection({
       return b.priceFrom - a.priceFrom;
     });
   }, [foods, activeCategory, searchQuery, sortBy]);
-  const PAGE_SIZE = 8;
+  const PAGE_SIZE = 6;
   const totalPages = Math.max(1, Math.ceil(visibleFoods.length / PAGE_SIZE));
   const currentPage = Math.min(page, totalPages);
   const pageFoods = visibleFoods.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
@@ -71,6 +72,12 @@ export default function FoodDiscoverySection({
   useEffect(() => {
     setPage(1);
   }, [activeCategory, searchQuery, sortBy]);
+
+  // Sang trang khác thì cuộn về đầu danh sách để khách không phải lướt ngược lên
+  function goToPage(p: number) {
+    setPage(p);
+    requestAnimationFrame(() => document.getElementById("danh-sach-mon")?.scrollIntoView({ behavior: "smooth", block: "start" }));
+  }
 
   return (
     <section className="container-custom pb-8 sm:pb-10">
@@ -83,7 +90,7 @@ export default function FoodDiscoverySection({
       </div>
 
       <div className="mt-8 grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_330px] gap-8 items-start">
-        <div>
+        <div id="danh-sach-mon" className="scroll-mt-28">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <SectionHeader
               icon="fa-solid fa-fish"
@@ -107,44 +114,13 @@ export default function FoodDiscoverySection({
 
           <FoodGrid foods={pageFoods} categories={categories} favorites={favorites} onToggleFavorite={toggleFavorite} />
 
-          {totalPages > 1 && (
-            <nav className="flex items-center justify-center gap-1.5 mt-6" aria-label="Phân trang">
-              <button
-                type="button"
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                disabled={currentPage === 1}
-                aria-label="Trang trước"
-                className="w-9 h-9 flex items-center justify-center rounded-lg text-sm font-semibold border border-[#E3ECF5] text-food-textMuted hover:bg-food-bg transition disabled:opacity-40 disabled:pointer-events-none"
-              >
-                <i className="fa-solid fa-chevron-left text-xs" aria-hidden="true" />
-              </button>
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
-                <button
-                  key={p}
-                  type="button"
-                  onClick={() => setPage(p)}
-                  aria-current={p === currentPage ? "page" : undefined}
-                  className={`w-9 h-9 flex items-center justify-center rounded-lg text-sm font-semibold transition ${
-                    p === currentPage ? "bg-food-primary text-white" : "border border-[#E3ECF5] text-food-text hover:bg-food-bg"
-                  }`}
-                >
-                  {p}
-                </button>
-              ))}
-              <button
-                type="button"
-                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                disabled={currentPage === totalPages}
-                aria-label="Trang sau"
-                className="w-9 h-9 flex items-center justify-center rounded-lg text-sm font-semibold border border-[#E3ECF5] text-food-textMuted hover:bg-food-bg transition disabled:opacity-40 disabled:pointer-events-none"
-              >
-                <i className="fa-solid fa-chevron-right text-xs" aria-hidden="true" />
-              </button>
-            </nav>
-          )}
+          <div className="mt-8">
+            <FoodPagination currentPage={currentPage} totalPages={totalPages} onPageChange={goToPage} />
+          </div>
         </div>
 
-        <div className="space-y-5 lg:sticky lg:top-[98px]">{sidebar}</div>
+        {/* Banner combo + biểu tượng "nhà hàng uy tín" chỉ hiện ở cột phải trên máy tính; điện thoại dành chỗ cho danh sách + phân trang */}
+        <div className="hidden lg:block space-y-5 lg:sticky lg:top-[98px]">{sidebar}</div>
       </div>
     </section>
   );
