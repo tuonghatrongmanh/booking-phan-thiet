@@ -1,6 +1,8 @@
 import Image from "next/image";
 import { prisma } from "@/lib/prisma";
 import AISearchBox from "./AISearchBox";
+import { getActiveTheme } from "@/lib/site-theme";
+import { getUiSlots } from "@/lib/ui-slots";
 
 const TRUST_BADGES = [
   { id: "hero.badge1", icon: "fa-solid fa-location-dot", label: "Mã thật – Giảm thật", badge: "bg-brand-blueLight" },
@@ -66,10 +68,14 @@ function chunk<T>(arr: T[], size: number): T[][] {
 }
 
 export default async function Hero() {
-  const tilesRaw = await prisma.heroTile.findMany({
-    where: { active: true },
-    orderBy: { sortOrder: "asc" },
-  });
+  const [tilesRaw, theme, slots] = await Promise.all([
+    prisma.heroTile.findMany({
+      where: { active: true },
+      orderBy: { sortOrder: "asc" },
+    }),
+    getActiveTheme(),
+    getUiSlots(),
+  ]);
   const tiles: Tile[] = tilesRaw.map((t) => ({
     id: t.id,
     label: t.label,
@@ -85,13 +91,15 @@ export default async function Hero() {
     <section className="relative overflow-hidden">
       <div className="absolute inset-0 -z-10">
         <Image
-          src="/images/banner.png"
+          src={theme.heroImage || "/images/banner.png"}
           alt="Phan Thiết biển và hải đăng"
           fill
           priority
           className="object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-white/10 via-white/20 to-white/40" />
+        {/* Lớp phủ màu của giao diện lễ hội (trong suốt ở giao diện mặc định) */}
+        <div className="absolute inset-0" style={{ background: "var(--theme-hero-overlay, transparent)" }} />
       </div>
 
       <div className="container-custom pt-6 pb-10 lg:pt-8 lg:pb-14 relative z-10">
@@ -146,9 +154,9 @@ export default async function Hero() {
                   aria-label="Chơi ngay"
                 >
                   <img
-                    src="/images/choi-ngay-button.png"
+                    src={slots["game-play-button"] || "/images/choi-ngay-button.png"}
                     alt="Chơi ngay"
-                    className="absolute inset-0 w-full h-full object-cover scale-125"
+                    className={`absolute inset-0 w-full h-full ${slots["game-play-button"] ? "object-contain" : "object-cover scale-125"}`}
                   />
                 </button>
               </div>

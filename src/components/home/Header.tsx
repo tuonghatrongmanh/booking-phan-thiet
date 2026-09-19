@@ -7,9 +7,11 @@ import UserNotificationBell from "./UserNotificationBell";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getSiteSettings } from "@/lib/settings";
+import { cssUrl, getActiveTheme } from "@/lib/site-theme";
+import { getUiSlots } from "@/lib/ui-slots";
 
 export default async function Header() {
-  const [session, settings] = await Promise.all([auth(), getSiteSettings()]);
+  const [session, settings, theme, slots] = await Promise.all([auth(), getSiteSettings(), getActiveTheme(), getUiSlots()]);
   const isUserSession = (session?.user as { type?: string } | undefined)?.type === "user";
 
   // Không dùng trực tiếp session.user.image/name — JWT chỉ chứa dữ liệu tại thời điểm
@@ -24,6 +26,9 @@ export default async function Header() {
 
   return (
     <header className="bg-navbar-gradient header-ocean-sheen sticky top-0 z-50 shadow-[0_2px_12px_rgba(0,59,149,0.10)]">
+      {theme.headerImage && (
+        <div aria-hidden="true" className="absolute inset-0 -z-10 bg-cover bg-center" style={{ backgroundImage: cssUrl(theme.headerImage) }} />
+      )}
       <div className="container-custom">
         <div className="flex items-center justify-between h-[72px] lg:h-[100px]">
           <Link href="/" className="flex items-center shrink-0">
@@ -50,7 +55,12 @@ export default async function Header() {
                 aria-label="Đăng nhập"
                 className="flex items-center gap-1.5 whitespace-nowrap shrink-0 w-10 h-10 sm:w-auto sm:h-auto justify-center sm:bg-white sm:hover:bg-slate-100 hover:bg-white/10 transition rounded-full sm:pl-3 sm:pr-4 sm:py-2 text-sm font-bold text-white sm:text-brand-blue sm:shadow-[0_4px_12px_rgba(0,0,0,0.08)]"
               >
-                <i className="fa-solid fa-user text-base sm:text-sm" aria-hidden="true" />
+                {slots["login-icon"] ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={slots["login-icon"]} alt="" className="w-5 h-5 object-contain" />
+                ) : (
+                  <i className="fa-solid fa-user text-base sm:text-sm" aria-hidden="true" />
+                )}
                 <span className="hidden sm:inline">
                   Đăng nhập
                 </span>

@@ -937,6 +937,7 @@ model ReviewImage {
 // trong code) cho toi khi admin vao Cai dat va luu lan dau.
 model SiteSettings {
   id                 String   @id @default("singleton")
+  activeThemeKey     String? // giao dien theo dip le dang ap dung (null = mac dinh) - xem SiteTheme
   logoUrl            String?
   faviconUrl         String?
   footerDescription  String?  @db.Text
@@ -1322,4 +1323,36 @@ model LuuTruPageSettings {
   crossPromoTitle      String?
   crossPromoButtonText String?
   updatedAt            DateTime @updatedAt
+}
+
+// Giao dien theo dip le/mua (Tet, Trung thu, Quoc khanh...) - admin chon 1 giao dien de doi
+// mau + anh hero/header/footer toan site (ghi de cac bien --theme-* tren <html>).
+// Chi luu mau goc (primary) va vai mau tuy chon; cac sac do nhat/dam duoc TINH tu primary
+// (src/lib/theme-colors.ts) nen admin chi can chon 1-3 mau.
+model SiteTheme {
+  id                 String   @id @default(cuid())
+  key                String   @unique // slug: default | tet | trung-thu | quoc-khanh | tu dat
+  name               String
+  description        String?  @db.Text
+  builtin            Boolean  @default(false)
+  sortOrder          Int      @default(0)
+  primary            String   @default("#003b95")
+  secondary          String? // mau cuoi dai gradient header (tuy chon)
+  footerColor        String? // mau nen footer (tuy chon, mac dinh tinh tu primary)
+  heroOverlay        String? // mau phu len anh hero (tuy chon)
+  heroOverlayOpacity Int      @default(0) // 0-60 (%)
+  previewImage       String? // anh xem truoc do admin thiet ke
+  heroImage          String? // thay anh nen hero trang chu
+  headerImage        String? // anh nen header
+  footerImage        String? // anh nen footer
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+}
+
+// Thay icon/nut bam cua giao dien bang anh/GIF do admin tai len. Moi dong = 1 "vi tri"
+// (slot) da dinh nghia san trong src/lib/ui-slots.ts; khong co dong = dung giao dien mac dinh.
+model UiIconSlot {
+  slot      String   @id
+  imageUrl  String
+  updatedAt DateTime @updatedAt
 }

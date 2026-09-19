@@ -2,10 +2,11 @@ import Link from "next/link";
 import Image from "next/image";
 import FooterNewsletterInput from "./FooterNewsletterInput";
 import { getSiteSettings } from "@/lib/settings";
+import { cssUrl, getActiveTheme } from "@/lib/site-theme";
 
 
 export default async function Footer() {
-  const settings = await getSiteSettings();
+  const [settings, theme] = await Promise.all([getSiteSettings(), getActiveTheme()]);
   // Chỉ hiện mạng xã hội đã được điền ở Admin > Cài đặt (không còn liên kết "#" chết)
   const socialLinks = [
     { icon: "fa-brands fa-facebook-f", href: settings.facebookUrl, label: "Facebook" },
@@ -17,9 +18,12 @@ export default async function Footer() {
   ].filter((x) => x.href);
   return (
     <footer className="bg-brand-footer text-white/70 relative">
-      <div className="h-1 bg-gradient-to-r from-brand-blue via-brand-gold to-brand-blue" aria-hidden="true" />
+      {theme.footerImage && (
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-cover bg-center" style={{ backgroundImage: cssUrl(theme.footerImage) }} />
+      )}
+      <div className="relative h-1 bg-gradient-to-r from-brand-blue via-brand-gold to-brand-blue" aria-hidden="true" />
 
-      <div className="container-custom py-14">
+      <div className="container-custom py-14 relative">
         <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-10">
           <div className="lg:col-span-1">
             <div className="mb-4">
@@ -112,7 +116,7 @@ export default async function Footer() {
         </div>
       </div>
 
-      <div className="border-t border-white/10">
+      <div className="relative border-t border-white/10">
         <div className="container-custom py-5 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-white/50">
           <p>
             &copy; {new Date().getFullYear()} Booking Phan Thiết. All rights reserved.

@@ -261,6 +261,15 @@ export default function AdminShell({
                   SEO các trang
                 </Link>
               )}
+              {isSuperAdmin && (
+                <Link
+                  href="/admin/giao-dien"
+                  className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-semibold text-white/70 hover:bg-white/10 hover:text-white transition"
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-current shrink-0" />
+                  Giao diện &amp; Lễ hội
+                </Link>
+              )}
               <Link
                 href="/admin/account"
                 className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-semibold text-white/70 hover:bg-white/10 hover:text-white transition"

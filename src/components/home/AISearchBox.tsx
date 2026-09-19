@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import type { SearchResultItem } from "@/lib/search";
 import { useSpeechRecognition } from "@/lib/use-speech-recognition";
+import { useUiSlot } from "@/components/ui/UiSlots";
 
 const SUGGESTED_QUESTIONS = [
   "Homestay nào còn trống cuối tuần này?",
@@ -31,6 +32,8 @@ export default function AISearchBox() {
   const [visible, setVisible] = useState(true);
   const [value, setValue] = useState("");
   const [state, setState] = useState<SearchState>({ status: "idle" });
+  const mascotImage = useUiSlot("hero-mascot");
+  const sendIcon = useUiSlot("search-send");
   const speech = useSpeechRecognition({
     onInterim: (t) => setValue(t),
     onFinal: (t) => {
@@ -79,7 +82,7 @@ export default function AISearchBox() {
       {/* AI mascot đứng sát bên trái ô tìm kiếm, chiều cao bằng ô tìm kiếm ở PC */}
       <div className="absolute -top-6 sm:-top-2 lg:top-0 -left-10 z-20">
         <img
-          src="/images/ai.png"
+          src={mascotImage || "/images/ai.png"}
           alt="AI"
           className="w-28 h-24 sm:w-44 sm:h-36 lg:w-52 lg:h-44 drop-shadow-xl select-none pointer-events-none"
         />
@@ -132,7 +135,12 @@ export default function AISearchBox() {
             {state.status === "loading" ? (
               <i className="fa-solid fa-spinner fa-spin text-sm" aria-hidden="true" />
             ) : (
-              <i className="fa-solid fa-paper-plane text-sm" aria-hidden="true" />
+              sendIcon ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={sendIcon} alt="" className="w-5 h-5 object-contain" />
+              ) : (
+                <i className="fa-solid fa-paper-plane text-sm" aria-hidden="true" />
+              )
             )}
           </button>
         </form>

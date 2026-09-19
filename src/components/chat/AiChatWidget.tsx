@@ -6,6 +6,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import ChatText from "@/components/chat/ChatText";
 import { useSpeechRecognition } from "@/lib/use-speech-recognition";
+import { useUiSlot } from "@/components/ui/UiSlots";
 import type { SearchResultItem } from "@/lib/search";
 import type { ChatSource } from "@/lib/ai-chat-utils";
 
@@ -71,6 +72,7 @@ function loadSaved(): ChatMessage[] {
 
 export default function AiChatWidget() {
   const pathname = usePathname();
+  const customRobot = useUiSlot("ai-robot");
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([WELCOME]);
   const [input, setInput] = useState("");
@@ -220,13 +222,22 @@ export default function AiChatWidget() {
             aria-label="Mở trợ lý AI để trò chuyện"
             className="group relative block w-[84px] sm:w-[100px] focus:outline-none focus-visible:ring-4 focus-visible:ring-brand-blue/30 rounded-3xl"
           >
-            <Image
-              src="/images/ai-robot.png"
-              alt=""
-              width={300}
-              height={331}
-              className="robot-float w-full h-auto drop-shadow-[0_8px_14px_rgba(0,59,149,0.35)] select-none group-hover:scale-105 transition-transform"
-            />
+            {customRobot ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={customRobot}
+                alt=""
+                className="w-full h-auto drop-shadow-[0_8px_14px_rgba(0,59,149,0.35)] select-none group-hover:scale-105 transition-transform"
+              />
+            ) : (
+              <Image
+                src="/images/ai-robot.png"
+                alt=""
+                width={300}
+                height={331}
+                className="robot-float w-full h-auto drop-shadow-[0_8px_14px_rgba(0,59,149,0.35)] select-none group-hover:scale-105 transition-transform"
+              />
+            )}
             <span className="absolute left-1/2 -translate-x-1/2 -bottom-1 rounded-full bg-brand-blue px-2.5 py-0.5 text-[11px] font-bold text-white shadow whitespace-nowrap">
               Hỏi AI
             </span>

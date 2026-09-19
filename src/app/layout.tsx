@@ -10,6 +10,10 @@ import GoogleAnalytics from "@/components/seo/GoogleAnalytics";
 import SwipeHints from "@/components/ui/SwipeHints";
 import AiChatWidget from "@/components/chat/AiChatWidget";
 import { SITE_URL } from "@/lib/site-url";
+import { getActiveTheme } from "@/lib/site-theme";
+import { getUiSlots } from "@/lib/ui-slots";
+import { UiSlotsProvider } from "@/components/ui/UiSlots";
+import { connection } from "next/server";
 
 // Day la metadata MAC DINH cho toan site - trang nao khong tu khai bao metadata rieng
 // (vd trang chu page.tsx) se dung nguyen bo nay, nen "SEO trang chu" trong admin Cai
@@ -36,17 +40,22 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-// Màu thanh trình duyệt trên điện thoại = màu thương hiệu
-export const viewport: Viewport = { themeColor: "#003b95" };
+// Màu thanh trình duyệt trên điện thoại = màu chủ đạo của giao diện đang áp dụng (mùa lễ hội đổi theo)
+export async function generateViewport(): Promise<Viewport> {
+  const theme = await getActiveTheme();
+  return { themeColor: theme.primary };
+}
 
 export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const settings = await getSiteSettings();
+  // Giao diện lễ hội đổi bất cứ lúc nào từ admin -> mọi trang phải render theo từng request (không đóng băng lúc build)
+  await connection();
+  const [settings, theme, uiSlots] = await Promise.all([getSiteSettings(), getActiveTheme(), getUiSlots()]);
   return (
-    <html lang="vi">
+    <html lang="vi" data-theme={theme.key} style={theme.vars as React.CSSProperties}>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
@@ -63,12 +72,14 @@ export default async function RootLayout({
         <SiteJsonLd />
         <GoogleAnalytics measurementId={settings.googleAnalyticsId} />
         <DialogProvider>
+          <UiSlotsProvider slots={uiSlots}>
           {children}
           <PopupModal />
           <SaleStandingGate />
           <RapidNavGuard />
           <SwipeHints />
           <AiChatWidget />
+          </UiSlotsProvider>
         </DialogProvider>
       </body>
     </html>

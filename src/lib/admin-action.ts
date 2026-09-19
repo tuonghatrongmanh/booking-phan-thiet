@@ -143,3 +143,13 @@ export async function requestUpdate(params: {
     ),
   };
 }
+
+// Chi SUPER_ADMIN (dung cho cac thay doi anh huong toan bo giao dien/tien bac).
+export async function requireSuperAdmin(message = "Chỉ SuperAdmin mới có quyền thực hiện thao tác này") {
+  const { admin, error } = await requireAdminSession();
+  if (error || !admin) return { admin: null as Admin | null, error: error! };
+  if (admin.role !== "SUPER_ADMIN") {
+    return { admin: null as Admin | null, error: NextResponse.json({ error: message }, { status: 403 }) };
+  }
+  return { admin, error: null as NextResponse | null };
+}

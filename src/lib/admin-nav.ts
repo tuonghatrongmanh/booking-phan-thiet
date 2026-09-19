@@ -93,6 +93,7 @@ export const NAV: NavEntry[] = [
 const EXTRA_BREADCRUMB_LABELS: Record<string, string> = {
   "/admin/settings": "Cài đặt",
   "/admin/page-seo": "SEO các trang",
+  "/admin/giao-dien": "Giao diện & Lễ hội",
   "/admin/account": "Tài khoản của tôi",
 };
 
