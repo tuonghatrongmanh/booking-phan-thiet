@@ -24,6 +24,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE_URL}/tin-tuc`, changeFrequency: "daily", priority: 0.8 },
     { url: `${SITE_URL}/thue-xe`, changeFrequency: "daily", priority: 0.8 },
     { url: `${SITE_URL}/gioi-thieu`, changeFrequency: "monthly", priority: 0.7 },
+    { url: `${SITE_URL}/chinh-sach-bao-mat`, changeFrequency: "yearly", priority: 0.3 },
+    { url: `${SITE_URL}/dieu-khoan`, changeFrequency: "yearly", priority: 0.3 },
     { url: `${SITE_URL}/khuyen-mai`, changeFrequency: "daily", priority: 0.7 },
     { url: `${SITE_URL}/sale`, changeFrequency: "weekly", priority: 0.7 },
     { url: `${SITE_URL}/game-trung-thuong`, changeFrequency: "weekly", priority: 0.5 },

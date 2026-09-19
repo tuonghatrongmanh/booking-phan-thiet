@@ -121,6 +121,10 @@ export default async function Footer() {
           <p>
             &copy; {new Date().getFullYear()} Booking Phan Thiết. All rights reserved.
           </p>
+          <p className="flex items-center gap-3">
+            <Link href="/chinh-sach-bao-mat" className="hover:text-white transition">Chính sách bảo mật</Link>
+            <Link href="/dieu-khoan" className="hover:text-white transition">Điều khoản sử dụng</Link>
+          </p>
           <p className="flex items-center gap-1">
             Made with
             <svg width="12" height="12" viewBox="0 0 24 24" fill="#e8483a">
