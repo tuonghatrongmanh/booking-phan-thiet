@@ -96,7 +96,7 @@ export default function ClickCollectGame({ slug, gameName, dailyLimit, initialBa
       <div
         ref={areaRef}
         className="relative w-full h-72 rounded-2xl overflow-hidden mb-5"
-        style={{ background: "linear-gradient(180deg, #eaf6fd, #cfe9fb)" }}
+        style={{ background: "linear-gradient(180deg, var(--theme-primary-soft), var(--theme-primary-mid))" }}
       >
         {phase === "idle" && (
           <div className="absolute inset-0 flex items-center justify-center">

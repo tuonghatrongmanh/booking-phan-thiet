@@ -25,8 +25,8 @@ export default function FoodCategories({
             aria-pressed={active}
             className={`shrink-0 flex items-center gap-2 h-[50px] px-[22px] rounded-2xl border font-bold text-[14px] transition-colors duration-200 ${
               active
-                ? "bg-food-primary border-food-primary text-white shadow-[0_5px_15px_rgba(8,127,245,0.35)]"
-                : "bg-white border-[#E5EDF5] text-food-textMuted hover:bg-[#F0F7FF] hover:text-food-primary hover:border-[#BBDCFF]"
+                ? "bg-food-primary border-food-primary text-white shadow-[0_5px_15px_rgba(0,59,149,0.35)]"
+                : "bg-white border-[#E5EDF5] text-food-textMuted hover:bg-brand-sky hover:text-food-primary hover:border-brand-blueMid"
             }`}
           >
             <i className={`${cat.icon} text-[18px]`} aria-hidden="true" />

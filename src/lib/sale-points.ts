@@ -91,7 +91,7 @@ export const SALE_MISSIONS: SaleMission[] = [
 ];
 
 export const RANK_TIERS = [
-  { min: 190, id: "diamond", label: "Uy tín Kim Cương", color: "#38bdf8", icon: "fa-solid fa-gem" },
+  { min: 190, id: "diamond", label: "Uy tín Kim Cương", color: "var(--theme-primary-light)", icon: "fa-solid fa-gem" },
   { min: 120, id: "gold", label: "Uy tín", color: "#f59e0b", icon: "fa-solid fa-trophy" },
   { min: 60, id: "silver", label: "Đang phát triển", color: "#94a3b8", icon: "fa-solid fa-medal" },
   { min: 0, id: "bronze", label: "Mới gia nhập", color: "#b45309", icon: "fa-solid fa-seedling" },

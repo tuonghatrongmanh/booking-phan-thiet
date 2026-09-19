@@ -100,7 +100,7 @@ export default function SecurityLogDrawer({
           </div>
 
           {log.adminEmail ? (
-            <div className="flex items-center gap-2 bg-sky-50 text-brand-blue text-xs font-bold px-3 py-2 rounded-xl">
+            <div className="flex items-center gap-2 bg-brand-tint text-brand-blue text-xs font-bold px-3 py-2 rounded-xl">
               <i className="fa-solid fa-user-shield" aria-hidden="true" />
               Request từ phiên admin: {log.adminName || log.adminEmail} ({log.adminEmail})
             </div>

@@ -54,7 +54,7 @@ export default function PasswordResetRequestRow({
       <td className="px-5 py-3">
         {newPassword ? (
           <div className="flex items-center gap-2">
-            <code className="font-mono text-sm font-bold text-slate-800 bg-brand-sky/30 rounded-lg px-2.5 py-1.5 border border-sky-200">
+            <code className="font-mono text-sm font-bold text-slate-800 bg-brand-sky/30 rounded-lg px-2.5 py-1.5 border border-brand-blueMid">
               {newPassword}
             </code>
             <button type="button" onClick={copyPassword} className="text-xs font-bold text-brand-blue hover:underline">

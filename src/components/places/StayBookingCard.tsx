@@ -33,7 +33,7 @@ export default function StayBookingCard({
         <>
           <p>
             <span className="text-sm text-[#8298AE]">Giá từ</span>{" "}
-            <span className="text-[30px] font-extrabold text-[#1678C8] leading-none">{formatPriceVnd(priceFromVnd)}</span>{" "}
+            <span className="text-[30px] font-extrabold text-brand-blue leading-none">{formatPriceVnd(priceFromVnd)}</span>{" "}
             <span className="text-sm text-[#8298AE]">/ đêm</span>
           </p>
           <p className="flex items-center gap-1.5 text-sm font-semibold text-[#16A05D] mt-1">
@@ -45,7 +45,7 @@ export default function StayBookingCard({
       )}
 
       <form className="mt-4 space-y-2.5" onSubmit={(e) => e.preventDefault()}>
-        <label className="block border border-[#DCE7F1] rounded-[10px] px-3.5 py-2.5 focus-within:border-[#168BE0] focus-within:ring-4 focus-within:ring-[#168BE0]/10 transition">
+        <label className="block border border-[#DCE7F1] rounded-[10px] px-3.5 py-2.5 focus-within:border-brand-blue focus-within:ring-4 focus-within:ring-brand-blue/10 transition">
           <span className="block text-[11px] font-semibold text-[#8298AE]">Nhận phòng</span>
           <div className="flex items-center gap-2 mt-0.5">
             <i className="fa-regular fa-calendar text-[#8298AE] text-sm" aria-hidden="true" />
@@ -53,7 +53,7 @@ export default function StayBookingCard({
           </div>
         </label>
 
-        <label className="block border border-[#DCE7F1] rounded-[10px] px-3.5 py-2.5 focus-within:border-[#168BE0] focus-within:ring-4 focus-within:ring-[#168BE0]/10 transition">
+        <label className="block border border-[#DCE7F1] rounded-[10px] px-3.5 py-2.5 focus-within:border-brand-blue focus-within:ring-4 focus-within:ring-brand-blue/10 transition">
           <span className="block text-[11px] font-semibold text-[#8298AE]">Trả phòng</span>
           <div className="flex items-center gap-2 mt-0.5">
             <i className="fa-regular fa-calendar text-[#8298AE] text-sm" aria-hidden="true" />
@@ -61,7 +61,7 @@ export default function StayBookingCard({
           </div>
         </label>
 
-        <label className="block border border-[#DCE7F1] rounded-[10px] px-3.5 py-2.5 focus-within:border-[#168BE0] focus-within:ring-4 focus-within:ring-[#168BE0]/10 transition">
+        <label className="block border border-[#DCE7F1] rounded-[10px] px-3.5 py-2.5 focus-within:border-brand-blue focus-within:ring-4 focus-within:ring-brand-blue/10 transition">
           <span className="block text-[11px] font-semibold text-[#8298AE]">Số khách</span>
           <div className="flex items-center gap-2 mt-0.5">
             <i className="fa-solid fa-user-group text-[#8298AE] text-sm" aria-hidden="true" />
@@ -78,7 +78,7 @@ export default function StayBookingCard({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="mt-4 w-full h-[52px] rounded-xl font-extrabold text-white flex items-center justify-center gap-2 transition bg-gradient-to-br from-[#168FE2] to-[#0879CE] shadow-[0_6px_16px_rgba(22,139,224,0.22)] hover:-translate-y-0.5 hover:brightness-105"
+        className="mt-4 w-full h-[52px] rounded-xl font-extrabold text-white flex items-center justify-center gap-2 transition bg-gradient-to-br from-brand-blueLight to-brand-blue shadow-[0_6px_16px_rgba(0,59,149,0.22)] hover:-translate-y-0.5 hover:brightness-105"
       >
         <i className="fa-solid fa-bolt" aria-hidden="true" /> Đặt phòng
       </button>
@@ -87,13 +87,13 @@ export default function StayBookingCard({
           href={contactHref}
           target={zaloUrl ? "_blank" : undefined}
           rel={zaloUrl ? "noopener noreferrer" : undefined}
-          className="mt-2 w-full h-11 rounded-xl font-bold text-[#1678C8] border border-[#DCE7F1] flex items-center justify-center gap-2 hover:bg-[#F3F8FD] transition"
+          className="mt-2 w-full h-11 rounded-xl font-bold text-brand-blue border border-[#DCE7F1] flex items-center justify-center gap-2 hover:bg-[#F3F8FD] transition"
         >
           <i className={zaloUrl ? "fa-solid fa-comment-dots" : "fa-solid fa-phone"} aria-hidden="true" /> {contactLabel}
         </a>
       )}
 
-      <Link href="/tra-cuu-dat-cho" className="mt-3 block text-center text-[13px] font-semibold text-[#1678C8] hover:underline">
+      <Link href="/tra-cuu-dat-cho" className="mt-3 block text-center text-[13px] font-semibold text-brand-blue hover:underline">
         Đã đặt trước đó? Tra cứu đơn của bạn
       </Link>
 

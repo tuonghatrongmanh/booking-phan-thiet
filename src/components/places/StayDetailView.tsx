@@ -32,7 +32,7 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
 }
 
 function Section({ children }: { children: React.ReactNode }) {
-  return <section className="bg-white border border-[#E5EDF5] rounded-2xl shadow-[0_4px_20px_rgba(15,76,129,0.06)] p-5 sm:p-7">{children}</section>;
+  return <section className="bg-white border border-[#E5EDF5] rounded-2xl shadow-[0_4px_20px_rgba(0,59,149,0.06)] p-5 sm:p-7">{children}</section>;
 }
 
 export default async function StayDetailView({ placeId }: { placeId: string }) {
@@ -109,11 +109,11 @@ export default async function StayDetailView({ placeId }: { placeId: string }) {
       <div className="bg-[#F6F9FC]">
         <div className="mx-auto max-w-[1360px] px-4 sm:px-6 lg:px-8">
           <nav className="flex items-center gap-1.5 text-[13px] py-4 overflow-x-auto scrollbar-none whitespace-nowrap">
-            <Link href="/" className="text-[#6B83A0] hover:text-[#168BE0] transition">
+            <Link href="/" className="text-[#6B83A0] hover:text-brand-blue transition">
               Trang chủ
             </Link>
             <i className="fa-solid fa-chevron-right text-[10px] text-[#6B83A0]" aria-hidden="true" />
-            <Link href="/luu-tru" className="text-[#6B83A0] hover:text-[#168BE0] transition">
+            <Link href="/luu-tru" className="text-[#6B83A0] hover:text-brand-blue transition">
               Lưu trú
             </Link>
             <i className="fa-solid fa-chevron-right text-[10px] text-[#6B83A0]" aria-hidden="true" />
@@ -150,7 +150,7 @@ export default async function StayDetailView({ placeId }: { placeId: string }) {
 
               <h1 className="text-[28px] sm:text-[32px] font-extrabold text-[#102F4F] leading-[1.2] max-w-[700px] flex items-center gap-2">
                 {place.name}
-                {isTrusted && <i className="fa-solid fa-circle-check text-[#1685D7] text-xl shrink-0" aria-hidden="true" />}
+                {isTrusted && <i className="fa-solid fa-circle-check text-brand-blue text-xl shrink-0" aria-hidden="true" />}
               </h1>
 
               <div className="flex items-center gap-1.5 mt-2.5">
@@ -169,7 +169,7 @@ export default async function StayDetailView({ placeId }: { placeId: string }) {
                     href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place.address)}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-[#1688D8] hover:underline font-semibold"
+                    className="text-brand-blue hover:underline font-semibold"
                   >
                     Xem trên bản đồ
                   </a>

@@ -139,7 +139,7 @@ export default function SheetSyncManager({ initialSources }: { initialSources: S
                   <td className="px-5 py-3 text-right space-x-2 whitespace-nowrap">
                     <Link
                       href={`/admin/sheet-sync/${s.id}`}
-                      className="text-brand-blue hover:bg-sky-50 rounded-lg px-2.5 py-1.5 text-xs font-bold transition"
+                      className="text-brand-blue hover:bg-brand-tint rounded-lg px-2.5 py-1.5 text-xs font-bold transition"
                     >
                       Quản lý ánh xạ
                     </Link>

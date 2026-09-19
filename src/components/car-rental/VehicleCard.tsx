@@ -86,7 +86,7 @@ export default function VehicleCard({
 
       <div className="p-4">
         {vehicle.vehicleType && (
-          <span className="inline-block text-[11px] font-bold text-[#1689E8] bg-[#EDF7FF] rounded-full px-2.5 py-1 mb-2">
+          <span className="inline-block text-[11px] font-bold text-brand-blue bg-brand-sky rounded-full px-2.5 py-1 mb-2">
             {vehicle.vehicleType}
           </span>
         )}
@@ -119,14 +119,14 @@ export default function VehicleCard({
 
         <div className="mt-3 pt-3 border-t border-[#EDF1F5]">
           <p className="mb-2.5">
-            <span className="font-extrabold text-[20px] text-[#087FD8]">{formatVnd(vehicle.priceFromVnd)}</span>
+            <span className="font-extrabold text-[20px] text-brand-blue">{formatVnd(vehicle.priceFromVnd)}</span>
             {vehicle.priceFromVnd != null && <span className="text-[13px] text-[#8293A5]"> /ngày</span>}
           </p>
           <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={onQuickView}
-              className="flex-1 flex items-center justify-center gap-1.5 border border-[#D7E4F0] hover:bg-[#F4F9FE] transition text-[#33475B] font-bold text-[13px] h-[42px] px-3 rounded-xl"
+              className="flex-1 flex items-center justify-center gap-1.5 border border-[#D7E4F0] hover:bg-brand-tint transition text-[#33475B] font-bold text-[13px] h-[42px] px-3 rounded-xl"
             >
               <i className="fa-regular fa-eye" aria-hidden="true" />
               Xem chi tiết
@@ -135,7 +135,7 @@ export default function VehicleCard({
               type="button"
               onClick={onBook}
               disabled={!isAvailable}
-              className="flex-1 flex items-center justify-center gap-1.5 bg-[#1689E8] hover:bg-[#087FD8] transition text-white font-bold text-[13px] h-[42px] px-3 rounded-xl disabled:bg-slate-300 disabled:cursor-not-allowed"
+              className="flex-1 flex items-center justify-center gap-1.5 bg-brand-blue hover:bg-brand-blue transition text-white font-bold text-[13px] h-[42px] px-3 rounded-xl disabled:bg-slate-300 disabled:cursor-not-allowed"
             >
               <i className="fa-regular fa-calendar-check" aria-hidden="true" />
               {isAvailable ? "Đặt thuê" : "Đã hết xe"}

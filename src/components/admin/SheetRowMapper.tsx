@@ -153,7 +153,7 @@ export default function SheetRowMapper({ sourceId, places }: { sourceId: string;
             type="button"
             onClick={addMapping}
             disabled={places.length === 0}
-            className="text-sm font-bold text-brand-blue hover:bg-sky-50 rounded-lg px-3 py-1.5 transition disabled:opacity-40"
+            className="text-sm font-bold text-brand-blue hover:bg-brand-tint rounded-lg px-3 py-1.5 transition disabled:opacity-40"
           >
             + Thêm villa/xe
           </button>

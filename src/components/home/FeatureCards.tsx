@@ -2,15 +2,15 @@
 const FEATURES = [
   {
     id: "transparency",
-    bg: "bg-sky-100",
+    bg: "bg-brand-sky",
     title: "Thông tin minh bạch",
     desc: "Dữ liệu được xác minh và cập nhật liên tục từ đối tác uy tín.",
     link: "Tìm hiểu thêm",
-    linkClass: "text-brand-blue border-sky-200 bg-sky-50 hover:bg-sky-100",
+    linkClass: "text-brand-blue border-brand-blueMid bg-brand-tint hover:bg-brand-sky",
     bgImage: "/images/feature-minhbach.png",
     icon: (
       <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
-        <path d="M12 2.5l7.5 3.2v5.4c0 5.2-3.2 8.9-7.5 10.4-4.3-1.5-7.5-5.2-7.5-10.4V5.7L12 2.5z" fill="#1a6fc4" />
+        <path d="M12 2.5l7.5 3.2v5.4c0 5.2-3.2 8.9-7.5 10.4-4.3-1.5-7.5-5.2-7.5-10.4V5.7L12 2.5z" fill="var(--theme-primary)" />
         <path d="M8.3 12.2l2.6 2.6 5-5.6" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" fill="none" />
       </svg>
     ),

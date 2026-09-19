@@ -19,18 +19,14 @@ export default async function Footer() {
       <div className="container-custom py-14">
         <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-10">
           <div className="lg:col-span-1">
-            <div className="flex items-center gap-2.5 mb-4">
+            <div className="mb-4">
               <Image
                 src={settings.logoUrl}
                 alt="Booking Phan Thiết"
-                width={44}
-                height={44}
-                className="w-11 h-11 rounded-full object-cover ring-2 ring-brand-gold"
+                width={220}
+                height={64}
+                className="w-[190px] h-auto object-contain select-none"
               />
-              <div className="leading-tight">
-                <p className="font-display font-bold text-white text-base -mb-1">BOOKING</p>
-                <p className="font-display font-bold text-brand-gold text-xs tracking-wide">PHAN THIẾT</p>
-              </div>
             </div>
             <p className="text-sm leading-relaxed mb-5">
               {settings.footerDescription}

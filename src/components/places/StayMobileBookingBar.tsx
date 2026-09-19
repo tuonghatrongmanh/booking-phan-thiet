@@ -24,7 +24,7 @@ export default function StayMobileBookingBar({
       <div className="min-w-0">
         {priceFromVnd != null ? (
           <p className="truncate">
-            <span className="text-base font-extrabold text-[#1678C8]">{formatPriceVnd(priceFromVnd)}</span>{" "}
+            <span className="text-base font-extrabold text-brand-blue">{formatPriceVnd(priceFromVnd)}</span>{" "}
             <span className="text-xs text-[#8298AE]">/ đêm</span>
           </p>
         ) : (
@@ -34,7 +34,7 @@ export default function StayMobileBookingBar({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="shrink-0 h-11 min-w-[132px] px-5 rounded-xl font-extrabold text-white flex items-center justify-center gap-2 bg-gradient-to-br from-[#168FE2] to-[#0879CE]"
+        className="shrink-0 h-11 min-w-[132px] px-5 rounded-xl font-extrabold text-white flex items-center justify-center gap-2 bg-gradient-to-br from-brand-blueLight to-brand-blue"
       >
         Đặt phòng
       </button>

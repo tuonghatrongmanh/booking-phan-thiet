@@ -89,7 +89,7 @@ export default async function AdminSaleAgentsPage() {
                     <td className="px-5 py-3 text-right space-x-2">
                       <Link
                         href={`/admin/sale-agents/${agent.id}/edit`}
-                        className="text-brand-blue hover:bg-sky-50 rounded-lg px-2.5 py-1.5 text-xs font-bold transition"
+                        className="text-brand-blue hover:bg-brand-tint rounded-lg px-2.5 py-1.5 text-xs font-bold transition"
                       >
                         Sửa
                       </Link>

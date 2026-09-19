@@ -43,7 +43,7 @@ export default function PasswordResetCard({ resetUrl, label }: { resetUrl: strin
       </p>
 
       {newPassword ? (
-        <div className="bg-brand-sky/30 border border-sky-200 rounded-xl p-4 space-y-2">
+        <div className="bg-brand-sky/30 border border-brand-blueMid rounded-xl p-4 space-y-2">
           <p className="text-xs text-slate-500">Mật khẩu mới (chỉ hiện 1 lần — hãy gửi ngay cho tài khoản này):</p>
           <div className="flex items-center gap-2">
             <code className="flex-1 font-mono text-base font-bold text-slate-800 bg-white rounded-lg px-3 py-2 border border-slate-200">
@@ -51,7 +51,7 @@ export default function PasswordResetCard({ resetUrl, label }: { resetUrl: strin
             </code>
             <button
               onClick={copyPassword}
-              className="text-sm font-bold text-brand-blue border border-sky-200 hover:bg-sky-50 rounded-lg px-3 py-2 shrink-0"
+              className="text-sm font-bold text-brand-blue border border-brand-blueMid hover:bg-brand-tint rounded-lg px-3 py-2 shrink-0"
             >
               Sao chép
             </button>

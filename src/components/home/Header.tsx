@@ -23,17 +23,17 @@ export default async function Header() {
     : null;
 
   return (
-    <header className="bg-navbar-gradient header-ocean-sheen sticky top-0 z-50 shadow-[0_2px_12px_rgba(0,80,150,0.10)]">
+    <header className="bg-navbar-gradient header-ocean-sheen sticky top-0 z-50 shadow-[0_2px_12px_rgba(0,59,149,0.10)]">
       <div className="container-custom">
         <div className="flex items-center justify-between h-[72px] lg:h-[100px]">
           <Link href="/" className="flex items-center shrink-0">
             <Image
               src={settings.logoUrl}
               alt="Booking Phan Thiết"
-              width={160}
-              height={160}
+              width={220}
+              height={64}
               priority
-              className="w-[68px] sm:w-[80px] lg:w-[118px] h-auto object-contain select-none"
+              className="w-[128px] sm:w-[150px] lg:w-[196px] h-auto object-contain select-none"
             />
           </Link>
 

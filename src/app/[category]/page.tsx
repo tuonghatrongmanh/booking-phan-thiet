@@ -94,7 +94,7 @@ export default async function ForumCategoryPage({
                 ) : (
                   <a
                     href={`/dang-nhap?callbackUrl=/${slug}`}
-                    className="block w-full bg-white rounded-2xl shadow-card px-5 py-4 text-center text-sm font-semibold text-brand-blue hover:bg-sky-50 transition"
+                    className="block w-full bg-white rounded-2xl shadow-card px-5 py-4 text-center text-sm font-semibold text-brand-blue hover:bg-brand-tint transition"
                   >
                     Đăng nhập để đăng bài trong cộng đồng {info.label}
                   </a>

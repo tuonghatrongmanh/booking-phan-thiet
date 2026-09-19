@@ -70,7 +70,7 @@ export default function SaleSection({ sales }: { sales: Sale[] }) {
         </div>
         <Link
           href="/khuyen-mai"
-          className="inline-flex items-center gap-2 text-[15px] font-semibold text-promo-oceanPrimary border border-[#B7DDEC] rounded-full px-5 py-3 hover:bg-promo-oceanLight hover:border-promo-oceanPrimary transition-colors duration-200 shrink-0"
+          className="inline-flex items-center gap-2 text-[15px] font-semibold text-promo-oceanPrimary border border-brand-blueMid rounded-full px-5 py-3 hover:bg-promo-oceanLight hover:border-promo-oceanPrimary transition-colors duration-200 shrink-0"
         >
           Xem tất cả
           <ArrowRight size={16} strokeWidth={2} aria-hidden="true" />

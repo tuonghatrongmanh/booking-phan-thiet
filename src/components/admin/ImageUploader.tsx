@@ -59,7 +59,7 @@ export default function ImageUploader({ label, value, onChange, folder = "bookin
           </div>
         )}
         <div className="flex-1">
-          <label className="inline-flex items-center gap-2 cursor-pointer text-sm font-semibold text-brand-blue border border-sky-200 bg-sky-50 hover:bg-sky-100 rounded-lg px-3 py-2">
+          <label className="inline-flex items-center gap-2 cursor-pointer text-sm font-semibold text-brand-blue border border-brand-blueMid bg-brand-tint hover:bg-brand-sky rounded-lg px-3 py-2">
             <input type="file" accept="image/*" className="hidden" onChange={handleFile} disabled={uploading} />
             {uploading ? "Đang tải lên..." : value ? "Đổi ảnh khác" : "Chọn ảnh"}
           </label>

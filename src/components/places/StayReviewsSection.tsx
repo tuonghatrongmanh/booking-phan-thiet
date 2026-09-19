@@ -42,7 +42,7 @@ export default function StayReviewsSection({ reviews, avgRating }: { reviews: Re
               <span className="w-8 shrink-0">{h.star} sao</span>
               <div className="flex-1 h-1.5 rounded-full bg-[#E8F0F6] overflow-hidden">
                 <div
-                  className="h-full bg-[#168BE0] rounded-full"
+                  className="h-full bg-brand-blue rounded-full"
                   style={{ width: total > 0 ? `${(h.count / total) * 100}%` : "0%" }}
                 />
               </div>
@@ -59,14 +59,14 @@ export default function StayReviewsSection({ reviews, avgRating }: { reviews: Re
           reviews.map((r) => (
             <div key={r.id} className="bg-[#F8FAFC] rounded-[14px] p-[18px]">
               <div className="flex items-start gap-3">
-                <div className="relative w-12 h-12 rounded-full overflow-hidden shrink-0 bg-[#EAF6FD]">
+                <div className="relative w-12 h-12 rounded-full overflow-hidden shrink-0 bg-brand-sky">
                   {r.reviewerAvatar && <Image src={r.reviewerAvatar} alt={r.reviewerName} fill className="object-cover" />}
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center justify-between gap-2">
                     <p className="font-bold text-[#102F4F] flex items-center gap-1.5">
                       {r.reviewerName}
-                      <i className="fa-solid fa-circle-check text-[#168BE0] text-xs" aria-hidden="true" />
+                      <i className="fa-solid fa-circle-check text-brand-blue text-xs" aria-hidden="true" />
                     </p>
                     <span className="flex items-center gap-1.5 shrink-0">
                       <span className="text-[#FFB91D] text-xs">

@@ -16,7 +16,7 @@ export default function StayOverviewSidebar({
 }) {
   return (
     <div className="space-y-4">
-      <div className="bg-[#EFF8FF] rounded-2xl p-5">
+      <div className="bg-brand-sky rounded-2xl p-5">
         <p className="font-bold text-[#102F4F] mb-3">Vị trí tuyệt vời</p>
         <div className="relative h-28 rounded-xl overflow-hidden bg-white mb-3">
           {mapEmbedUrl ? (
@@ -29,7 +29,7 @@ export default function StayOverviewSidebar({
             />
           ) : (
             <>
-              <div className="absolute inset-0 flex items-center justify-center text-[#168BE0]/25">
+              <div className="absolute inset-0 flex items-center justify-center text-brand-blue/25">
                 <i className="fa-solid fa-map-location-dot text-3xl" aria-hidden="true" />
               </div>
               <i className="fa-solid fa-location-dot text-[#EF4444] absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-2xl drop-shadow" aria-hidden="true" />
@@ -38,10 +38,10 @@ export default function StayOverviewSidebar({
         </div>
         {distanceToBeachM != null && (
           <p className="flex items-center gap-2 text-sm text-[#334D66] mb-1.5">
-            <i className="fa-solid fa-umbrella-beach text-[#168BE0] w-4" aria-hidden="true" /> {distanceToBeachM}m đến bãi biển
+            <i className="fa-solid fa-umbrella-beach text-brand-blue w-4" aria-hidden="true" /> {distanceToBeachM}m đến bãi biển
           </p>
         )}
-        <Link href="/luu-tru#kham-pha-phan-thiet" className="text-sm font-semibold text-[#168BE0] hover:underline">
+        <Link href="/luu-tru#kham-pha-phan-thiet" className="text-sm font-semibold text-brand-blue hover:underline">
           Xem thêm địa điểm gần đây
         </Link>
       </div>
@@ -51,7 +51,7 @@ export default function StayOverviewSidebar({
         <div className="space-y-3">
           {WHY_US.map((w) => (
             <div key={w.title} className="flex items-start gap-3">
-              <span className="w-9 h-9 rounded-lg bg-[#EEF8FF] text-[#168BE0] flex items-center justify-center shrink-0">
+              <span className="w-9 h-9 rounded-lg bg-brand-sky text-brand-blue flex items-center justify-center shrink-0">
                 <i className={w.icon} aria-hidden="true" />
               </span>
               <div>

@@ -155,7 +155,7 @@ export default async function AdminStayPage({ searchParams }: { searchParams: Pr
                       </Link>
                       <Link
                         href={`/admin/places/${s.id}`}
-                        className="text-brand-blue hover:bg-sky-50 rounded-lg px-2.5 py-1.5 text-xs font-bold transition"
+                        className="text-brand-blue hover:bg-brand-tint rounded-lg px-2.5 py-1.5 text-xs font-bold transition"
                       >
                         Quản lý
                       </Link>

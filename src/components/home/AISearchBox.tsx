@@ -125,7 +125,7 @@ export default function AISearchBox() {
                 setValue(q);
                 runSearch(q);
               }}
-              className="shrink-0 snap-start whitespace-nowrap text-xs sm:text-[13px] font-semibold text-brand-blue bg-white border border-sky-200 rounded-full px-3 py-1.5 hover:bg-sky-50 transition-colors"
+              className="shrink-0 snap-start whitespace-nowrap text-xs sm:text-[13px] font-semibold text-brand-blue bg-white border border-brand-blueMid rounded-full px-3 py-1.5 hover:bg-brand-tint transition-colors"
             >
               {q}
             </button>

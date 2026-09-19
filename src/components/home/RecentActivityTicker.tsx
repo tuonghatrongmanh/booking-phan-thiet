@@ -78,7 +78,7 @@ export default function RecentActivityTicker({ items }: { items: ActivityItem[] 
     >
       <div
         key={item.id}
-        className="flex items-center gap-3 bg-gradient-to-br from-sky-50 to-white rounded-2xl shadow-2xl border border-sky-200 px-4 py-3"
+        className="flex items-center gap-3 bg-gradient-to-br from-brand-tint to-white rounded-2xl shadow-2xl border border-brand-blueMid px-4 py-3"
       >
         <span className="relative shrink-0 w-10 h-10 rounded-full overflow-hidden ring-2 ring-brand-blue/40">
           <Image src={item.avatar} alt="" fill className="object-cover" />

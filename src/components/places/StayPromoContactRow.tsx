@@ -17,8 +17,8 @@ export default function StayPromoContactRow({ phone, zaloUrl }: { phone: string 
         <p className="text-xs font-semibold text-[#8298AE]">Liên hệ với chỗ nghỉ</p>
         <div className="flex items-center gap-3">
           {phone && (
-            <a href={`tel:${phone}`} className="flex items-center gap-2 text-sm font-bold text-[#102F4F] hover:text-[#168BE0] transition">
-              <i className="fa-solid fa-phone text-[#168BE0]" aria-hidden="true" /> {phone}
+            <a href={`tel:${phone}`} className="flex items-center gap-2 text-sm font-bold text-[#102F4F] hover:text-brand-blue transition">
+              <i className="fa-solid fa-phone text-brand-blue" aria-hidden="true" /> {phone}
             </a>
           )}
           {zaloUrl && (
@@ -26,7 +26,7 @@ export default function StayPromoContactRow({ phone, zaloUrl }: { phone: string 
               href={zaloUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-1.5 text-sm font-bold text-[#168BE0] hover:underline"
+              className="flex items-center gap-1.5 text-sm font-bold text-brand-blue hover:underline"
             >
               <i className="fa-solid fa-comment-sms" aria-hidden="true" /> Nhắn tin qua Zalo
             </a>

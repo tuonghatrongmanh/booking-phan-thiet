@@ -17,7 +17,7 @@ const ICON_OPTIONS = [
   { value: "fa-solid fa-tag", label: "Khuyến mãi" },
 ];
 
-const BADGE_COLORS = ["#1a6fc4", "#f5821f", "#1ea34c", "#8b5ce0", "#0f9488", "#ffc72c", "#e8483a"];
+const BADGE_COLORS = ["#003b95", "#f5821f", "#1ea34c", "#8b5ce0", "#0f9488", "#ffc72c", "#e8483a"];
 
 type HeroTileInitial = {
   id?: string;

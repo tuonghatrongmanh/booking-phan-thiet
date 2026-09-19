@@ -17,7 +17,7 @@ export default function AttractionCard({ attraction }: { attraction: AttractionC
       href={`/diem-tham-quan/${attraction.id}`}
       className="group bg-white rounded-2xl shadow-card overflow-hidden hover:shadow-lg hover:-translate-y-0.5 transition-all"
     >
-      <div className="relative aspect-4/3 bg-gradient-to-br from-brand-sky to-sky-100">
+      <div className="relative aspect-4/3 bg-gradient-to-br from-brand-sky to-brand-sky">
         {attraction.avatar ? (
           <Image src={attraction.avatar} alt={attraction.name} fill className="object-cover group-hover:scale-105 transition-transform duration-300" />
         ) : (

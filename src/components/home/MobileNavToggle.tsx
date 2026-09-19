@@ -57,9 +57,9 @@ export default function MobileNavToggle() {
           <Image
             src="/images/logo.png"
             alt="Booking Phan Thiết"
-            width={120}
-            height={120}
-            className="w-14 h-auto object-contain select-none"
+            width={200}
+            height={58}
+            className="w-[128px] h-auto object-contain select-none"
           />
           <button
             type="button"

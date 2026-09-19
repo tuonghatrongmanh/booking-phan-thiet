@@ -18,8 +18,8 @@ type Props = {
 const SEGMENT_COUNT = 8;
 const SEGMENT_ANGLE = 360 / SEGMENT_COUNT;
 const SPIN_DURATION_MS = 4000;
-const COLORS = ["#FFC928", "#25A9E8", "#FF9F1C", "#1689D8"];
-const CONFETTI_COLORS = ["#FFC928", "#FF9F1C", "#25A9E8", "#1689D8", "#fff"];
+const COLORS = ["#FFC928", "var(--theme-primary-light)", "#FF9F1C", "var(--theme-primary)"];
+const CONFETTI_COLORS = ["#FFC928", "#FF9F1C", "var(--theme-primary-light)", "var(--theme-primary)", "#fff"];
 
 type Confetti = { id: number; dx: number; dy: number; color: string; size: number };
 
@@ -86,7 +86,7 @@ export default function WheelGame({ slug, gameName, coinMin, coinMax, dailyLimit
     <div className="relative bg-white rounded-[24px] shadow-game-cardHover p-6 sm:p-10 max-w-3xl mx-auto text-center overflow-hidden">
       <div
         className="absolute -top-20 left-1/2 -translate-x-1/2 w-[420px] h-[420px] rounded-full pointer-events-none"
-        style={{ background: "radial-gradient(circle, rgba(37,169,232,0.12), transparent 70%)" }}
+        style={{ background: "radial-gradient(circle, rgba(0,59,149,0.12), transparent 70%)" }}
         aria-hidden="true"
       />
 
@@ -107,7 +107,7 @@ export default function WheelGame({ slug, gameName, coinMin, coinMax, dailyLimit
         >
           <div
             className="w-0 h-0 mx-auto"
-            style={{ borderLeft: "16px solid transparent", borderRight: "16px solid transparent", borderTop: "26px solid #08345F" }}
+            style={{ borderLeft: "16px solid transparent", borderRight: "16px solid transparent", borderTop: "26px solid var(--theme-footer)" }}
           />
           <div className="w-4 h-4 rounded-full bg-game-navy mx-auto -mt-1" />
         </div>
@@ -169,7 +169,7 @@ export default function WheelGame({ slug, gameName, coinMin, coinMax, dailyLimit
           <span
             ref={giftIconRef}
             className="w-16 h-16 rounded-full bg-white shadow-lg flex items-center justify-center text-game-primary text-2xl ring-4 ring-game-yellow"
-            style={{ background: "radial-gradient(circle at 35% 30%, #fff, #EAF7FF)" }}
+            style={{ background: "radial-gradient(circle at 35% 30%, #fff, var(--theme-primary-soft))" }}
           >
             <i className="fa-solid fa-gift" aria-hidden="true" />
           </span>

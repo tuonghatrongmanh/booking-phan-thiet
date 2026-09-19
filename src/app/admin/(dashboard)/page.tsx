@@ -78,11 +78,11 @@ export default async function AdminDashboardPage({ searchParams }: { searchParam
   const errorRate = totalRequests > 0 ? (errorCount / totalRequests) * 100 : 0;
 
   const kpiCards = [
-    { label: "Bài viết tin tức", value: newsCount, previousValue: newsCountPrev, href: "/admin/news", icon: "fa-solid fa-newspaper", iconColor: "text-brand-blue", iconBg: "bg-sky-50" },
+    { label: "Bài viết tin tức", value: newsCount, previousValue: newsCountPrev, href: "/admin/news", icon: "fa-solid fa-newspaper", iconColor: "text-brand-blue", iconBg: "bg-brand-tint" },
     { label: "Sale đang chạy", value: saleCount, previousValue: saleCountPrev, href: "/admin/sales", icon: "fa-solid fa-tag", iconColor: "text-brand-green", iconBg: "bg-brand-greenBg" },
     { label: "Địa điểm quản lý", value: placeCount, previousValue: placeCountPrev, href: "/admin/places", icon: "fa-solid fa-location-dot", iconColor: "text-brand-orange", iconBg: "bg-amber-50" },
     { label: "Tổng đánh giá", value: reviewCount, previousValue: reviewCountPrev, href: "/admin/reviews", icon: "fa-solid fa-star", iconColor: "text-brand-purple", iconBg: "bg-brand-purpleBg" },
-    { label: "Thành viên", value: userCount, previousValue: userCountPrev, href: "/admin/users", icon: "fa-solid fa-users", iconColor: "text-brand-blue", iconBg: "bg-sky-50" },
+    { label: "Thành viên", value: userCount, previousValue: userCountPrev, href: "/admin/users", icon: "fa-solid fa-users", iconColor: "text-brand-blue", iconBg: "bg-brand-tint" },
     { label: "Bài đăng diễn đàn", value: forumPostCount, previousValue: forumPostCountPrev, href: "/admin/forum", icon: "fa-solid fa-comments", iconColor: "text-brand-green", iconBg: "bg-brand-greenBg" },
     { label: "Bình luận diễn đàn", value: forumCommentCount, previousValue: forumCommentCountPrev, href: "/admin/forum-comments", icon: "fa-solid fa-comment-dots", iconColor: "text-brand-orange", iconBg: "bg-amber-50" },
     {
@@ -97,7 +97,7 @@ export default async function AdminDashboardPage({ searchParams }: { searchParam
   ];
 
   const securityCards = [
-    { label: "Lượt truy cập", value: visits, previousValue: visitsPrev, icon: "fa-solid fa-eye", iconColor: "text-brand-blue", iconBg: "bg-sky-50" },
+    { label: "Lượt truy cập", value: visits, previousValue: visitsPrev, icon: "fa-solid fa-eye", iconColor: "text-brand-blue", iconBg: "bg-brand-tint" },
     { label: "Đang online (5 phút)", value: onlineIps.length, icon: "fa-solid fa-circle text-[8px]", iconColor: "text-brand-green", iconBg: "bg-brand-greenBg" },
     { label: "IP duy nhất", value: uniqueIps.length, icon: "fa-solid fa-user", iconColor: "text-brand-purple", iconBg: "bg-brand-purpleBg" },
     {
@@ -122,13 +122,13 @@ export default async function AdminDashboardPage({ searchParams }: { searchParam
           <Link href="/admin/news/new" className="flex items-center gap-1.5 bg-brand-blue hover:brightness-95 transition text-white text-sm font-bold rounded-lg px-4 py-2">
             <i className="fa-solid fa-plus text-xs" aria-hidden="true" /> Thêm bài viết
           </Link>
-          <Link href="/admin/places/new" className="flex items-center gap-1.5 border border-sky-200 text-brand-blue hover:bg-sky-50 transition text-sm font-bold rounded-lg px-4 py-2">
+          <Link href="/admin/places/new" className="flex items-center gap-1.5 border border-brand-blueMid text-brand-blue hover:bg-brand-tint transition text-sm font-bold rounded-lg px-4 py-2">
             <i className="fa-solid fa-plus text-xs" aria-hidden="true" /> Thêm địa điểm
           </Link>
-          <Link href="/admin/sales" className="flex items-center gap-1.5 border border-sky-200 text-brand-blue hover:bg-sky-50 transition text-sm font-bold rounded-lg px-4 py-2">
+          <Link href="/admin/sales" className="flex items-center gap-1.5 border border-brand-blueMid text-brand-blue hover:bg-brand-tint transition text-sm font-bold rounded-lg px-4 py-2">
             <i className="fa-solid fa-tag text-xs" aria-hidden="true" /> Quản lý sale
           </Link>
-          <a href="#hoat-dong" className="flex items-center gap-1.5 border border-sky-200 text-brand-blue hover:bg-sky-50 transition text-sm font-bold rounded-lg px-4 py-2">
+          <a href="#hoat-dong" className="flex items-center gap-1.5 border border-brand-blueMid text-brand-blue hover:bg-brand-tint transition text-sm font-bold rounded-lg px-4 py-2">
             <i className="fa-solid fa-list text-xs" aria-hidden="true" /> Xem log
           </a>
         </div>

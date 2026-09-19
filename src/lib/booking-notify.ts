@@ -67,7 +67,7 @@ export function notifyAdminReportedPaid(b: BookingSummary, note?: string | null)
 
 function emailShell(title: string, bodyHtml: string): string {
   return `<div style="font-family:Arial,sans-serif;max-width:520px;margin:0 auto;padding:20px;color:#1e293b">
-<h2 style="color:#1678C8;margin:0 0 12px">${esc(title)}</h2>
+<h2 style="color:#003B95;margin:0 0 12px">${esc(title)}</h2>
 ${bodyHtml}
 <p style="color:#94a3b8;font-size:12px;margin-top:24px">Booking Phan Thiết - ${esc(SITE_URL.replace(/^https?:\/\//, ""))}</p>
 </div>`;
@@ -86,7 +86,7 @@ ${b.depositRef ? row("Mã đơn / nội dung CK", esc(b.depositRef)) : ""}
 }
 
 function trackLink(b: BookingSummary): string {
-  return `<p><a href="${trackingUrl(b.depositRef)}" style="color:#1678C8">Tra cứu trạng thái đơn</a></p>`;
+  return `<p><a href="${trackingUrl(b.depositRef)}" style="color:#003B95">Tra cứu trạng thái đơn</a></p>`;
 }
 
 export async function emailBookingReceived(b: BookingSummary) {

@@ -62,7 +62,7 @@ export default async function AdminStaffPage() {
                   <td className="px-5 py-3 text-right">
                     <Link
                       href={`/admin/staff/${s.id}`}
-                      className="text-brand-blue hover:bg-sky-50 rounded-lg px-2.5 py-1.5 text-xs font-bold transition"
+                      className="text-brand-blue hover:bg-brand-tint rounded-lg px-2.5 py-1.5 text-xs font-bold transition"
                     >
                       Quản lý quyền & hoạt động
                     </Link>

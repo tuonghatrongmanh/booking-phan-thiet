@@ -64,7 +64,7 @@ export default function MediaUploader({
           <i className={`fa-solid ${uploading ? "fa-spinner fa-spin" : "fa-photo-film"}`} aria-hidden="true" />
         </label>
       ) : (
-        <label className="inline-flex items-center gap-2 cursor-pointer text-sm font-semibold text-brand-blue border border-sky-200 bg-sky-50 hover:bg-sky-100 rounded-lg px-3 py-2 transition">
+        <label className="inline-flex items-center gap-2 cursor-pointer text-sm font-semibold text-brand-blue border border-brand-blueMid bg-brand-tint hover:bg-brand-sky rounded-lg px-3 py-2 transition">
           {input}
           <i className="fa-solid fa-photo-film" aria-hidden="true" />
           {uploading ? "Đang tải lên..." : "Ảnh / Video"}

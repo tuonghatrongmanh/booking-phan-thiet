@@ -18,10 +18,10 @@ export default function NewsCoverImage({ src, alt, fit = "contain" }: { src: str
 
   if (broken) {
     return (
-      <div className="absolute inset-0 bg-gradient-to-br from-brand-sky to-sky-200 flex items-center justify-center">
-        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#1a6fc4" strokeWidth="1.6" opacity="0.6">
+      <div className="absolute inset-0 bg-gradient-to-br from-brand-sky to-brand-blueMid flex items-center justify-center">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--theme-primary)" strokeWidth="1.6" opacity="0.6">
           <rect x="3" y="4" width="18" height="16" rx="2" />
-          <circle cx="8.5" cy="9.5" r="1.5" fill="#1a6fc4" stroke="none" />
+          <circle cx="8.5" cy="9.5" r="1.5" fill="var(--theme-primary)" stroke="none" />
           <path d="M21 16l-5.5-5.5a1.5 1.5 0 0 0-2.12 0L4 19" />
         </svg>
       </div>

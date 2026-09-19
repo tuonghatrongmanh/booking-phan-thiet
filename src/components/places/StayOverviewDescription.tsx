@@ -21,7 +21,7 @@ export default function StayOverviewDescription({ description }: { description: 
         <button
           type="button"
           onClick={() => setExpanded((e) => !e)}
-          className="text-sm font-bold text-[#168BE0] hover:underline mt-1.5 flex items-center gap-1"
+          className="text-sm font-bold text-brand-blue hover:underline mt-1.5 flex items-center gap-1"
         >
           {expanded ? "Thu gọn" : "Xem thêm"}
           <i className={`fa-solid fa-chevron-down text-xs transition-transform ${expanded ? "rotate-180" : ""}`} aria-hidden="true" />

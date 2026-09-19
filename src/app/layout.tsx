@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import PopupModal from "@/components/home/PopupModal";
 import SaleStandingGate from "@/components/home/SaleStandingGate";
@@ -14,9 +14,12 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: settings.homeSeoTitle,
     description: settings.homeSeoDescription,
-    icons: { icon: settings.faviconUrl },
+    icons: { icon: settings.faviconUrl, apple: "/images/apple-touch-icon.png" },
   };
 }
+
+// Màu thanh trình duyệt trên điện thoại = màu thương hiệu
+export const viewport: Viewport = { themeColor: "#003b95" };
 
 export default function RootLayout({
   children,

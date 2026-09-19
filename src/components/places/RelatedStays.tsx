@@ -51,7 +51,7 @@ export default function RelatedStays({ items }: { items: RelatedStay[] }) {
             {p.priceFromVnd != null && (
               <p className="mt-1.5">
                 <span className="text-[11px] text-[#8298AE]">Từ </span>
-                <span className="font-extrabold text-[#1678C8]">{formatPriceVnd(p.priceFromVnd)}</span>
+                <span className="font-extrabold text-brand-blue">{formatPriceVnd(p.priceFromVnd)}</span>
                 <span className="text-[11px] text-[#8298AE]"> / đêm</span>
               </p>
             )}

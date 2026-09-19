@@ -167,7 +167,7 @@ export default function StayGallery({
         )}
 
         {isTrusted && (
-          <span className="absolute top-4 left-4 inline-flex items-center gap-1.5 text-xs font-bold text-white bg-[#168BE0]/95 px-3 py-1.5 rounded-full shadow">
+          <span className="absolute top-4 left-4 inline-flex items-center gap-1.5 text-xs font-bold text-white bg-brand-blue/95 px-3 py-1.5 rounded-full shadow">
             <i className="fa-solid fa-shield-check" aria-hidden="true" /> Uy tín
           </span>
         )}

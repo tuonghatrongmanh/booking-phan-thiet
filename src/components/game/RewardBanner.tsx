@@ -7,14 +7,14 @@ function TreasureScene() {
     <svg className="absolute inset-0 w-full h-full" viewBox="0 0 1200 300" preserveAspectRatio="none" aria-hidden="true">
       <defs>
         <linearGradient id="rbBg" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#1689d8" />
-          <stop offset="100%" stopColor="#08345f" />
+          <stop offset="0%" stopColor="var(--theme-primary)" />
+          <stop offset="100%" stopColor="var(--theme-footer)" />
         </linearGradient>
       </defs>
       <rect width="1200" height="300" fill="url(#rbBg)" />
 
-      <path d="M0 210 Q150 190 300 210 T600 205 T900 212 T1200 205 V300 H0 Z" fill="#25a9e8" opacity="0.35" />
-      <path d="M0 230 Q200 215 400 230 T800 226 T1200 230 V300 H0 Z" fill="#0e6fb8" opacity="0.5" />
+      <path d="M0 210 Q150 190 300 210 T600 205 T900 212 T1200 205 V300 H0 Z" fill="var(--theme-primary-light)" opacity="0.35" />
+      <path d="M0 230 Q200 215 400 230 T800 226 T1200 230 V300 H0 Z" fill="var(--theme-primary-dark)" opacity="0.5" />
 
       <g transform="translate(60,300)" fill="#0f7a3d" opacity="0.9">
         <path d="M0 0 C-38 -55 -16 -125 38 -152 C10 -98 10 -42 26 -6 Z" />
@@ -36,9 +36,9 @@ function TreasureScene() {
       <g transform="translate(330,200) rotate(-8)">
         <rect x="0" y="0" width="70" height="42" rx="6" fill="#fff" />
         <rect x="0" y="0" width="70" height="42" rx="6" fill="none" stroke="#FFC928" strokeWidth="2" strokeDasharray="4 3" />
-        <circle cx="0" cy="21" r="5" fill="#08345f" />
-        <circle cx="70" cy="21" r="5" fill="#08345f" />
-        <text x="35" y="26" textAnchor="middle" fontSize="14" fontWeight="800" fill="#1689d8">%</text>
+        <circle cx="0" cy="21" r="5" fill="var(--theme-footer)" />
+        <circle cx="70" cy="21" r="5" fill="var(--theme-footer)" />
+        <text x="35" y="26" textAnchor="middle" fontSize="14" fontWeight="800" fill="var(--theme-primary)">%</text>
       </g>
     </svg>
   );

@@ -77,9 +77,9 @@ export default function ActivitySampleForm({ initial }: { initial?: Initial }) {
 
   return (
     <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-card p-6 space-y-5 max-w-2xl">
-      <div className="bg-sky-50 border border-sky-100 rounded-xl p-4">
+      <div className="bg-brand-tint border border-brand-sky rounded-xl p-4">
         <p className="text-sm font-semibold text-slate-700 mb-1">Xem trước</p>
-        <div className="flex items-center gap-3 bg-white rounded-2xl shadow-md border border-sky-100 px-4 py-3 max-w-sm">
+        <div className="flex items-center gap-3 bg-white rounded-2xl shadow-md border border-brand-sky px-4 py-3 max-w-sm">
           <span className="relative shrink-0 w-10 h-10 rounded-full overflow-hidden ring-2 ring-brand-sky bg-slate-100">
             {avatar && <img src={avatar} alt="" className="w-full h-full object-cover" />}
           </span>

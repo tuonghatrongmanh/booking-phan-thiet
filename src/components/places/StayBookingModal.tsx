@@ -256,7 +256,7 @@ export default function StayBookingModal({
                           setOptionId(o.id);
                           setQuantity(1);
                         }}
-                        className="accent-[#1678C8]"
+                        className="accent-brand-blue"
                       />
                       <span className="flex-1 min-w-0">
                         <span className="block text-sm font-bold text-slate-800">{o.label}</span>

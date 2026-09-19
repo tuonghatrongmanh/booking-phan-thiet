@@ -81,7 +81,7 @@ export default function FishingGame({ slug, gameName, dailyLimit, initialBalance
 
       <div
         className="relative w-full h-64 rounded-2xl overflow-hidden mb-5 flex items-center justify-center"
-        style={{ background: "linear-gradient(180deg, #eaf6fd, #a9d7f2)" }}
+        style={{ background: "linear-gradient(180deg, var(--theme-primary-soft), var(--theme-primary-mid))" }}
       >
         <div className="absolute top-3 left-3 bg-white/90 rounded-full px-3 py-1 text-xs font-bold text-brand-blue">
           Lượt thả: {castsUsed}/{MAX_CASTS}

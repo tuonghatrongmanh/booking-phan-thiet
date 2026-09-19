@@ -53,7 +53,7 @@ export default async function PlaceDetailView({
 
       <section className="container-custom py-8 max-w-3xl">
         <div className="bg-white rounded-2xl shadow-card overflow-hidden">
-          <div className="relative h-56 sm:h-72 bg-gradient-to-br from-sky-200 to-blue-400">
+          <div className="relative h-56 sm:h-72 bg-gradient-to-br from-brand-blueMid to-brand-blueLight">
             {place.images[0] && <Image src={place.images[0].url} alt={place.name} fill className="object-cover" />}
             <span
               className={`absolute top-4 left-4 inline-flex items-center gap-1.5 text-xs font-bold text-white ${statusInfo.bg} px-3 py-1.5 rounded-full shadow`}

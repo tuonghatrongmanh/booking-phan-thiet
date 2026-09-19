@@ -132,7 +132,7 @@ export default function TrafficChart({ onSummaryChange }: { onSummaryChange?: (t
               </g>
             ))}
 
-            <path d={visitsPath} fill="none" stroke="var(--color-brand-blue, #1a6fc4)" strokeWidth={2} />
+            <path d={visitsPath} fill="none" stroke="var(--color-brand-blue, var(--theme-primary))" strokeWidth={2} />
             <path d={ipsPath} fill="none" stroke="var(--color-brand-green, #1ea34c)" strokeWidth={2} strokeDasharray="4 3" />
 
             {data.map((p, i) =>
@@ -146,7 +146,7 @@ export default function TrafficChart({ onSummaryChange }: { onSummaryChange?: (t
             {hoverIdx !== null && (
               <>
                 <line x1={xAt(hoverIdx)} x2={xAt(hoverIdx)} y1={PADDING_TOP} y2={PADDING_TOP + plotHeight} stroke="#CBD5E1" strokeWidth={1} />
-                <circle cx={xAt(hoverIdx)} cy={yAt(data[hoverIdx].visits)} r={3.5} fill="#1a6fc4" />
+                <circle cx={xAt(hoverIdx)} cy={yAt(data[hoverIdx].visits)} r={3.5} fill="var(--theme-primary)" />
                 <circle cx={xAt(hoverIdx)} cy={yAt(data[hoverIdx].uniqueIps)} r={3.5} fill="#1ea34c" />
               </>
             )}

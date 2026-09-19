@@ -122,7 +122,7 @@ export default function SaleStandingManager({ placeId, standing }: { placeId: st
           </div>
 
           {standing.appealStatus === "PENDING" && (
-            <div className="bg-brand-sky/30 border border-sky-200 rounded-xl p-4 space-y-3">
+            <div className="bg-brand-sky/30 border border-brand-blueMid rounded-xl p-4 space-y-3">
               <p className="text-xs font-bold text-brand-blue">Khiếu nại từ Sale (đang chờ xử lý)</p>
               <p className="text-sm text-slate-700 whitespace-pre-line">{standing.appealText}</p>
               <input

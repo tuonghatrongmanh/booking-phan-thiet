@@ -50,7 +50,7 @@ export const POST_TYPES = {
 export type PostTypeKey = keyof typeof POST_TYPES;
 
 export const REACTION_ICONS: Record<string, { icon: string; label: string; color: string }> = {
-  LIKE: { icon: "fa-solid fa-thumbs-up", label: "Thích", color: "#1a6fc4" },
+  LIKE: { icon: "fa-solid fa-thumbs-up", label: "Thích", color: "var(--theme-primary)" },
   LOVE: { icon: "fa-solid fa-heart", label: "Yêu thích", color: "#e8483a" },
   HAHA: { icon: "fa-solid fa-face-laugh-beam", label: "Haha", color: "#ffc72c" },
   WOW: { icon: "fa-solid fa-face-surprise", label: "Wow", color: "#ffc72c" },

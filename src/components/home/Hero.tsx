@@ -3,10 +3,10 @@ import { prisma } from "@/lib/prisma";
 import AISearchBox from "./AISearchBox";
 
 const TRUST_BADGES = [
-  { id: "hero.badge1", icon: "fa-solid fa-location-dot", label: "Mã thật – Giảm thật", badge: "bg-blue-500" },
+  { id: "hero.badge1", icon: "fa-solid fa-location-dot", label: "Mã thật – Giảm thật", badge: "bg-brand-blueLight" },
   { id: "hero.badge2", icon: "fa-solid fa-tags", label: "Tiết kiệm đến 50%", badge: "bg-amber-500" },
-  { id: "hero.badge3", icon: "fa-solid fa-clock", label: "Cập nhật mỗi ngày", badge: "bg-blue-500" },
-  { id: "hero.badge4", icon: "fa-solid fa-headset", label: "Hỗ trợ 24/7", badge: "bg-blue-500" },
+  { id: "hero.badge3", icon: "fa-solid fa-clock", label: "Cập nhật mỗi ngày", badge: "bg-brand-blueLight" },
+  { id: "hero.badge4", icon: "fa-solid fa-headset", label: "Hỗ trợ 24/7", badge: "bg-brand-blueLight" },
 ];
 
 type Tile = {
@@ -140,7 +140,7 @@ export default async function Hero() {
               />
               <div className="absolute left-[29%] top-[63%] w-[42%] aspect-[15/4.2]">
                 {/* lớp nền tĩnh phủ kín vị trí nút gốc, để khi nút động nhấp nhô không lộ ảnh cũ bên dưới */}
-                <div className="absolute -inset-1 rounded-full bg-[#0b1f4d]" />
+                <div className="absolute -inset-1 rounded-full bg-brand-footer" />
                 <button
                   className="absolute inset-0 rounded-full overflow-hidden animate-gem-bounce hover:brightness-110 active:scale-95 transition"
                   aria-label="Chơi ngay"

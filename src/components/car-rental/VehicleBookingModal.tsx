@@ -328,12 +328,12 @@ export default function VehicleBookingModal({ vehicle, onClose }: { vehicle: Veh
                   <span className="font-semibold text-slate-700">{quantity} xe</span>
                 </div>
               )}
-              <div className="flex items-center justify-between pt-1.5 border-t border-sky-100">
+              <div className="flex items-center justify-between pt-1.5 border-t border-brand-sky">
                 <span className="font-bold text-slate-700">Tạm tính</span>
                 <span className="font-extrabold text-brand-blue text-lg">{formatVnd(total)}</span>
               </div>
               {vehicle.depositEnabled && (
-                <div className="flex items-center justify-between text-sm pt-1.5 border-t border-sky-100">
+                <div className="flex items-center justify-between text-sm pt-1.5 border-t border-brand-sky">
                   <span className="text-slate-500">
                     Cọc giữ chỗ ({formatVnd(vehicle.depositVnd)}
                     {quantity > 1 ? " x " + quantity + " xe" : ""})

@@ -37,7 +37,7 @@ export default function StaySubNav({ reviewCount }: { reviewCount: number }) {
   }
 
   return (
-    <nav className="sticky top-[72px] z-30 bg-white border border-[#E5EDF5] rounded-2xl shadow-[0_4px_20px_rgba(15,76,129,0.06)] px-2">
+    <nav className="sticky top-[72px] z-30 bg-white border border-[#E5EDF5] rounded-2xl shadow-[0_4px_20px_rgba(0,59,149,0.06)] px-2">
       <div className="flex items-center gap-1 overflow-x-auto scrollbar-none">
         {TABS.map((t) => (
           <a
@@ -45,7 +45,7 @@ export default function StaySubNav({ reviewCount }: { reviewCount: number }) {
             href={`#${t.id}`}
             onClick={(e) => scrollTo(t.id, e)}
             className={`shrink-0 px-4 py-3.5 text-sm font-semibold border-b-2 transition-colors ${
-              active === t.id ? "text-[#168BE0] border-[#168BE0]" : "text-[#5F7894] border-transparent hover:text-[#168BE0]"
+              active === t.id ? "text-brand-blue border-brand-blue" : "text-[#5F7894] border-transparent hover:text-brand-blue"
             }`}
           >
             {t.label}

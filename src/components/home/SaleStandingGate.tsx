@@ -96,7 +96,7 @@ export default function SaleStandingGate() {
         )}
 
         {justSubmitted || hasPendingAppeal ? (
-          <div className="bg-brand-sky/30 border border-sky-200 rounded-xl p-3 text-sm text-brand-blue font-semibold">
+          <div className="bg-brand-sky/30 border border-brand-blueMid rounded-xl p-3 text-sm text-brand-blue font-semibold">
             Đã gửi khiếu nại, đang chờ SuperAdmin xem xét.
           </div>
         ) : (

@@ -39,7 +39,7 @@ export default function AdminRankEditor({
       <button
         onClick={save}
         disabled={saving}
-        className="text-xs font-bold text-brand-blue hover:bg-sky-50 rounded-lg px-2 py-1 transition disabled:opacity-50"
+        className="text-xs font-bold text-brand-blue hover:bg-brand-tint rounded-lg px-2 py-1 transition disabled:opacity-50"
       >
         {saving ? "..." : "Ghim"}
       </button>

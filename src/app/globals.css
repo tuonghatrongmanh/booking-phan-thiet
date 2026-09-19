@@ -3,6 +3,24 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+
+  /* ===== Bảng màu thương hiệu (theme) - MÀU GỐC #003B95 =====
+     Toàn bộ site dùng các biến này (qua token Tailwind brand-*, food-*, game-*, promo-*),
+     nên đổi giao diện theo mùa lễ hội (Tết, Trung thu...) chỉ cần ghi đè các biến --theme-*
+     trên <html> (xem mục "Giao diện theo dịp lễ" trong admin), không phải sửa từng component. */
+  --theme-primary: #003b95; /* nút chính, liên kết, tiêu đề nhấn */
+  --theme-primary-dark: #002a6b; /* hover / đáy gradient */
+  --theme-primary-light: #1f5fcf; /* đầu gradient nút, điểm nhấn sáng */
+  --theme-primary-mid: #c8d8f2; /* viền/nền nhạt vừa */
+  --theme-primary-soft: #e8f0fb; /* nền nhạt (thẻ, badge) */
+  --theme-primary-tint: #f4f8fd; /* nền rất nhạt */
+  --theme-footer: #001c4d; /* footer + nền tối */
+  --theme-hero-from: #d3e2f7;
+  --theme-hero-via: #e8f0fb;
+  --theme-hero-to: #f7faff;
+  --theme-navbar-from: #002a70;
+  --theme-navbar-via: #003b95;
+  --theme-navbar-to: #0a4fb8;
 }
 
 /* Cuon muot cho moi lien ket dang "#anchor" toan site (VD: nut "Kham pha ngay" o
@@ -26,12 +44,15 @@ html {
   --font-script: "Caveat", cursive;
 
   /* Bảng màu lấy từ thiết kế gốc (index.html) */
-  --color-navy-deep: #0b3d6e;
-  --color-navy-DEFAULT: #0f4c8c;
+  --color-navy-deep: var(--theme-primary-dark);
+  --color-navy-DEFAULT: var(--theme-primary);
 
-  --color-brand-blue: #1a6fc4;
-  --color-brand-blueLight: #2f8fe0;
-  --color-brand-sky: #eaf6fd;
+  --color-brand-blue: var(--theme-primary);
+  --color-brand-blueLight: var(--theme-primary-light);
+  --color-brand-blueDark: var(--theme-primary-dark);
+  --color-brand-blueMid: var(--theme-primary-mid);
+  --color-brand-tint: var(--theme-primary-tint);
+  --color-brand-sky: var(--theme-primary-soft);
   --color-brand-orange: #f5821f;
   --color-brand-gold: #ffc72c;
   --color-brand-green: #1ea34c;
@@ -40,14 +61,14 @@ html {
   --color-brand-redBg: #fdeaea;
   --color-brand-purple: #8b5ce0;
   --color-brand-purpleBg: #f1eafd;
-  --color-brand-footer: #0a2c52;
+  --color-brand-footer: var(--theme-footer);
 
   /* Bang mau rieng cho trang Am thuc (food discovery) - theo dung spec duoc cung cap,
      tach ten rieng (food-*) de khong lam doi mau brand-blue dang dung cho ca site. */
-  --color-food-primary: #087ff5;
-  --color-food-dark: #063b78;
-  --color-food-navy: #062f5f;
-  --color-food-light: #eaf7ff;
+  --color-food-primary: var(--theme-primary);
+  --color-food-dark: var(--theme-primary-dark);
+  --color-food-navy: var(--theme-footer);
+  --color-food-light: var(--theme-primary-soft);
   --color-food-bg: #f7fafc;
   --color-food-text: #14213d;
   --color-food-textMuted: #6b7a90;
@@ -58,16 +79,16 @@ html {
   /* Bang mau rieng cho section "Khuyen mai hot" (PromotionsSection) - phong cach
      travel/resort cao cap theo spec rieng, tach namespace (promo-*) giong cach lam
      voi food-* de khong anh huong brand-* dung chung toan site. */
-  --color-promo-oceanPrimary: #0077b6;
-  --color-promo-oceanDeep: #023e8a;
-  --color-promo-navyDark: #061a2e;
-  --color-promo-oceanLight: #e8f7fc;
-  --color-promo-sky: #f3fafd;
+  --color-promo-oceanPrimary: var(--theme-primary);
+  --color-promo-oceanDeep: var(--theme-primary-dark);
+  --color-promo-navyDark: var(--theme-footer);
+  --color-promo-oceanLight: var(--theme-primary-soft);
+  --color-promo-sky: var(--theme-primary-tint);
   --color-promo-text: #102a43;
   --color-promo-textMuted: #6b7c93;
   --color-promo-accent: #ff6b35;
 
-  --shadow-card: 0 10px 30px -12px rgba(15, 76, 140, 0.18);
+  --shadow-card: 0 10px 30px -12px rgba(0,59,149, 0.18);
 
   /* Bang mau rieng cho trang Blog (/tin-tuc) - phong cach "Tropical Coastal" theo
      spec rieng (xanh bien + xanh la + trang, bo goc lon), tach namespace (blog-*)
@@ -91,19 +112,19 @@ html {
   /* Bang mau rieng cho trang Game trung thuong (/game-trung-thuong) - theo dung
      spec duoc cung cap (xanh bien Phan Thiet + vang thuong), tach namespace (game-*)
      giong cach lam voi food-*, promo-* va blog-* de khong anh huong brand-* dung chung site. */
-  --color-game-primary: #1689d8;
-  --color-game-bright: #25a9e8;
-  --color-game-deep: #07539a;
-  --color-game-navy: #08345f;
-  --color-game-light: #eaf7ff;
-  --color-game-lightest: #f5fbff;
+  --color-game-primary: var(--theme-primary);
+  --color-game-bright: var(--theme-primary-light);
+  --color-game-deep: var(--theme-primary-dark);
+  --color-game-navy: var(--theme-footer);
+  --color-game-light: var(--theme-primary-soft);
+  --color-game-lightest: var(--theme-primary-tint);
   --color-game-yellow: #ffc928;
   --color-game-orange: #ff9f1c;
   --color-game-textDark: #12345b;
   --color-game-textGray: #66819f;
 
-  --shadow-game-card: 0 8px 25px rgba(16, 82, 130, 0.08);
-  --shadow-game-cardHover: 0 14px 32px rgba(16, 82, 130, 0.14);
+  --shadow-game-card: 0 8px 25px rgba(0,59,149, 0.08);
+  --shadow-game-cardHover: 0 14px 32px rgba(0,59,149, 0.14);
 }
 
 body {
@@ -117,13 +138,13 @@ body {
 }
 
 .bg-hero-gradient {
-  background: linear-gradient(180deg, #cdeeff 0%, #eaf6fd 45%, #f7fcff 100%);
+  background: linear-gradient(180deg, var(--theme-hero-from) 0%, var(--theme-hero-via) 45%, var(--theme-hero-to) 100%);
 }
 
 /* Nen header/navbar - xanh duong tuoi kieu bien Phan Thiet, mot dai gradient LIEN TUC
    khong chia vung mau (khong dung nua dau/nua sau lech tong nhu ban cu). */
 .bg-navbar-gradient {
-  background: linear-gradient(120deg, #159be8 0%, #13a7ef 50%, #1689d8 100%);
+  background: linear-gradient(120deg, var(--theme-navbar-from) 0%, var(--theme-navbar-via) 50%, var(--theme-navbar-to) 100%);
 }
 
 /* Header: lop anh sang rat nhe mo phong nang phan chieu tren mat bien - dat o z-index
@@ -506,8 +527,8 @@ body {
 }
 .prose-editor blockquote,
 .article-content blockquote {
-  border-left: 3px solid #1a6fc4;
-  background: #eaf6fd;
+  border-left: 3px solid var(--theme-primary);
+  background: var(--theme-primary-soft);
   padding: 0.75rem 1rem;
   margin: 0 0 1rem;
   color: #475569;
@@ -515,10 +536,10 @@ body {
 }
 .prose-editor a,
 .article-content a {
-  color: #1a6fc4;
+  color: var(--theme-primary);
   font-weight: 600;
   text-decoration: underline;
-  text-decoration-color: #bfe0f7;
+  text-decoration-color: var(--theme-primary-mid);
 }
 .prose-editor img,
 .article-content img {
@@ -618,7 +639,7 @@ body {
   font-family: "Baloo 2", cursive;
   font-size: 2.75rem;
   font-weight: 800;
-  color: #d3e9fb;
+  color: var(--theme-primary-mid);
   line-height: 1;
 }
 @media (max-width: 640px) {
@@ -683,12 +704,12 @@ body {
   box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
 }
 .quick-info-badge i {
-  color: #1a6fc4;
+  color: var(--theme-primary);
   font-size: 16px;
   width: 36px;
   height: 36px;
   border-radius: 999px;
-  background: #eaf6fd;
+  background: var(--theme-primary-soft);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -725,7 +746,7 @@ body {
   content: "+";
   float: right;
   font-weight: 700;
-  color: #1a6fc4;
+  color: var(--theme-primary);
 }
 .faq-item[open] .faq-question::after {
   content: "\2212";
@@ -765,7 +786,7 @@ body {
 .testimonial-item {
   margin: 0;
   padding: 0.875rem 1.25rem;
-  border-left: 3px solid #1a6fc4;
+  border-left: 3px solid var(--theme-primary);
   background: #f7fafc;
   border-radius: 0 12px 12px 0;
 }
@@ -780,6 +801,6 @@ body {
   margin-top: 0.5rem;
   font-weight: 700;
   font-style: normal;
-  color: #1a6fc4;
+  color: var(--theme-primary);
   font-size: 0.875rem;
 }

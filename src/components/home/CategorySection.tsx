@@ -24,8 +24,8 @@ export default function CategorySection({
       count: counts.homestay,
       href: "/luu-tru",
       photoImg: "/images/danhmuc-homestay.png",
-      overlay: "from-blue-950/85 via-blue-950/25",
-      iconColor: "#1a6fc4",
+      overlay: "from-brand-footer/85 via-brand-footer/25",
+      iconColor: "var(--theme-primary)",
       icon: (
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
           <path d="M3 11l9-7 9 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
@@ -89,14 +89,14 @@ export default function CategorySection({
     <section className="container-custom py-8">
       <div className="flex items-center justify-between mb-5">
         <h2 className="font-display font-bold text-xl sm:text-2xl text-slate-800 flex items-center gap-2">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="#1a6fc4">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="var(--theme-primary)">
             <path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z" />
           </svg>
           DANH MỤC TRA CỨU PHỔ BIẾN
         </h2>
         <a
           href="#"
-          className="text-sm font-bold text-brand-blue border border-sky-200 rounded-full px-4 py-1.5 hover:bg-sky-50 transition-colors"
+          className="text-sm font-bold text-brand-blue border border-brand-blueMid rounded-full px-4 py-1.5 hover:bg-brand-tint transition-colors"
         >
           Xem tất cả danh mục
         </a>

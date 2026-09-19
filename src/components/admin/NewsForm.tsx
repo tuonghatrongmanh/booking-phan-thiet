@@ -202,13 +202,13 @@ export default function NewsForm({ initial, places = [] }: { initial?: NewsIniti
         {suggestError && <p className="text-xs text-brand-red mt-2">{suggestError}</p>}
 
         {keywordSuggestion && (
-          <div className="mt-3 border border-sky-100 bg-brand-sky/40 rounded-xl p-3 space-y-2.5">
+          <div className="mt-3 border border-brand-sky bg-brand-sky/40 rounded-xl p-3 space-y-2.5">
             <div>
               <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wide mb-1">Từ khóa chính gợi ý</p>
               <button
                 type="button"
                 onClick={() => setFocusKeyword(keywordSuggestion.focusKeyword)}
-                className="text-sm font-bold text-brand-blue bg-white border border-sky-200 rounded-full px-3 py-1 hover:bg-sky-50"
+                className="text-sm font-bold text-brand-blue bg-white border border-brand-blueMid rounded-full px-3 py-1 hover:bg-brand-tint"
               >
                 {keywordSuggestion.focusKeyword} <i className="fa-solid fa-arrow-right ml-1 text-xs" aria-hidden="true" />
               </button>

@@ -16,7 +16,7 @@ export default function FoodCard({
   const href = `/am-thuc/mon/${food.slug}`;
 
   return (
-    <article className="group bg-white border border-[#E8EEF5] rounded-3xl overflow-hidden shadow-[0_4px_15px_rgba(15,23,42,0.05)] hover:shadow-[0_12px_30px_rgba(15,23,42,0.12)] hover:-translate-y-1 hover:border-[#CFE5FF] transition-all duration-250">
+    <article className="group bg-white border border-[#E8EEF5] rounded-3xl overflow-hidden shadow-[0_4px_15px_rgba(15,23,42,0.05)] hover:shadow-[0_12px_30px_rgba(15,23,42,0.12)] hover:-translate-y-1 hover:border-brand-blueMid transition-all duration-250">
       <div className="relative">
         <Link href={href} aria-label={`Xem chi tiết ${food.name}`} className="relative block w-full aspect-4/3 overflow-hidden bg-food-light">
           {food.image ? (

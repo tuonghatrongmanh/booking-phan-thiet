@@ -29,7 +29,7 @@ export default function NewsSection({ news }: { news: News[] }) {
       <div className="flex items-center justify-between mb-5">
         <div>
           <h2 className="font-display font-bold text-xl sm:text-2xl text-slate-800 flex items-center gap-2">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1a6fc4" strokeWidth="1.8">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--theme-primary)" strokeWidth="1.8">
               <rect x="3" y="4" width="18" height="16" rx="2" />
               <path d="M7 8h10M7 12h10M7 16h6" />
             </svg>
@@ -41,7 +41,7 @@ export default function NewsSection({ news }: { news: News[] }) {
         </div>
         <Link
           href="/tin-tuc"
-          className="flex items-center gap-1 text-sm font-bold text-brand-blue border border-sky-200 rounded-full px-4 py-1.5 hover:bg-sky-50 transition-colors shrink-0"
+          className="flex items-center gap-1 text-sm font-bold text-brand-blue border border-brand-blueMid rounded-full px-4 py-1.5 hover:bg-brand-tint transition-colors shrink-0"
         >
           Xem tất cả
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4">

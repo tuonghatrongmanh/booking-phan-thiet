@@ -124,7 +124,7 @@ export default function SecurityAlertTable() {
       {error ? (
         <div className="text-center py-8">
           <p className="text-sm text-slate-500 mb-3">Không thể tải dữ liệu. Đã xảy ra lỗi khi kết nối đến máy chủ.</p>
-          <button type="button" onClick={load} className="text-xs font-bold text-brand-blue border border-sky-200 rounded-full px-4 py-1.5 hover:bg-sky-50">
+          <button type="button" onClick={load} className="text-xs font-bold text-brand-blue border border-brand-blueMid rounded-full px-4 py-1.5 hover:bg-brand-tint">
             Thử lại
           </button>
         </div>
@@ -169,7 +169,7 @@ export default function SecurityAlertTable() {
                     {log.ip}
                     {log.adminEmail && (
                       <span
-                        className="ml-1.5 inline-flex items-center gap-1 text-[10px] font-bold text-brand-blue bg-sky-50 px-1.5 py-0.5 rounded-full align-middle"
+                        className="ml-1.5 inline-flex items-center gap-1 text-[10px] font-bold text-brand-blue bg-brand-tint px-1.5 py-0.5 rounded-full align-middle"
                         title={`Phiên admin: ${log.adminName || log.adminEmail}`}
                       >
                         <i className="fa-solid fa-user-shield" aria-hidden="true" /> Admin

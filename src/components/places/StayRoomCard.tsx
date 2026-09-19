@@ -61,7 +61,7 @@ export default function StayRoomCard({
             <p>
               <span className="text-xs text-[#8298AE]">Từ </span>
               <br />
-              <span className="text-[20px] font-extrabold text-[#1678C8] leading-none">{formatPriceVnd(priceFromVnd)}</span>
+              <span className="text-[20px] font-extrabold text-brand-blue leading-none">{formatPriceVnd(priceFromVnd)}</span>
               <span className="text-xs text-[#8298AE]"> /đêm</span>
             </p>
           ) : (
@@ -71,7 +71,7 @@ export default function StayRoomCard({
             href={ctaHref}
             aria-disabled={!ctaHref}
             className={`text-sm font-bold text-white rounded-[10px] px-4 py-2.5 transition shrink-0 ${
-              ctaHref ? "bg-[#1688D8] hover:brightness-95" : "bg-slate-300 pointer-events-none"
+              ctaHref ? "bg-brand-blue hover:brightness-95" : "bg-slate-300 pointer-events-none"
             }`}
           >
             Chọn phòng

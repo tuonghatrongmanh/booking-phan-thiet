@@ -166,7 +166,7 @@ export default function CoinShopModal({
       <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={onClose} />
 
       <div className="relative bg-white w-full max-w-3xl max-h-[92vh] rounded-3xl shadow-2xl overflow-hidden flex flex-col">
-        <div className="flex items-center justify-between gap-3 px-5 sm:px-7 py-4 border-b border-slate-100 bg-gradient-to-r from-brand-blue to-sky-500 text-white shrink-0">
+        <div className="flex items-center justify-between gap-3 px-5 sm:px-7 py-4 border-b border-slate-100 bg-gradient-to-r from-brand-blue to-brand-blueLight text-white shrink-0">
           <div className="flex items-center gap-3 min-w-0">
             <Image
               src={avatar || "/images/avatar-world.png"}

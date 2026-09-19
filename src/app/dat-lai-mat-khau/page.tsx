@@ -58,7 +58,7 @@ function ResetForm() {
 
       <div className="bg-white rounded-2xl shadow-card p-8 w-full max-w-md animate-pop-in">
         <div className="flex flex-col items-center mb-6">
-          <Image src="/images/logo.png" alt="Booking Phan Thiết" width={90} height={90} className="mb-2" />
+          <Image src="/images/logo-dark.png" alt="Booking Phan Thiết" width={220} height={64} className="mb-3 w-[190px] h-auto" />
           <h1 className="font-display font-bold text-xl text-slate-800">Đặt lại mật khẩu</h1>
         </div>
 

@@ -21,7 +21,7 @@ export default function PlaceCard({ place, basePath }: { place: PlaceCardData; b
       href={`${basePath}/${place.id}`}
       className="block bg-white rounded-2xl shadow-card overflow-hidden hover-lift animate-fade-up"
     >
-      <div className="relative h-36 bg-gradient-to-br from-sky-200 to-blue-400">
+      <div className="relative h-36 bg-gradient-to-br from-brand-blueMid to-brand-blueLight">
         {place.coverImage && <Image src={place.coverImage} alt={place.name} fill sizes="(min-width: 1024px) 25vw, 50vw" className="object-cover" />}
         <span
           className={`absolute top-3 left-3 inline-flex items-center gap-1.5 text-[11px] font-bold text-white ${statusInfo.bg} px-2.5 py-1 rounded-full shadow`}
