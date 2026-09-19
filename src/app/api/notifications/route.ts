@@ -26,7 +26,7 @@ export async function GET() {
 
   const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
 
-  const [redemptions, rentalInquiries, stayInquiries] = await Promise.all([
+  const [redemptions, rentalInquiries, stayInquiries, saleTasks] = await Promise.all([
     prisma.redemption.findMany({
       where: { userId: actor.id, status: { in: ["FULFILLED", "CANCELLED"] }, updatedAt: { gte: since } },
       orderBy: { updatedAt: "desc" },
@@ -52,6 +52,13 @@ export async function GET() {
       orderBy: { updatedAt: "desc" },
       take: 15,
       include: { place: { select: { name: true } } },
+    }),
+    // Sale uy tín: admin vừa giao / duyệt / từ chối nhiệm vụ
+    prisma.saleTask.findMany({
+      where: { place: { userId: actor.id }, status: { in: ["ASSIGNED", "DONE", "REJECTED"] }, updatedAt: { gte: since } },
+      orderBy: { updatedAt: "desc" },
+      take: 10,
+      select: { id: true, status: true, title: true, bonusPoints: true, placeId: true, updatedAt: true },
     }),
   ]);
 
@@ -92,7 +99,16 @@ export async function GET() {
     createdAt: r.updatedAt,
   }));
 
-  const items = [...redemptionItems, ...rentalItems, ...stayItems].sort(
+  const taskItems = saleTasks.map((t) => ({
+    id: `sale-task:${t.id}:${t.status}`,
+    type: t.status === "ASSIGNED" ? ("important" as const) : t.status === "DONE" ? ("system" as const) : ("warning" as const),
+    title: t.status === "ASSIGNED" ? "Bạn có nhiệm vụ mới" : t.status === "DONE" ? `Nhiệm vụ hoàn thành${t.bonusPoints ? ` (+${t.bonusPoints} điểm)` : ""}` : "Nhiệm vụ không được duyệt",
+    description: t.title ?? "Xem chi tiết trong hồ sơ Sale của bạn",
+    href: `/sale/${t.placeId}`,
+    createdAt: t.updatedAt,
+  }));
+
+  const items = [...redemptionItems, ...rentalItems, ...stayItems, ...taskItems].sort(
     (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
   );
 

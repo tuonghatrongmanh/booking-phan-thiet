@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { computeSalePoints } from "@/lib/sale-points";
+import { sumBonus } from "@/lib/sale-tasks";
 
 const PLACE_SELECT_FOR_POINTS = {
   id: true,
@@ -16,6 +17,7 @@ const PLACE_SELECT_FOR_POINTS = {
   socialComments: { select: { id: true } },
   reviews: { select: { rating: true } },
   standing: { select: { action: true, active: true } },
+  saleTasks: { select: { status: true, bonusPoints: true } },
 } as const;
 
 // Goi (fire-and-forget, khong chan response) sau moi lan sua ho so/video/testimonial/
@@ -28,7 +30,7 @@ export async function recalcSalePoints(placeId: string): Promise<void> {
   });
   if (!place || place.category !== "SALE") return;
 
-  const { points } = computeSalePoints(place);
+  const { points } = computeSalePoints({ ...place, bonusPoints: sumBonus(place.saleTasks) });
   if (points === place.salePoints) return;
 
   await prisma.place.update({ where: { id: placeId }, data: { salePoints: points } });

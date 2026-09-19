@@ -6,6 +6,7 @@ import MediaUploader from "@/components/forum/MediaUploader";
 
 export default function SaleApplicationModal({ onClose }: { onClose: () => void }) {
   const router = useRouter();
+  const [fullName, setFullName] = useState("");
   const [reason, setReason] = useState("");
   const [dob, setDob] = useState("");
   const [phone, setPhone] = useState("");
@@ -34,7 +35,7 @@ export default function SaleApplicationModal({ onClose }: { onClose: () => void 
     const res = await fetch("/api/sale-applications", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ reason, dob, phone, tiktokUrl: tiktokUrl || null, images }),
+      body: JSON.stringify({ fullName, reason, dob, phone, tiktokUrl: tiktokUrl || null, images }),
     });
     setSaving(false);
 
@@ -73,6 +74,18 @@ export default function SaleApplicationModal({ onClose }: { onClose: () => void 
           </>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-3">
+            <div>
+              <label className="text-[13px] text-slate-500 font-medium mb-1 block">Họ và tên (dùng làm tên hồ sơ Sale)</label>
+              <input
+                required
+                minLength={3}
+                maxLength={80}
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                placeholder="Nguyễn Văn A"
+                className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-[15px] focus:outline-none focus:ring-2 focus:ring-brand-blue/40"
+              />
+            </div>
             <div>
               <label className="text-[13px] text-slate-500 font-medium mb-1 block">Lý do đăng ký</label>
               <textarea

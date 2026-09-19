@@ -6,6 +6,7 @@ import { rateLimit } from "@/lib/rate-limit";
 import { z } from "zod";
 
 const createSchema = z.object({
+  fullName: z.string().trim().min(3, "Vui lòng nhập họ và tên đầy đủ").max(80),
   reason: z.string().trim().min(20, "Vui lòng viết lý do chi tiết hơn (ít nhất 20 ký tự)"),
   dob: z.string().refine((v) => !Number.isNaN(Date.parse(v)), "Ngày sinh không hợp lệ"),
   phone: z.string().trim().min(8, "Số điện thoại không hợp lệ"),
@@ -55,6 +56,7 @@ export async function POST(req: NextRequest) {
   const application = await prisma.saleApplication.create({
     data: {
       userId: actor.id,
+      fullName: parsed.data.fullName,
       reason: parsed.data.reason,
       dob: new Date(parsed.data.dob),
       phone: parsed.data.phone,

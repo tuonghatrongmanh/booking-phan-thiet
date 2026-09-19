@@ -5,11 +5,22 @@ import { rateLimit } from "@/lib/rate-limit";
 import { fetchTiktokOembed } from "@/lib/tiktok-oembed";
 import { z } from "zod";
 import { recalcSalePoints } from "@/lib/sale-points-server";
+import { parseTiktokInput } from "@/lib/tiktok-embed";
 
 const MAX_VIDEOS = 6;
 
+// Nhận link video TikTok HOẶC cả đoạn mã nhúng; rút ra link chuẩn, chỉ chấp nhận tiktok.com
 const createSchema = z.object({
-  sourceUrl: z.string().trim().url(),
+  sourceUrl: z
+    .string()
+    .trim()
+    .min(10, "Hãy dán link video hoặc mã nhúng TikTok")
+    .max(4000)
+    .transform((v, ctx) => {
+      const ref = parseTiktokInput(v);
+      if (!ref) ctx.addIssue({ code: "custom", message: "Không đọc được link/mã nhúng TikTok (chỉ nhận tiktok.com)" });
+      return ref?.url ?? "";
+    }),
 });
 
 export async function POST(req: NextRequest) {
@@ -26,7 +37,7 @@ export async function POST(req: NextRequest) {
 
   const body = await req.json().catch(() => null);
   const parsed = createSchema.safeParse(body);
-  if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
+  if (!parsed.success) return NextResponse.json({ error: parsed.error.issues[0]?.message ?? "Dữ liệu không hợp lệ" }, { status: 400 });
 
   const count = await prisma.placeVideo.count({ where: { placeId: place.id } });
   if (count >= MAX_VIDEOS) {

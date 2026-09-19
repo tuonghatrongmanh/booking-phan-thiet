@@ -12,7 +12,7 @@ import SaleMissionsCard from "@/components/account/SaleMissionsCard";
 const MAX_VIDEOS = 6;
 const MAX_TESTIMONIALS = 6;
 
-type PlaceInfo = {
+export type PlaceInfo = {
   avatar: string | null;
   coverImage: string | null;
   name: string;
@@ -30,9 +30,9 @@ type PlaceInfo = {
   instagramUrl: string | null;
 };
 
-type PlaceVideo = { id: string; sourceUrl: string; title: string | null; thumbnailUrl: string | null };
-type Testimonial = { id: string; imageUrl: string; authorName: string | null; platform: string };
-type GuideVideo = { id: string; title: string; videoUrl: string; caption: string | null };
+export type PlaceVideo = { id: string; sourceUrl: string; title: string | null; thumbnailUrl: string | null };
+export type Testimonial = { id: string; imageUrl: string; authorName: string | null; platform: string };
+export type GuideVideo = { id: string; title: string; videoUrl: string; caption: string | null };
 
 export default function SaleProfileEditor({
   place,
@@ -69,7 +69,7 @@ export default function SaleProfileEditor({
   );
 }
 
-function BasicFieldsCard({ place }: { place: PlaceInfo }) {
+export function BasicFieldsCard({ place }: { place: PlaceInfo }) {
   const router = useRouter();
   const { toast } = useDialog();
   const [avatar, setAvatar] = useState(place.avatar ?? "");
@@ -247,7 +247,7 @@ function BasicFieldsCard({ place }: { place: PlaceInfo }) {
   );
 }
 
-function VideosCard({ videos }: { videos: PlaceVideo[] }) {
+export function VideosCard({ videos }: { videos: PlaceVideo[] }) {
   const router = useRouter();
   const { confirm, toast } = useDialog();
   const [sourceUrl, setSourceUrl] = useState("");
@@ -292,7 +292,7 @@ function VideosCard({ videos }: { videos: PlaceVideo[] }) {
       <p className="font-bold text-slate-700 mb-1 flex items-center gap-2">
         <i className="fa-brands fa-tiktok" aria-hidden="true" /> Video review &amp; chia sẻ từ mình
       </p>
-      <p className="text-xs text-slate-400 mb-4">Dán link video TikTok — hệ thống tự lấy ảnh thumbnail + tiêu đề thật. Tối đa {MAX_VIDEOS} video.</p>
+      <p className="text-xs text-slate-400 mb-4">Dán LINK video TikTok hoặc cả đoạn MÃ NHÚNG (embed) — khách bấm vào sẽ xem video ngay trên trang của bạn. Chưa biết lấy mã nhúng? Xem video hướng dẫn ở mục “Hướng dẫn” bên dưới. Tối đa {MAX_VIDEOS} video.</p>
 
       <div className="grid sm:grid-cols-3 gap-3 mb-4">
         {videos.map((v) => (
@@ -319,12 +319,13 @@ function VideosCard({ videos }: { videos: PlaceVideo[] }) {
       </div>
 
       <div className="border-t border-slate-100 pt-4 space-y-3">
-        <input
+        <textarea
           value={sourceUrl}
           onChange={(e) => setSourceUrl(e.target.value)}
           disabled={full}
-          placeholder="https://www.tiktok.com/@..."
-          className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-blue/40 disabled:bg-slate-50"
+          rows={3}
+          placeholder={"Dán link video (https://www.tiktok.com/@...) hoặc mã nhúng <blockquote class=\"tiktok-embed\" ...>"}
+          className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-brand-blue/40 disabled:bg-slate-50"
         />
         {full && <p className="text-xs text-amber-600">Đã đủ {MAX_VIDEOS} video — xoá 1 video trước khi thêm mới.</p>}
         {error && <p className="text-xs text-brand-red">{error}</p>}
@@ -340,7 +341,7 @@ function VideosCard({ videos }: { videos: PlaceVideo[] }) {
   );
 }
 
-function TestimonialsCard({ testimonials }: { testimonials: Testimonial[] }) {
+export function TestimonialsCard({ testimonials }: { testimonials: Testimonial[] }) {
   const router = useRouter();
   const { confirm, toast } = useDialog();
   const [saving, setSaving] = useState(false);
@@ -409,7 +410,7 @@ function TestimonialsCard({ testimonials }: { testimonials: Testimonial[] }) {
   );
 }
 
-function GuideVideosCard({ guideVideos }: { guideVideos: GuideVideo[] }) {
+export function GuideVideosCard({ guideVideos }: { guideVideos: GuideVideo[] }) {
   return (
     <div className="bg-white rounded-2xl shadow-card p-5 sm:p-6">
       <p className="font-bold text-slate-700 mb-1 flex items-center gap-2">

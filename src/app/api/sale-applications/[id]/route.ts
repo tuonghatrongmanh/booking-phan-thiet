@@ -41,7 +41,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
               category: "SALE",
               status: "TRUSTED",
               userId: existing.userId,
-              name: existing.user.name,
+              name: existing.fullName || existing.user.name,
               phone: existing.user.phone,
               avatar: existing.user.avatar,
             },

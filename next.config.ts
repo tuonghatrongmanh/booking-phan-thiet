@@ -21,7 +21,7 @@ const SECURITY_HEADERS = [
       "img-src 'self' data: blob: https:",
       "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:",
       "connect-src 'self' ws: wss: https:",
-      "frame-src 'self' https://accounts.google.com https://www.youtube.com https://www.google.com",
+      "frame-src 'self' https://accounts.google.com https://www.youtube.com https://www.google.com https://www.tiktok.com",
       "frame-ancestors 'none'",
     ].join("; "),
   },

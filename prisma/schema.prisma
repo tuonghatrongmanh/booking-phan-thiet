@@ -594,6 +594,7 @@ model Place {
   images         PlaceImage[]
   socialComments SocialComment[]
   reviews        Review[]
+  saleTasks      SaleTask[]
   newsArticles   News[]
   placeReviews   PlaceReview[]
   sheetMappings  SheetRowMapping[]
@@ -1247,6 +1248,7 @@ model SaleApplication {
   id        String                 @id @default(cuid())
   user      User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    String
+  fullName  String? // ho ten that do nguoi dang ky nhap (dung lam ten ho so Sale khi duoc duyet)
   reason    String                 @db.Text
   dob       DateTime
   phone     String
@@ -1365,4 +1367,31 @@ model TranslationCache {
   source    String   @db.Text
   target    String   @db.Text
   createdAt DateTime @default(now())
+}
+
+// Nhiem vu nang hang cho Sale uy tin: Sale xin nhiem vu (REQUESTED) -> admin giao (ASSIGNED, co the kem diem
+// thuong) -> Sale bao hoan thanh (SUBMITTED) -> admin xac nhan (DONE, cong diem vao xep hang) hoac tu choi.
+enum SaleTaskStatus {
+  REQUESTED
+  ASSIGNED
+  SUBMITTED
+  DONE
+  REJECTED
+}
+
+model SaleTask {
+  id          String         @id @default(cuid())
+  place       Place          @relation(fields: [placeId], references: [id], onDelete: Cascade)
+  placeId     String
+  status      SaleTaskStatus @default(REQUESTED)
+  title       String? // admin dat khi giao viec
+  description String?        @db.Text // noi dung nhiem vu (admin) hoac loi nhan cua Sale khi xin viec
+  bonusPoints Int            @default(0) // diem cong vao xep hang khi DONE
+  saleNote    String?        @db.Text // Sale ghi khi xin viec / bao hoan thanh
+  adminNote   String?        @db.Text
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  @@index([placeId, status])
+  @@index([status])
 }

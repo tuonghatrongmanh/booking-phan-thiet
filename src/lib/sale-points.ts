@@ -12,6 +12,7 @@ type PlaceForPoints = {
   socialComments: { id: string }[];
   reviews: { rating: number }[];
   standing: { action: "SUSPENDED" | "BANNED"; active: boolean } | null;
+  bonusPoints?: number; // điểm thưởng từ nhiệm vụ admin giao (đã hoàn thành)
 };
 
 export type SaleMission = {
@@ -104,7 +105,7 @@ export function getSaleRank(points: number) {
 export function computeSalePoints(place: PlaceForPoints): { points: number; missions: { mission: SaleMission; done: boolean }[] } {
   const missions = SALE_MISSIONS.map((mission) => ({ mission, done: mission.check(place) }));
   const isPenalized = Boolean(place.standing && place.standing.active);
-  const points = isPenalized ? 0 : missions.reduce((sum, m) => sum + (m.done ? m.mission.points : 0), 0);
+  const points = isPenalized ? 0 : missions.reduce((sum, m) => sum + (m.done ? m.mission.points : 0), 0) + Math.max(0, place.bonusPoints ?? 0);
   return { points, missions };
 }
 

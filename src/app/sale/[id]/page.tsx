@@ -7,6 +7,11 @@ import Header from "@/components/home/Header";
 import Footer from "@/components/home/Footer";
 import ScrollCarousel from "@/components/home/ScrollCarousel";
 import SaleRankBadge from "@/components/sale/SaleRankBadge";
+import SaleVideoGrid from "@/components/sale/SaleVideoGrid";
+import SaleOwnerPanel from "@/components/sale/SaleOwnerPanel";
+import { getActor } from "@/lib/auth-actor";
+import { computeSalePoints } from "@/lib/sale-points";
+import { sumBonus, type SaleTaskStatus } from "@/lib/sale-tasks";
 import { buildSaleStats, buildTrustFacts, nextRankInfo } from "@/lib/sale-profile-view";
 
 export const dynamic = "force-dynamic";
@@ -68,6 +73,27 @@ export default async function SaleAgentDetailPage({ params }: Params) {
   ]);
   if (!place || place.category !== "SALE" || place.hidden) notFound();
 
+  // Chủ hồ sơ (Sale đang đăng nhập) thấy thêm "Khu vực của bạn" để sửa hồ sơ, thêm video, nhận nhiệm vụ...
+  const actor = await getActor();
+  const isOwner = actor?.type === "user" && place.userId === actor.id;
+  const owner = isOwner
+    ? await Promise.all([
+        prisma.place.findUnique({
+          where: { id },
+          include: {
+            videos: { orderBy: { sortOrder: "asc" } },
+            socialComments: { orderBy: { createdAt: "desc" } },
+            reviews: { select: { rating: true } },
+            standing: { select: { action: true, active: true } },
+            saleTasks: { orderBy: { createdAt: "desc" }, take: 30 },
+          },
+        }),
+        prisma.guideVideo.findMany({ where: { active: true }, orderBy: { sortOrder: "asc" } }),
+      ])
+    : null;
+
+  const ownerPoints = owner?.[0] ? computeSalePoints({ ...owner[0], bonusPoints: sumBonus(owner[0].saleTasks) }) : null;
+
   const ratingAverage = avgOf(place.reviews.map((r) => r.rating));
   const ratingTotal = place.reviews.length;
   const verified = place.status === "TRUSTED";
@@ -126,6 +152,11 @@ export default async function SaleAgentDetailPage({ params }: Params) {
               <div className="absolute top-4 right-5 text-right text-white font-display italic text-sm sm:text-lg leading-tight drop-shadow hidden sm:block">
                 Phan Thiết –<br />Mũi Né ♡
               </div>
+              {isOwner && (
+                <a href="#khu-vuc-cua-ban" className="absolute bottom-3 right-3 z-10 inline-flex items-center gap-2 bg-white/95 text-brand-blue text-xs sm:text-sm font-bold px-3 py-2 rounded-full shadow hover:bg-white">
+                  <i className="fa-solid fa-pen" aria-hidden="true" /> Sửa ảnh bìa &amp; hồ sơ
+                </a>
+              )}
               {verified && (
                 <span className="absolute top-3 left-3 sm:top-4 sm:left-5 inline-flex items-center gap-1.5 bg-white/95 text-brand-blue text-xs sm:text-sm font-bold px-3 py-1.5 rounded-full shadow">
                   <i className="fa-solid fa-shield-halved" aria-hidden="true" /> Sale uy tín đã xác thực
@@ -167,6 +198,35 @@ export default async function SaleAgentDetailPage({ params }: Params) {
               </div>
             </div>
           </div>
+
+          {owner && owner[0] && (
+            <SaleOwnerPanel
+              place={{
+                avatar: owner[0].avatar,
+                coverImage: owner[0].coverImage,
+                name: owner[0].name,
+                roleTitle: owner[0].roleTitle,
+                slogan: owner[0].slogan,
+                description: owner[0].description,
+                phone: owner[0].phone,
+                workArea: owner[0].workArea,
+                yearsExperience: owner[0].yearsExperience,
+                clientsServedCount: owner[0].clientsServedCount,
+                zaloUrl: owner[0].zaloUrl,
+                fanpageUrl: owner[0].fanpageUrl,
+                tiktokUrl: owner[0].tiktokUrl,
+                youtubeUrl: owner[0].youtubeUrl,
+                instagramUrl: owner[0].instagramUrl,
+              }}
+              videos={owner[0].videos}
+              testimonials={owner[0].socialComments}
+              guideVideos={owner[1]}
+              points={ownerPoints!.points}
+              // chỉ truyền dữ liệu thuần (mission có hàm check không đi qua ranh giới server -> client được)
+              missions={ownerPoints!.missions.map((m) => ({ mission: { id: m.mission.id, title: m.mission.title, description: m.mission.description, points: m.mission.points }, done: m.done }))}
+              tasks={owner[0].saleTasks.map((t) => ({ id: t.id, status: t.status as SaleTaskStatus, title: t.title, description: t.description, bonusPoints: t.bonusPoints, saleNote: t.saleNote, adminNote: t.adminNote }))}
+            />
+          )}
 
           <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_330px] gap-5 items-start">
             <div className="min-w-0 space-y-5">
@@ -216,37 +276,7 @@ export default async function SaleAgentDetailPage({ params }: Params) {
                       </a>
                     )}
                   </div>
-                  <ScrollCarousel showLeftArrow>
-                    {place.videos.map((v) => (
-                      <a
-                        key={v.id}
-                        href={v.sourceUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="shrink-0 w-36 sm:w-40 snap-start rounded-xl overflow-hidden border border-slate-100 hover:shadow-lg transition"
-                      >
-                        <div className="relative w-full aspect-[9/16] bg-slate-100">
-                          {v.thumbnailUrl ? (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img src={v.thumbnailUrl} alt="" className="absolute inset-0 w-full h-full object-cover" />
-                          ) : (
-                            <div className="absolute inset-0 flex items-center justify-center text-slate-300">
-                              <i className="fa-brands fa-tiktok text-3xl" aria-hidden="true" />
-                            </div>
-                          )}
-                          <div className="absolute inset-0 flex items-center justify-center">
-                            <div className="w-9 h-9 rounded-full bg-black/50 flex items-center justify-center">
-                              <i className="fa-solid fa-play text-white text-xs" aria-hidden="true" />
-                            </div>
-                          </div>
-                          <span className="absolute bottom-1.5 left-1.5 text-[10px] font-bold text-white bg-black/50 px-1.5 py-0.5 rounded-full flex items-center gap-1">
-                            <i className="fa-brands fa-tiktok" aria-hidden="true" /> {timeAgo(v.createdAt)}
-                          </span>
-                        </div>
-                        <p className="text-xs text-slate-600 p-2 line-clamp-2 leading-snug">{v.title || "Xem video"}</p>
-                      </a>
-                    ))}
-                  </ScrollCarousel>
+                  <SaleVideoGrid videos={place.videos.map((v) => ({ id: v.id, sourceUrl: v.sourceUrl, thumbnailUrl: v.thumbnailUrl, title: v.title, ago: timeAgo(v.createdAt) }))} />
                 </section>
               )}
 
