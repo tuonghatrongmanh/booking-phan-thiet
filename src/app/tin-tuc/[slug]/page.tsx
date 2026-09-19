@@ -18,9 +18,7 @@ import NearbyPlaces from "@/components/news/NearbyPlaces";
 import AuthorInfo from "@/components/news/AuthorInfo";
 import RelatedServices from "@/components/news/RelatedServices";
 import EndCTA from "@/components/news/EndCTA";
-import ArticleSectionNav, { type ArticleSection } from "@/components/news/ArticleSectionNav";
 import ArticleSectionTitle from "@/components/news/ArticleSectionTitle";
-import ArticleSaveShare from "@/components/news/ArticleSaveShare";
 import { getSiteSettings } from "@/lib/settings";
 import { toDisplayHtml } from "@/lib/sanitize-html";
 import { prepareArticleContent, estimateReadingTime, splitBeforeHeading, injectVideoEmbeds, extractFaqItems } from "@/lib/article-content";
@@ -125,13 +123,6 @@ export default async function NewsDetailPage({ params }: { params: Promise<{ slu
     ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${article.place.name} ${article.place.address ?? ""}`.trim())}`
     : null;
 
-  const sections: ArticleSection[] = [{ id: "noi-dung", label: "Nội dung" }];
-  if (article.place && article.place.reviews.length > 0) sections.push({ id: "danh-gia", label: "Đánh giá" });
-  if (article.place?.mapEmbedUrl) sections.push({ id: "ban-do", label: "Bản đồ" });
-  if (comboSale) sections.push({ id: "uu-dai", label: "Ưu đãi" });
-  sections.push({ id: "dich-vu", label: "Dịch vụ" });
-  if (related.length > 0) sections.push({ id: "bai-lien-quan", label: "Bài liên quan" });
-
   return (
     <>
       <ReadingProgressBar />
@@ -153,37 +144,41 @@ export default async function NewsDetailPage({ params }: { params: Promise<{ slu
           <span className="text-food-text">{article.title}</span>
         </nav>
 
-        <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_360px] gap-6">
-          <article className="min-w-0">
-            <div className="group relative aspect-[16/9] sm:aspect-[2/1] rounded-2xl overflow-hidden bg-food-light">
-              <span className="absolute top-3 left-3 z-10 text-[11px] font-bold text-white bg-food-primary px-2.5 py-1 rounded-full flex items-center gap-1">
-                <i className="fa-solid fa-newspaper" aria-hidden="true" /> {article.category}
+        {/* Đầu bài kiểu tạp chí: chuyên mục, tiêu đề lớn, đoạn dẫn, tác giả + ngày; ảnh bìa rộng ngay bên dưới */}
+        <header className="max-w-4xl">
+          <Link
+            href={`/tin-tuc?category=${encodeURIComponent(article.category)}`}
+            className="inline-flex items-center gap-1.5 text-[11px] font-bold text-white bg-food-primary hover:brightness-95 px-3 py-1.5 rounded-full uppercase tracking-wide"
+          >
+            <i className="fa-solid fa-newspaper" aria-hidden="true" /> {article.category}
+          </Link>
+          <h1 className="font-display font-extrabold text-food-text text-[28px] sm:text-[44px] leading-[1.15] mt-3 mb-4">{article.title}</h1>
+          <p className="text-slate-600 text-base sm:text-lg leading-relaxed mb-5">{article.excerpt}</p>
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-3 pb-5 border-b border-slate-200">
+            <span className="flex items-center gap-3">
+              <span className="w-11 h-11 rounded-full bg-food-light text-food-primary flex items-center justify-center font-display font-bold text-lg shrink-0">
+                {(article.author?.name || "B").charAt(0).toUpperCase()}
               </span>
-              <NewsCoverImage src={article.coverImage} alt={article.title} fit="cover" />
-            </div>
+              <span className="leading-tight">
+                <span className="block text-sm font-bold text-food-text">{article.author?.name || "Booking Phan Thiết"}</span>
+                <span className="block text-xs text-food-textMuted">
+                  {formatDate(article.createdAt)} · {readingTime} phút đọc · {article.views.toLocaleString("vi-VN")} lượt xem
+                </span>
+              </span>
+            </span>
+            <span className="ml-auto flex items-center gap-3 text-sm text-food-textMuted">
+              <SaveArticleButton articleId={article.id} compact />
+              <ShareButtons path={`/tin-tuc/${article.slug}`} title={article.title} />
+            </span>
+          </div>
+        </header>
 
-            <header className="mt-5 mb-5">
-              <h1 className="font-display font-extrabold text-food-text text-[26px] sm:text-[34px] leading-[1.2] mb-3">{article.title}</h1>
-              <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm text-food-textMuted mb-4">
-                <span className="flex items-center gap-1.5">
-                  <i className="fa-regular fa-user" aria-hidden="true" /> {article.author?.name || "Booking Phan Thiết"}
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <i className="fa-regular fa-calendar" aria-hidden="true" /> {formatDate(article.createdAt)}
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <i className="fa-regular fa-eye" aria-hidden="true" /> {article.views.toLocaleString("vi-VN")} lượt xem
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <i className="fa-regular fa-clock" aria-hidden="true" /> {readingTime} phút đọc
-                </span>
-                <SaveArticleButton articleId={article.id} compact />
-              </div>
-              <p className="text-slate-600 text-[15px] sm:text-base leading-relaxed bg-food-light rounded-2xl px-5 py-4 border-l-4 border-food-primary">
-                {article.excerpt}
-              </p>
-            </header>
+        <div className="group relative mt-6 aspect-[16/9] sm:aspect-[21/9] rounded-3xl overflow-hidden bg-food-light shadow-game-card">
+          <NewsCoverImage src={article.coverImage} alt={article.title} fit="cover" />
+        </div>
 
+        <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_340px] gap-8 mt-8 items-start">
+          <article className="min-w-0">
             {article.place && (
               <PlaceQuickFacts
                 address={article.place.address}
@@ -199,9 +194,7 @@ export default async function NewsDetailPage({ params }: { params: Promise<{ slu
               <PlaceActionBar articleId={article.id} phone={article.place.phone} address={article.place.address} placeName={article.place.name} />
             )}
 
-            <ArticleSectionNav sections={sections} />
-
-            <div id="noi-dung" className="scroll-mt-40 mt-6 bg-white rounded-2xl shadow-game-card p-5 sm:p-8">
+            <div id="noi-dung" className="scroll-mt-28 bg-white rounded-2xl shadow-game-card p-5 sm:p-8">
               <div className="article-content text-[15px] sm:text-base text-slate-600 leading-relaxed" dangerouslySetInnerHTML={{ __html: before }} />
 
               {afterRaw && (
@@ -284,28 +277,6 @@ export default async function NewsDetailPage({ params }: { params: Promise<{ slu
           </article>
 
           <aside className="min-w-0 space-y-4 lg:self-stretch">
-            <div className="bg-white rounded-2xl shadow-game-card p-5">
-              <p className="text-xs font-bold text-food-textMuted uppercase tracking-wide mb-1">Chuyên mục</p>
-              <p className="font-display font-extrabold text-food-text text-xl leading-snug mb-1">{article.category}</p>
-              <p className="text-sm text-food-textMuted mb-4">Cập nhật {formatDate(article.updatedAt)}</p>
-
-              <div className="grid grid-cols-3 gap-2 mb-4">
-                {[
-                  { icon: "fa-solid fa-circle-check", label: "Thông tin kiểm chứng" },
-                  { icon: "fa-solid fa-clock-rotate-left", label: "Cập nhật mới nhất" },
-                  { icon: "fa-solid fa-star", label: "Kinh nghiệm thực tế" },
-                ].map((b) => (
-                  <div key={b.label} className="text-center">
-                    <span className="w-9 h-9 mx-auto rounded-full bg-food-light text-food-primary flex items-center justify-center mb-1">
-                      <i className={b.icon} aria-hidden="true" />
-                    </span>
-                    <p className="text-[10px] text-food-textMuted leading-tight">{b.label}</p>
-                  </div>
-                ))}
-              </div>
-
-              <ArticleSaveShare articleId={article.id} title={article.title} />
-            </div>
 
             {article.place && mapsUrl && (
               <div className="bg-white rounded-2xl shadow-game-card p-5">

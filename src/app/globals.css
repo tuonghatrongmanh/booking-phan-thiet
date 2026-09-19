@@ -624,7 +624,7 @@ body {
 }
 .article-content h2 {
   counter-increment: article-section;
-  scroll-margin-top: 10.5rem;
+  scroll-margin-top: 7.5rem;
   position: relative;
   padding-left: 4.25rem;
   margin-top: 3rem;
