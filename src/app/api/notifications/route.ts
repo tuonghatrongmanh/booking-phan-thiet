@@ -26,7 +26,7 @@ export async function GET() {
 
   const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
 
-  const [redemptions, rentalInquiries, stayInquiries, saleTasks] = await Promise.all([
+  const [redemptions, rentalInquiries, stayInquiries, saleTasks, commissions] = await Promise.all([
     prisma.redemption.findMany({
       where: { userId: actor.id, status: { in: ["FULFILLED", "CANCELLED"] }, updatedAt: { gte: since } },
       orderBy: { updatedAt: "desc" },
@@ -59,6 +59,13 @@ export async function GET() {
       orderBy: { updatedAt: "desc" },
       take: 10,
       select: { id: true, status: true, title: true, bonusPoints: true, placeId: true, updatedAt: true },
+    }),
+    // Sale: có hoa hồng mới / đã được trả
+    prisma.saleCommission.findMany({
+      where: { sale: { userId: actor.id }, status: { in: ["PENDING", "PAID"] }, createdAt: { gte: since } },
+      orderBy: { createdAt: "desc" },
+      take: 10,
+      select: { id: true, status: true, amount: true, salePlaceId: true, paidAt: true, createdAt: true },
     }),
   ]);
 
@@ -108,7 +115,16 @@ export async function GET() {
     createdAt: t.updatedAt,
   }));
 
-  const items = [...redemptionItems, ...rentalItems, ...stayItems, ...taskItems].sort(
+  const commissionItems = commissions.map((c) => ({
+    id: `commission:${c.id}:${c.status}`,
+    type: c.status === "PAID" ? ("system" as const) : ("important" as const),
+    title: c.status === "PAID" ? `Đã trả hoa hồng ${c.amount.toLocaleString("vi-VN")}đ` : `Hoa hồng mới +${c.amount.toLocaleString("vi-VN")}đ`,
+    description: c.status === "PAID" ? "Cảm ơn bạn đã giới thiệu khách" : "Khách đặt qua link của bạn đã cọc thành công",
+    href: `/sale/${c.salePlaceId}#khu-vuc-cua-ban`,
+    createdAt: c.status === "PAID" ? (c.paidAt ?? c.createdAt) : c.createdAt,
+  }));
+
+  const items = [...redemptionItems, ...rentalItems, ...stayItems, ...taskItems, ...commissionItems].sort(
     (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
   );
 

@@ -20,6 +20,7 @@ import { getUiSlots } from "@/lib/ui-slots";
 import { UiSlotsProvider } from "@/components/ui/UiSlots";
 import { connection } from "next/server";
 import PwaRegister from "@/components/ui/PwaRegister";
+import RefCapture from "@/components/ui/RefCapture";
 import ThemeEffects from "@/components/ui/ThemeEffects";
 import ThemeBanner from "@/components/ui/ThemeBanner";
 import InstallAppBanner from "@/components/ui/InstallAppBanner";
@@ -96,6 +97,7 @@ export default async function RootLayout({
           <NoPinchZoom />
           <UiSounds />
         <PwaRegister />
+        <RefCapture />
         <ThemeEffects effect={theme.effect} image={theme.effectImage} density={theme.effectDensity} />
         <InstallAppBanner />
           <ExitGuard />

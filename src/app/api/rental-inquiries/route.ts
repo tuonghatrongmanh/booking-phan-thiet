@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { resolveReferral } from "@/lib/referral";
 import { prisma } from "@/lib/prisma";
 import { rateLimit } from "@/lib/rate-limit";
 import { getClientIp } from "@/lib/request-log";
@@ -95,6 +96,7 @@ export async function POST(req: NextRequest) {
     data: {
       placeId,
       userId,
+      referralSalePlaceId: await resolveReferral(userId),
       customerName,
       customerPhone,
       customerEmail,

@@ -46,6 +46,7 @@ export const NAV: NavEntry[] = [
     children: [
       { href: "/admin/sales", label: "Ưu đãi", icon: "M12 2l2.9 6 6.6.9-4.8 4.6 1.1 6.5L12 16.9 6.2 20l1.1-6.5L2.5 8.9l6.6-.9z" },
       { href: "/admin/sale-agents", label: "Sale uy tín", icon: "M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" },
+      { href: "/admin/hoa-hong", label: "Hoa hồng Sale", icon: "M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" },
       { href: "/admin/sale-tasks", label: "Nhiệm vụ Sale", icon: "M9 11l3 3L22 4M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" },
       { href: "/admin/hero-tiles", label: "Ô danh mục trang chủ", icon: "M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z" },
       { href: "/admin/reviews", label: "Đánh giá cộng đồng", icon: "M12 21s-7-4.5-9.5-9C1 8 3 4 7 4c2.2 0 3.7 1.3 5 3 1.3-1.7 2.8-3 5-3 4 0 6 4 4.5 8-2.5 4.5-9.5 9-9.5 9z" },
@@ -170,6 +171,7 @@ const SUPER_ONLY_PATHS = [
   "/admin/users",
   "/admin/forum",
   "/admin/giao-dien",
+  "/admin/hoa-hong", // tiền hoa hồng Sale: chỉ SuperAdmin
   "/admin/bao-cao", // doanh thu + xuất danh sách khách: chỉ SuperAdmin
 ];
 

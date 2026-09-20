@@ -9,6 +9,7 @@ import ScrollCarousel from "@/components/home/ScrollCarousel";
 import SaleRankBadge from "@/components/sale/SaleRankBadge";
 import SaleVideoGrid from "@/components/sale/SaleVideoGrid";
 import SaleOwnerPanel from "@/components/sale/SaleOwnerPanel";
+import { loadSaleReferral } from "@/lib/sale-referral-data";
 import { getActor } from "@/lib/auth-actor";
 import { computeSalePoints } from "@/lib/sale-points";
 import { sumBonus, type SaleTaskStatus } from "@/lib/sale-tasks";
@@ -89,6 +90,7 @@ export default async function SaleAgentDetailPage({ params }: Params) {
           },
         }),
         prisma.guideVideo.findMany({ where: { active: true }, orderBy: { sortOrder: "asc" } }),
+        loadSaleReferral(id),
       ])
     : null;
 
@@ -221,6 +223,7 @@ export default async function SaleAgentDetailPage({ params }: Params) {
               videos={owner[0].videos}
               testimonials={owner[0].socialComments}
               guideVideos={owner[1]}
+              referral={owner[2]}
               points={ownerPoints!.points}
               // chỉ truyền dữ liệu thuần (mission có hàm check không đi qua ranh giới server -> client được)
               missions={ownerPoints!.missions.map((m) => ({ mission: { id: m.mission.id, title: m.mission.title, description: m.mission.description, points: m.mission.points }, done: m.done }))}

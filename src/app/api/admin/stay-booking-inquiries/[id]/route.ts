@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { voidCommission } from "@/lib/referral";
 import { prisma } from "@/lib/prisma";
 import { requireSectionAccess, requireCreateOrEdit } from "@/lib/admin-action";
 import { emailBookingCancelled } from "@/lib/booking-notify";
@@ -36,6 +37,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
   // Báo cho khách khi đơn bị huỷ (đơn huỷ cũng không còn giữ phòng - xem booking-availability.ts)
   if (parsed.data.status === "CANCELLED" && existing.status !== "CANCELLED") {
     void emailBookingCancelled(summaryFromStay(inquiry));
+    void voidCommission("stay", id);
   }
 
   return NextResponse.json({ item: inquiry });

@@ -5,6 +5,8 @@ import { BasicFieldsCard, GuideVideosCard, TestimonialsCard, VideosCard } from "
 import type { GuideVideo, PlaceInfo, PlaceVideo, Testimonial } from "@/components/account/SaleProfileEditor";
 import SaleMissionsCard from "@/components/account/SaleMissionsCard";
 import SaleTasksCard, { type MyTask } from "@/components/sale/SaleTasksCard";
+import SaleReferralCard from "@/components/sale/SaleReferralCard";
+import type { SaleReferralData } from "@/lib/sale-referral-data";
 
 type Missions = { mission: { id: string; title: string; description: string; points: number }; done: boolean }[];
 
@@ -12,6 +14,7 @@ const TABS = [
   { key: "profile", label: "Chỉnh sửa hồ sơ", icon: "fa-solid fa-pen" },
   { key: "videos", label: "Video TikTok", icon: "fa-brands fa-tiktok" },
   { key: "feedback", label: "Ảnh khách khen", icon: "fa-solid fa-comment-dots" },
+  { key: "referral", label: "Giới thiệu & hoa hồng", icon: "fa-solid fa-hand-holding-dollar" },
   { key: "rank", label: "Xếp hạng & nhiệm vụ", icon: "fa-solid fa-ranking-star" },
   { key: "guide", label: "Hướng dẫn", icon: "fa-solid fa-circle-play" },
 ] as const;
@@ -26,6 +29,7 @@ export default function SaleOwnerPanel({
   points,
   missions,
   tasks,
+  referral,
 }: {
   place: PlaceInfo;
   videos: PlaceVideo[];
@@ -34,6 +38,7 @@ export default function SaleOwnerPanel({
   points: number;
   missions: Missions;
   tasks: MyTask[];
+  referral: SaleReferralData;
 }) {
   const [tab, setTab] = useState<(typeof TABS)[number]["key"]>("profile");
   const pendingTasks = tasks.filter((t) => t.status === "ASSIGNED").length;
@@ -75,6 +80,7 @@ export default function SaleOwnerPanel({
         </div>
       )}
       {tab === "feedback" && <TestimonialsCard testimonials={testimonials} />}
+      {tab === "referral" && <SaleReferralCard data={referral} />}
       {tab === "rank" && (
         <div className="space-y-4">
           <SaleTasksCard tasks={tasks} />

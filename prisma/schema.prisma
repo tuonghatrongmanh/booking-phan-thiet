@@ -98,6 +98,8 @@ model User {
   foodReviews      FoodReview[]
   placeReviews     PlaceReview[]
   salePlace        Place?
+  partnerPlaces    Place[]              @relation("PlacePartner")
+  partnerChangeRequests PlaceChangeRequest[] @relation("PartnerChangeRequests")
   rentalInquiries RentalInquiry[]
   stayBookingInquiries StayBookingInquiry[]
   passwordResetTokens     PasswordResetToken[]
@@ -604,7 +606,68 @@ model Place {
   stayBookingInquiries StayBookingInquiry[]
   bookingOptions PlaceBookingOption[]
 
+  // Doi tac (chu homestay/xe): tai khoan User duoc gan de xem don + lich cua CHINH cho nay o /doi-tac.
+  // KHAC userId o tren (ho so Sale). onDelete SetNull: xoa tai khoan khong xoa dia diem.
+  partnerUserId       String?
+  partnerUser         User?                @relation("PlacePartner", fields: [partnerUserId], references: [id], onDelete: SetNull)
+  placeChangeRequests PlaceChangeRequest[]
+
+  // Ma gioi thieu cua Sale (?ref=MA) - khach vao qua link co ma va dat coc thanh cong thi Sale duoc hoa hong.
+  referralCode String?          @unique
+  commissions  SaleCommission[] @relation("SaleCommissions")
+
   @@index([category, status])
+  @@index([partnerUserId])
+}
+
+// Doi tac gui yeu cau sua thong tin (gia, mo ta, anh...) - KHONG ap dung ngay, SuperAdmin duyet o /admin/yeu-cau-doi-tac.
+enum ChangeRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model PlaceChangeRequest {
+  id          String              @id @default(cuid())
+  place       Place               @relation(fields: [placeId], references: [id], onDelete: Cascade)
+  placeId     String
+  user        User                @relation("PartnerChangeRequests", fields: [userId], references: [id], onDelete: Cascade)
+  userId      String
+  payload     Json // { description?, priceFromVnd?, priceHolidayVnd?, phone?, avatar?, addImages?: string[] } - chi cac truong trong danh sach cho phep
+  status      ChangeRequestStatus @default(PENDING)
+  adminNote   String?             @db.Text
+  reviewedAt  DateTime?
+  reviewedById String?
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+
+  @@index([placeId])
+  @@index([status, createdAt])
+}
+
+// Hoa hong gioi thieu cua Sale: tao khi admin XAC NHAN da nhan coc cua 1 don co ma gioi thieu (moi don toi da 1 dong).
+enum CommissionStatus {
+  PENDING // chua tra
+  PAID // da tra
+  CANCELLED // don bi huy truoc khi tra
+}
+
+model SaleCommission {
+  id            String           @id @default(cuid())
+  sale          Place            @relation("SaleCommissions", fields: [salePlaceId], references: [id], onDelete: Cascade)
+  salePlaceId   String
+  kind          String // "stay" | "rental"
+  inquiryId     String
+  depositAmount Int
+  ratePercent   Int
+  amount        Int
+  status        CommissionStatus @default(PENDING)
+  paidAt        DateTime?
+  paidNote      String?
+  createdAt     DateTime         @default(now())
+
+  @@unique([kind, inquiryId])
+  @@index([salePlaceId, status])
 }
 
 // Yeu cau thue xe khach gui tu widget "Dat thue" o trang /thue-xe (category CAR_RENTAL).
@@ -638,6 +701,7 @@ model RentalInquiry {
   depositStatus  DepositStatus @default(NONE)
   depositRef     String?       @unique
   depositPaidAt  DateTime?
+  referralSalePlaceId String? // Place.id cua Sale gioi thieu (tu cookie ?ref=), dung tinh hoa hong khi nhan coc
 
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
@@ -680,6 +744,7 @@ model StayBookingInquiry {
   depositStatus  DepositStatus @default(NONE)
   depositRef     String?       @unique
   depositPaidAt  DateTime?
+  referralSalePlaceId String? // Place.id cua Sale gioi thieu (tu cookie ?ref=), dung tinh hoa hong khi nhan coc
 
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
@@ -939,6 +1004,7 @@ model ReviewImage {
 model SiteSettings {
   id                 String   @id @default("singleton")
   activeThemeKey     String? // giao dien theo dip le dang ap dung (null = mac dinh) - xem SiteTheme
+  saleCommissionPercent Int    @default(5) // % tien coc tra cho Sale gioi thieu
   autoThemeEnabled   Boolean  @default(false) // true = bo qua activeThemeKey, tu chon giao dien theo lich (SiteTheme.startDate/endDate)
   logoUrl            String?
   faviconUrl         String?

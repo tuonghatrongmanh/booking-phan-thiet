@@ -1,4 +1,5 @@
 import type { Admin } from "@prisma/client";
+import { recordCommission } from "@/lib/referral";
 import { prisma } from "@/lib/prisma";
 import { logAdminAction } from "@/lib/audit-log";
 import { checkCarRentalAvailability, checkStayAvailability } from "@/lib/booking-availability";
@@ -60,6 +61,7 @@ export async function confirmDeposit(kind: BookingKindKey, id: string, actor: Ac
     const updated = await prisma.rentalInquiry.update({ where: { id }, data: { depositStatus: "PAID", depositPaidAt: new Date() } });
     void audit(actor, "confirm-deposit", "RentalInquiry", id, `${inquiry.customerName} - ${inquiry.depositAmount ?? 0}đ`);
     void emailDepositConfirmed(summaryFromRental(inquiry));
+    await recordCommission("rental", id);
     return { ok: true, item: updated, label: `${inquiry.customerName} - ${inquiry.place.name}` };
   }
 
@@ -85,6 +87,7 @@ export async function confirmDeposit(kind: BookingKindKey, id: string, actor: Ac
   const updated = await prisma.stayBookingInquiry.update({ where: { id }, data: { depositStatus: "PAID", depositPaidAt: new Date() } });
   void audit(actor, "confirm-deposit", "StayBookingInquiry", id, `${inquiry.customerName} - ${inquiry.depositAmount ?? 0}đ`);
   void emailDepositConfirmed(summaryFromStay(inquiry));
+  await recordCommission("stay", id);
   return { ok: true, item: updated, label: `${inquiry.customerName} - ${inquiry.place.name}` };
 }
 
