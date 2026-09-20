@@ -20,6 +20,8 @@ import { getUiSlots } from "@/lib/ui-slots";
 import { UiSlotsProvider } from "@/components/ui/UiSlots";
 import { connection } from "next/server";
 import PwaRegister from "@/components/ui/PwaRegister";
+import ThemeEffects from "@/components/ui/ThemeEffects";
+import ThemeBanner from "@/components/ui/ThemeBanner";
 import InstallAppBanner from "@/components/ui/InstallAppBanner";
 
 // Day la metadata MAC DINH cho toan site - trang nao khong tu khai bao metadata rieng
@@ -84,6 +86,7 @@ export default async function RootLayout({
         <GoogleAnalytics measurementId={settings.googleAnalyticsId} />
         <DialogProvider>
           <UiSlotsProvider slots={uiSlots}>
+          {theme.bannerText && <ThemeBanner text={theme.bannerText} />}
           {children}
           <PopupModal />
           <SaleStandingGate />
@@ -93,6 +96,7 @@ export default async function RootLayout({
           <NoPinchZoom />
           <UiSounds />
         <PwaRegister />
+        <ThemeEffects effect={theme.effect} image={theme.effectImage} density={theme.effectDensity} />
         <InstallAppBanner />
           <ExitGuard />
           <SiteTranslator />

@@ -5,6 +5,7 @@ import ImageUploader from "@/components/admin/ImageUploader";
 import ThemeMock from "@/components/admin/ThemeMock";
 import { useDialog } from "@/components/ui/DialogProvider";
 import { contrastWithWhite, isHex } from "@/lib/theme-colors";
+import { EFFECT_LABELS, SUGGESTED_WINDOWS, THEME_EFFECTS, formatWindow, pickScheduledTheme, todayInVietnam } from "@/lib/theme-schedule";
 
 export type ThemeRow = {
   id: string;
@@ -21,6 +22,13 @@ export type ThemeRow = {
   heroImage: string | null;
   headerImage: string | null;
   footerImage: string | null;
+  startDate: string | null;
+  endDate: string | null;
+  repeatYearly: boolean;
+  effect: string;
+  effectImage: string | null;
+  effectDensity: number;
+  bannerText: string | null;
 };
 
 type Form = Omit<ThemeRow, "id" | "key" | "builtin">;
@@ -37,6 +45,13 @@ const EMPTY_FORM: Form = {
   heroImage: null,
   headerImage: null,
   footerImage: null,
+  startDate: null,
+  endDate: null,
+  repeatYearly: false,
+  effect: "none",
+  effectImage: null,
+  effectDensity: 2,
+  bannerText: null,
 };
 
 function ColorField({
@@ -82,24 +97,43 @@ function ColorField({
   );
 }
 
-export default function ThemeManager({ initialThemes, initialActiveKey }: { initialThemes: ThemeRow[]; initialActiveKey: string }) {
+export default function ThemeManager({ initialThemes, initialActiveKey, initialAuto }: { initialThemes: ThemeRow[]; initialActiveKey: string; initialAuto: boolean }) {
   const { confirm, toast } = useDialog();
   const [themes, setThemes] = useState(initialThemes);
   const [activeKey, setActiveKey] = useState(initialActiveKey);
   const [selectedKey, setSelectedKey] = useState(initialActiveKey);
   const [editing, setEditing] = useState<{ id: string | null; form: Form } | null>(null);
   const [busy, setBusy] = useState(false);
+  const [auto, setAuto] = useState(initialAuto);
 
+  const scheduled = pickScheduledTheme(themes, todayInVietnam());
+  const shownKey = auto ? (scheduled?.key ?? "default") : activeKey;
   const selected = themes.find((t) => t.key === selectedKey);
-  const active = themes.find((t) => t.key === activeKey);
+  const active = themes.find((t) => t.key === shownKey);
+
+  async function toggleAuto(next: boolean) {
+    setBusy(true);
+    const res = await fetch("/api/admin/themes/auto", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ enabled: next }),
+    });
+    setBusy(false);
+    if (!res.ok) {
+      toast("Không đổi được chế độ tự động", "error");
+      return;
+    }
+    setAuto(next);
+    toast(next ? "Đã bật tự động đổi giao diện theo lịch" : "Đã tắt tự động - website giữ giao diện bạn đã áp dụng", "success");
+  }
 
   async function activate() {
-    if (!selected || selected.key === activeKey) return;
+    if (!selected || (selected.key === activeKey && !auto)) return;
     const ok = await confirm({
       title: `Áp dụng giao diện “${selected.name}”?`,
       message:
         "Màu sắc, ảnh hero/header/footer của TOÀN BỘ website sẽ đổi ngay cho mọi khách truy cập (khách thấy ở lần tải trang kế tiếp). " +
-        "Bạn có thể chuyển lại bất cứ lúc nào.",
+        (auto ? "Việc này sẽ TẮT chế độ tự động theo lịch. " : "") + "Bạn có thể chuyển lại bất cứ lúc nào.",
       confirmText: "Áp dụng cho toàn site",
     });
     if (!ok) return;
@@ -116,6 +150,7 @@ export default function ThemeManager({ initialThemes, initialActiveKey }: { init
       return;
     }
     setActiveKey(selected.key);
+    setAuto(false);
     toast(`Đã áp dụng giao diện “${selected.name}”`, "success");
   }
 
@@ -164,13 +199,15 @@ export default function ThemeManager({ initialThemes, initialActiveKey }: { init
   const set = <K extends keyof Form>(k: K, v: Form[K]) => setEditing((e) => (e ? { ...e, form: { ...e.form, [k]: v } } : e));
 
   const f = editing?.form;
+  const editingKey = editing?.id ? themes.find((t) => t.id === editing.id)?.key : undefined;
+  const suggested = editingKey ? SUGGESTED_WINDOWS[editingKey] : undefined;
   const primaryWarn = f && isHex(f.primary) && contrastWithWhite(f.primary) < 4.5;
 
   return (
     <div className="space-y-6">
       <div className="bg-white rounded-2xl border border-slate-100 shadow-card p-5 flex flex-wrap items-center gap-4">
         <div className="flex-1 min-w-[220px]">
-          <p className="text-xs font-bold text-slate-400 uppercase tracking-wide">Đang áp dụng cho khách</p>
+          <p className="text-xs font-bold text-slate-400 uppercase tracking-wide">{auto ? "Hôm nay đang dùng (theo lịch tự động)" : "Đang áp dụng cho khách"}</p>
           <p className="font-display font-bold text-xl text-slate-800">{active?.name ?? "Mặc định"}</p>
           <p className="text-sm text-slate-500">
             Chọn một giao diện bên dưới rồi bấm “Áp dụng”. Màu sắc, ảnh hero/header/footer của toàn website đổi theo.
@@ -179,17 +216,44 @@ export default function ThemeManager({ initialThemes, initialActiveKey }: { init
         <button
           type="button"
           onClick={activate}
-          disabled={busy || !selected || selected.key === activeKey}
+          disabled={busy || !selected || (selected.key === activeKey && !auto)}
           className="bg-brand-blue text-white font-bold rounded-full px-6 py-3 disabled:opacity-40 hover:brightness-95 transition"
         >
-          {selected && selected.key !== activeKey ? `Áp dụng “${selected.name}”` : "Chọn giao diện để áp dụng"}
+          {selected && (selected.key !== activeKey || auto) ? `Áp dụng “${selected.name}”` : "Chọn giao diện để áp dụng"}
+        </button>
+      </div>
+
+      <div className="bg-white rounded-2xl border border-slate-100 shadow-card p-5 flex flex-wrap items-center gap-4">
+        <div className="flex-1 min-w-[220px]">
+          <p className="font-display font-bold text-lg text-slate-800">Tự động đổi theo lịch</p>
+          <p className="text-sm text-slate-500">
+            Bật để website tự chuyển sang giao diện Tết, Trung thu, Quốc khánh... đúng ngày bạn đặt lịch cho từng giao diện (bấm “Chỉnh sửa” → “Lịch tự bật”), hết dịp tự về giao diện mặc định.
+            {auto && (
+              <>
+                {" "}
+                <b className="text-slate-700">Hôm nay: {scheduled ? scheduled.name : "Mặc định (chưa đến dịp nào)"}.</b>
+              </>
+            )}
+          </p>
+        </div>
+        <button
+          type="button"
+          role="switch"
+          aria-checked={auto}
+          aria-label="Tự động đổi giao diện theo lịch"
+          disabled={busy}
+          onClick={() => toggleAuto(!auto)}
+          className={`relative shrink-0 w-14 h-8 rounded-full transition-colors disabled:opacity-50 ${auto ? "bg-brand-green" : "bg-slate-300"}`}
+        >
+          <span className={`absolute top-1 left-1 w-6 h-6 rounded-full bg-white shadow transition-transform ${auto ? "translate-x-6" : ""}`} />
         </button>
       </div>
 
       <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-5">
         {themes.map((t) => {
           const isSel = t.key === selectedKey;
-          const isActive = t.key === activeKey;
+          const isActive = t.key === shownKey;
+          const windowText = formatWindow(t);
           return (
             <div
               key={t.id}
@@ -211,10 +275,16 @@ export default function ThemeManager({ initialThemes, initialActiveKey }: { init
                     <input type="radio" name="theme" checked={isSel} onChange={() => setSelectedKey(t.key)} className="accent-[var(--theme-primary)] w-4 h-4" />
                     {t.name}
                   </label>
-                  {isActive && <span className="text-[11px] font-bold text-white bg-brand-green rounded-full px-2 py-0.5">Đang áp dụng</span>}
+                  {isActive && <span className="text-[11px] font-bold text-white bg-brand-green rounded-full px-2 py-0.5">{auto ? "Đang bật theo lịch" : "Đang áp dụng"}</span>}
                   {t.builtin && <span className="text-[11px] font-bold text-slate-500 bg-slate-100 rounded-full px-2 py-0.5">Có sẵn</span>}
                 </div>
-                {t.description && <p className="text-sm text-slate-500 mb-3 flex-1">{t.description}</p>}
+                {t.description && <p className="text-sm text-slate-500 mb-2 flex-1">{t.description}</p>}
+                {(windowText || t.effect !== "none") && (
+                  <p className="text-[12px] text-slate-500 mb-3 flex flex-wrap gap-x-3 gap-y-1">
+                    {windowText && <span><i className="fa-regular fa-calendar mr-1" aria-hidden="true" />{windowText}</span>}
+                    {t.effect !== "none" && <span><i className="fa-solid fa-wand-magic-sparkles mr-1" aria-hidden="true" />{EFFECT_LABELS[t.effect as keyof typeof EFFECT_LABELS] ?? t.effect}</span>}
+                  </p>
+                )}
                 <div className="flex items-center gap-2 mb-3">
                   {[t.primary, t.secondary, t.footerColor].filter((c): c is string => Boolean(c)).map((c) => (
                     <span key={c} title={c} className="w-6 h-6 rounded-full border border-slate-200" style={{ background: c }} />
@@ -226,7 +296,7 @@ export default function ThemeManager({ initialThemes, initialActiveKey }: { init
                       Chỉnh sửa
                     </button>
                   )}
-                  {!t.builtin && !isActive && (
+                  {!t.builtin && !isActive && t.key !== activeKey && (
                     <button type="button" onClick={() => remove(t)} className="text-sm font-semibold text-brand-red hover:underline">
                       Xóa
                     </button>
@@ -296,6 +366,62 @@ export default function ThemeManager({ initialThemes, initialActiveKey }: { init
                   onChange={(e) => set("heroOverlayOpacity", Number(e.target.value))}
                   className="w-full accent-[var(--theme-primary)]"
                 />
+              </div>
+
+              <div className="pt-3 border-t border-slate-100 space-y-3">
+                <p className="text-[13px] font-bold text-slate-700">Lịch tự bật <span className="font-normal text-slate-400">(dùng khi bật “Tự động đổi theo lịch”)</span></p>
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-[13px] text-slate-500 font-medium mb-1 block">Từ ngày</label>
+                    <input type="date" value={f.startDate ?? ""} onChange={(e) => set("startDate", e.target.value || null)} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-blue/30" />
+                  </div>
+                  <div>
+                    <label className="text-[13px] text-slate-500 font-medium mb-1 block">Đến hết ngày</label>
+                    <input type="date" value={f.endDate ?? ""} onChange={(e) => set("endDate", e.target.value || null)} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-blue/30" />
+                  </div>
+                </div>
+                <label className="flex items-start gap-2 text-sm text-slate-600 cursor-pointer">
+                  <input type="checkbox" checked={f.repeatYearly} onChange={(e) => set("repeatYearly", e.target.checked)} className="w-4 h-4 mt-0.5 accent-[var(--theme-primary)]" />
+                  <span>Lặp lại hằng năm <span className="text-slate-400">(chỉ tính ngày-tháng, hợp với Quốc khánh, Giáng sinh, 30/4...)</span></span>
+                </label>
+                <div className="flex flex-wrap items-center gap-3">
+                  {suggested && (
+                    <button type="button" onClick={() => setEditing((e) => (e ? { ...e, form: { ...e.form, ...suggested } } : e))} className="text-sm font-semibold text-brand-blue border border-brand-blueMid rounded-full px-4 py-1.5 hover:bg-brand-tint">
+                      Điền lịch gợi ý
+                    </button>
+                  )}
+                  {(f.startDate || f.endDate) && (
+                    <button type="button" onClick={() => setEditing((e) => (e ? { ...e, form: { ...e.form, startDate: null, endDate: null, repeatYearly: false } } : e))} className="text-sm text-slate-400 hover:text-slate-600 underline">
+                      Xóa lịch
+                    </button>
+                  )}
+                </div>
+                <p className="text-[11px] text-slate-400">Tết và Trung thu tính theo âm lịch nên ngày thay đổi mỗi năm - nhớ cập nhật lại lịch hằng năm. Nhiều giao diện cùng trúng lịch thì lấy khoảng ngắn nhất.</p>
+              </div>
+
+              <div className="pt-3 border-t border-slate-100 space-y-3">
+                <p className="text-[13px] font-bold text-slate-700">Hiệu ứng &amp; thông báo đầu trang</p>
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-[13px] text-slate-500 font-medium mb-1 block">Hiệu ứng trang trí</label>
+                    <select value={f.effect} onChange={(e) => set("effect", e.target.value)} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-brand-blue/30">
+                      {THEME_EFFECTS.map((k) => (
+                        <option key={k} value={k}>{EFFECT_LABELS[k]}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-[13px] text-slate-500 font-medium mb-1 block">Số lượng: {f.effectDensity === 1 ? "ít" : f.effectDensity === 2 ? "vừa" : "nhiều"}</label>
+                    <input type="range" min={1} max={3} value={f.effectDensity} onChange={(e) => set("effectDensity", Number(e.target.value))} className="w-full accent-[var(--theme-primary)]" disabled={f.effect === "none"} />
+                  </div>
+                </div>
+                {f.effect !== "none" && (
+                  <ImageUploader label="Ảnh hiệu ứng riêng (PNG/GIF nền trong suốt ~64px - để trống dùng biểu tượng có sẵn)" value={f.effectImage ?? ""} onChange={(u) => set("effectImage", u)} folder="themes" />
+                )}
+                <div>
+                  <label className="text-[13px] text-slate-500 font-medium mb-1 block">Dòng thông báo đầu trang (tùy chọn)</label>
+                  <input value={f.bannerText ?? ""} onChange={(e) => set("bannerText", e.target.value || null)} maxLength={120} placeholder="Vd: Chúc mừng năm mới 2027 - Ưu đãi Tết đến 30%" className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-blue/30" />
+                </div>
               </div>
 
               <div className="grid sm:grid-cols-2 gap-4 pt-2 border-t border-slate-100">

@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { imagePathSchema } from "@/lib/validation";
 import { contrastWithWhite, HEX_RE } from "@/lib/theme-colors";
+import { DATE_RE, THEME_EFFECTS } from "@/lib/theme-schedule";
 
 const hex = z.string().regex(HEX_RE, "Mã màu phải có dạng #rrggbb");
 const optHex = hex.optional().or(z.literal("")).nullable();
@@ -12,7 +13,7 @@ const safeImage = imagePathSchema.refine(
 );
 const img = safeImage.optional().or(z.literal("")).nullable();
 
-export const themeFieldsSchema = z.object({
+const themeFieldsBase = z.object({
   name: z.string().trim().min(2, "Tên giao diện tối thiểu 2 ký tự").max(60),
   description: z.string().trim().max(400).optional().or(z.literal("")),
   primary: hex.refine((c) => contrastWithWhite(c) >= 4.5, "Màu chủ đạo quá sáng, chữ trắng trên nút sẽ khó đọc - hãy chọn màu đậm hơn"),
@@ -24,9 +25,27 @@ export const themeFieldsSchema = z.object({
   heroImage: img,
   headerImage: img,
   footerImage: img,
+  startDate: z.string().regex(DATE_RE, "Ngày bắt đầu không hợp lệ").optional().or(z.literal("")).nullable(),
+  endDate: z.string().regex(DATE_RE, "Ngày kết thúc không hợp lệ").optional().or(z.literal("")).nullable(),
+  repeatYearly: z.boolean().optional(),
+  effect: z.enum(THEME_EFFECTS).optional(),
+  effectImage: img,
+  effectDensity: z.number().int().min(1).max(3).optional(),
+  bannerText: z.string().trim().max(120).optional().or(z.literal("")).nullable(),
 });
 
-export const themeUpdateSchema = themeFieldsSchema.partial();
+// Có lịch thì phải đủ cả 2 ngày và ngày cuối không trước ngày đầu (trừ khoảng lặp hằng năm, được phép vắt qua năm mới)
+function checkWindow(v: { startDate?: string | null; endDate?: string | null; repeatYearly?: boolean }, ctx: z.RefinementCtx) {
+  const s = v.startDate || null;
+  const e = v.endDate || null;
+  if ((s && !e) || (!s && e)) ctx.addIssue({ code: "custom", message: "Hãy nhập đủ cả ngày bắt đầu và ngày kết thúc" });
+  else if (s && e && !v.repeatYearly && e < s) ctx.addIssue({ code: "custom", message: "Ngày kết thúc phải sau ngày bắt đầu" });
+}
+
+export const themeFieldsSchema = themeFieldsBase.superRefine(checkWindow);
+
+export const themeUpdateSchema = themeFieldsBase.partial().superRefine(checkWindow);
+export const autoSchema = z.object({ enabled: z.boolean() });
 export const activateSchema = z.object({ key: z.string().trim().min(1).max(60) });
 export const slotSchema = z.object({ imageUrl: safeImage });
 

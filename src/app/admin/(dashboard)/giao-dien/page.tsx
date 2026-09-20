@@ -20,7 +20,7 @@ export default async function AdminThemesPage() {
   await ensureBuiltinThemes();
   const [themes, settings, slots] = await Promise.all([
     prisma.siteTheme.findMany({ orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }] }),
-    prisma.siteSettings.findUnique({ where: { id: "singleton" }, select: { activeThemeKey: true } }),
+    prisma.siteSettings.findUnique({ where: { id: "singleton" }, select: { activeThemeKey: true, autoThemeEnabled: true } }),
     getUiSlots(),
   ]);
   const rows: ThemeRow[] = themes.map((t) => ({
@@ -38,6 +38,13 @@ export default async function AdminThemesPage() {
     heroImage: t.heroImage,
     headerImage: t.headerImage,
     footerImage: t.footerImage,
+    startDate: t.startDate,
+    endDate: t.endDate,
+    repeatYearly: t.repeatYearly,
+    effect: t.effect,
+    effectImage: t.effectImage,
+    effectDensity: t.effectDensity,
+    bannerText: t.bannerText,
   }));
 
   return (
@@ -49,7 +56,7 @@ export default async function AdminThemesPage() {
 
       <section>
         <h2 className="font-display font-bold text-lg text-slate-800 mb-3">Giao diện theo dịp lễ</h2>
-        <ThemeManager initialThemes={rows} initialActiveKey={settings?.activeThemeKey ?? "default"} />
+        <ThemeManager initialThemes={rows} initialActiveKey={settings?.activeThemeKey ?? "default"} initialAuto={settings?.autoThemeEnabled ?? false} />
       </section>
 
       <section>

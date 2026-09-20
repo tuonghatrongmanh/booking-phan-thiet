@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { deriveThemeVars } from "@/lib/theme-colors";
+import { pickScheduledTheme, todayInVietnam, THEME_EFFECTS, type ThemeEffect } from "@/lib/theme-schedule";
 
 // Giao dien theo dip le (Tet, Trung thu, Quoc khanh...) - xem model SiteTheme. Giao dien
 // "default" KHONG ghi de gi (dung nguyen bang mau trong :root cua globals.css); cac giao
@@ -54,6 +55,12 @@ export type ActiveTheme = {
   heroImage: string | null;
   headerImage: string | null;
   footerImage: string | null;
+  effect: ThemeEffect;
+  effectImage: string | null;
+  effectDensity: number;
+  bannerText: string | null;
+  // true = giao diện này đang bật nhờ lịch tự động (không phải admin bấm áp dụng tay)
+  scheduled: boolean;
 };
 
 const DEFAULT_ACTIVE: ActiveTheme = {
@@ -64,6 +71,11 @@ const DEFAULT_ACTIVE: ActiveTheme = {
   heroImage: null,
   headerImage: null,
   footerImage: null,
+  effect: "none",
+  effectImage: null,
+  effectDensity: 2,
+  bannerText: null,
+  scheduled: false,
 };
 
 // Bo nho dem ngan (10s) trong tien trinh: moi request deu can biet giao dien nhung khong can
@@ -83,8 +95,16 @@ export async function getActiveTheme(): Promise<ActiveTheme> {
 
   let value = DEFAULT_ACTIVE;
   try {
-    const settings = await prisma.siteSettings.findUnique({ where: { id: "singleton" }, select: { activeThemeKey: true } });
-    const key = settings?.activeThemeKey;
+    const settings = await prisma.siteSettings.findUnique({ where: { id: "singleton" }, select: { activeThemeKey: true, autoThemeEnabled: true } });
+    let key = settings?.activeThemeKey;
+    let scheduled = false;
+    if (settings?.autoThemeEnabled) {
+      // Chế độ tự động: bỏ qua giao diện áp dụng tay, chọn theo lịch (không trúng lịch nào -> mặc định)
+      const candidates = await prisma.siteTheme.findMany({ where: { startDate: { not: null }, endDate: { not: null } } });
+      const hit = pickScheduledTheme(candidates, todayInVietnam());
+      key = hit?.key ?? null;
+      scheduled = Boolean(hit);
+    }
     if (key && key !== DEFAULT_THEME_KEY) {
       const t = await prisma.siteTheme.findUnique({ where: { key } });
       if (t) {
@@ -96,6 +116,11 @@ export async function getActiveTheme(): Promise<ActiveTheme> {
           heroImage: t.heroImage,
           headerImage: t.headerImage,
           footerImage: t.footerImage,
+          effect: (THEME_EFFECTS as readonly string[]).includes(t.effect) ? (t.effect as ThemeEffect) : "none",
+          effectImage: t.effectImage,
+          effectDensity: Math.min(3, Math.max(1, t.effectDensity)),
+          bannerText: t.bannerText,
+          scheduled,
         };
       }
     }

@@ -939,6 +939,7 @@ model ReviewImage {
 model SiteSettings {
   id                 String   @id @default("singleton")
   activeThemeKey     String? // giao dien theo dip le dang ap dung (null = mac dinh) - xem SiteTheme
+  autoThemeEnabled   Boolean  @default(false) // true = bo qua activeThemeKey, tu chon giao dien theo lich (SiteTheme.startDate/endDate)
   logoUrl            String?
   faviconUrl         String?
   footerDescription  String?  @db.Text
@@ -1347,6 +1348,17 @@ model SiteTheme {
   heroImage          String? // thay anh nen hero trang chu
   headerImage        String? // anh nen header
   footerImage        String? // anh nen footer
+  // Lich tu bat (khi SiteSettings.autoThemeEnabled): ngay dang "YYYY-MM-DD", tinh theo gio Viet Nam.
+  // repeatYearly: chi so sanh thang-ngay va lap lai moi nam (vd Quoc khanh 25/08 - 03/09).
+  startDate          String?
+  endDate            String?
+  repeatYearly       Boolean  @default(false)
+  // Hieu ung rac tren trang: none | petals | snow | lanterns | confetti | stars. effectImage = anh/GIF
+  // rieng cua admin thay cho bieu tuong mac dinh; effectDensity 1 (it) - 3 (nhieu).
+  effect             String   @default("none")
+  effectImage        String?
+  effectDensity      Int      @default(2)
+  bannerText         String? // dai thong bao mong o dau trang (vd "Chuc mung nam moi")
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
 }

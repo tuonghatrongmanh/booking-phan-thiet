@@ -23,8 +23,9 @@ export async function POST(req: NextRequest) {
   const value = key === DEFAULT_THEME_KEY ? null : key;
   await prisma.siteSettings.upsert({
     where: { id: "singleton" },
-    create: { id: "singleton", activeThemeKey: value },
-    update: { activeThemeKey: value },
+    // Áp dụng tay = tắt chế độ tự động theo lịch (nếu không, lịch sẽ ghi đè lựa chọn vừa bấm)
+    create: { id: "singleton", activeThemeKey: value, autoThemeEnabled: false },
+    update: { activeThemeKey: value, autoThemeEnabled: false },
   });
   await logAdminAction(admin, "activate", "site-theme", theme.id, `Áp dụng giao diện "${theme.name}" cho toàn site`);
   invalidateThemeCache();

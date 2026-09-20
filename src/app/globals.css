@@ -863,3 +863,26 @@ body {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
 }
+
+/* Hiệu ứng lễ hội (ThemeEffects): rơi / bay lên / lấp lánh, không chặn thao tác, tắt khi khách chọn giảm chuyển động */
+.bpt-fx { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 40; }
+.bpt-fx > span { position: absolute; top: 0; line-height: 1; will-change: transform, opacity; opacity: 0; }
+.bpt-fx[data-mode="fall"] > span { animation: bpt-fall var(--dur) linear var(--delay) infinite; }
+.bpt-fx[data-mode="rise"] > span { top: auto; bottom: 0; animation: bpt-rise var(--dur) ease-in var(--delay) infinite; }
+.bpt-fx[data-mode="twinkle"] > span { animation: bpt-twinkle var(--dur) ease-in-out var(--delay) infinite; }
+@keyframes bpt-fall {
+  0% { transform: translate3d(0, -8vh, 0) rotate(0deg); opacity: 0; }
+  8% { opacity: 0.95; }
+  100% { transform: translate3d(var(--sway), 108vh, 0) rotate(300deg); opacity: 0.85; }
+}
+@keyframes bpt-rise {
+  0% { transform: translate3d(0, 8vh, 0) rotate(-6deg); opacity: 0; }
+  10% { opacity: 0.95; }
+  100% { transform: translate3d(var(--sway), -108vh, 0) rotate(8deg); opacity: 0; }
+}
+@keyframes bpt-twinkle {
+  0%, 100% { transform: scale(0.5); opacity: 0; }
+  50% { transform: scale(1.15); opacity: 0.95; }
+}
+@media (max-width: 640px) { .bpt-fx > span:nth-child(n + 9) { display: none; } }
+@media (prefers-reduced-motion: reduce) { .bpt-fx { display: none; } }
