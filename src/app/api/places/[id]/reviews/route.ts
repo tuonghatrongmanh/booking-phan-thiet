@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { requireAdmin } from "@/lib/require-admin";
+import { requireAdminSession, requirePlaceEdit } from "@/lib/admin-action";
 import { z } from "zod";
 
 const reviewSchema = z.object({
@@ -17,10 +17,14 @@ type Params = { params: Promise<{ id: string }> };
 // la text tu do, khong gan userId that) - dung de hien thi o trang chu/chi tiet dia
 // diem. Khac voi /api/places/[id]/user-reviews (danh gia THAT tu nguoi dung dang nhap).
 export async function POST(req: NextRequest, { params }: Params) {
-  const { error } = await requireAdmin();
-  if (error) return error;
+  const { admin, error } = await requireAdminSession();
+  if (error || !admin) return error!;
 
   const { id } = await params;
+  const place = await prisma.place.findUnique({ where: { id }, select: { category: true } });
+  if (!place) return NextResponse.json({ error: "Không tìm thấy" }, { status: 404 });
+  const permError = requirePlaceEdit(admin, place.category);
+  if (permError) return permError;
   const body = await req.json().catch(() => null);
   const parsed = reviewSchema.safeParse(body);
   if (!parsed.success) {

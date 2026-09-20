@@ -34,7 +34,7 @@ export default async function PlaceDetailView({
     },
   });
 
-  if (!place || place.category !== category) notFound();
+  if (!place || place.category !== category || place.hidden) notFound();
 
   const rating = avgOf(place.reviews.map((r) => r.rating));
   const statusInfo = PLACE_STATUS_INFO[place.status];

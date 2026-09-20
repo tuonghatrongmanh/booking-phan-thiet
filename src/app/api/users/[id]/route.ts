@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { requireAdmin } from "@/lib/require-admin";
+import { requireSuperAdmin } from "@/lib/admin-action";
 import { z } from "zod";
 
 const updateSchema = z.object({ hidden: z.boolean() });
@@ -10,7 +10,7 @@ type Params = { params: Promise<{ id: string }> };
 // PATCH - dung de an/hien tai khoan (thay the cho xoa - giu nguyen du lieu bai
 // viet/binh luan, chi chan dang nhap va danh dau an trong danh sach quan tri).
 export async function PATCH(req: NextRequest, { params }: Params) {
-  const { error } = await requireAdmin();
+  const { error } = await requireSuperAdmin();
   if (error) return error;
 
   const { id } = await params;
@@ -31,7 +31,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
 }
 
 export async function GET(_req: NextRequest, { params }: Params) {
-  const { error } = await requireAdmin();
+  const { error } = await requireSuperAdmin();
   if (error) return error;
 
   const { id } = await params;
@@ -45,7 +45,7 @@ export async function GET(_req: NextRequest, { params }: Params) {
 // Xoa tai khoan (vd spam/vi pham) - cascade xoa luon bai viet/binh luan/reaction cua
 // nguoi nay tren dien dan (da khai bao onDelete: Cascade trong schema).
 export async function DELETE(_req: NextRequest, { params }: Params) {
-  const { error } = await requireAdmin();
+  const { error } = await requireSuperAdmin();
   if (error) return error;
 
   const { id } = await params;

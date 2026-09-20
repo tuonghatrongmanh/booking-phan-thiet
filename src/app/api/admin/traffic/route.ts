@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { requireAdmin } from "@/lib/require-admin";
+import { requireSuperAdmin } from "@/lib/admin-action";
 
 type Range = "24h" | "7d" | "30d";
 
@@ -17,7 +17,7 @@ function daysAgo(now: Date, days: number) {
 // GET /api/admin/traffic?range=24h|7d|30d - du lieu that cho bieu do luot truy cap,
 // dung cho tab chuyen doi khong reload trang o dashboard.
 export async function GET(req: NextRequest) {
-  const { error } = await requireAdmin();
+  const { error } = await requireSuperAdmin();
   if (error) return error;
 
   const range = (req.nextUrl.searchParams.get("range") as Range) || "24h";

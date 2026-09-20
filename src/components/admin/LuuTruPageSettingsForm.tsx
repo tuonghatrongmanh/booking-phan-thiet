@@ -42,7 +42,10 @@ export default function LuuTruPageSettingsForm({ initial }: { initial: LuuTruPag
       setMessage({ type: "error", text: "Có lỗi xảy ra, vui lòng thử lại." });
       return;
     }
-    setMessage({ type: "success", text: "Đã lưu cài đặt." });
+    setMessage({
+      type: "success",
+      text: res.status === 202 ? "Đã gửi yêu cầu, chờ quản trị viên cấp cao duyệt." : "Đã lưu cài đặt.",
+    });
   }
 
   return (

@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { requireAdmin } from "@/lib/require-admin";
+import { requireSuperAdmin } from "@/lib/admin-action";
 import { z } from "zod";
 
 type Params = { params: Promise<{ id: string }> };
 
 export async function GET(_req: NextRequest, { params }: Params) {
-  const { error } = await requireAdmin();
+  const { error } = await requireSuperAdmin();
   if (error) return error;
 
   const { id } = await params;
@@ -19,7 +19,7 @@ const updateSchema = z.object({ resolved: z.boolean() });
 
 // PATCH - danh dau da xu ly (khong xoa log, chi doi trang thai de admin biet da xem xet)
 export async function PATCH(req: NextRequest, { params }: Params) {
-  const { error } = await requireAdmin();
+  const { error } = await requireSuperAdmin();
   if (error) return error;
 
   const { id } = await params;

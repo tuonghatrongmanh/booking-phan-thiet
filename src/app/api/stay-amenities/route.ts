@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { requireAdmin } from "@/lib/require-admin";
+import { requireAdminSession, requireCreateOrEdit } from "@/lib/admin-action";
 import { z } from "zod";
 
 const schema = z.object({
@@ -17,8 +17,10 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
-  const { error } = await requireAdmin();
-  if (error) return error;
+  const { admin, error } = await requireAdminSession();
+  if (error || !admin) return error!;
+  const permError = requireCreateOrEdit(admin, "stay-amenities", "create");
+  if (permError) return permError;
 
   const body = await req.json();
   const parsed = schema.safeParse(body);

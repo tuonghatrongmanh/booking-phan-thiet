@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { requireAdmin } from "@/lib/require-admin";
+import { requireSuperAdmin } from "@/lib/admin-action";
 import { previewSheet } from "@/lib/sheet-sync";
 
 type Params = { params: Promise<{ id: string }> };
@@ -9,7 +9,7 @@ type Params = { params: Promise<{ id: string }> };
 // DB) de admin xem luoi o that (mau + gia tri) cua tab thang hien tai, dung cho man
 // hinh anh xa cot ngay/cot trang thai theo tung villa/xe.
 export async function GET(_req: Request, { params }: Params) {
-  const { error } = await requireAdmin();
+  const { error } = await requireSuperAdmin();
   if (error) return error;
 
   const { id } = await params;

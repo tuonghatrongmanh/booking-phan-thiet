@@ -18,7 +18,7 @@ export const dynamic = "force-dynamic";
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const game = await prisma.game.findUnique({ where: { slug } });
-  if (!game) return {};
+  if (!game || !game.active) return {};
   return { title: `${game.name} - Game trúng thưởng | Booking Phan Thiết`, description: game.description };
 }
 

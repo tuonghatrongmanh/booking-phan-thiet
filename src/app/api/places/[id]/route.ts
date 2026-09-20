@@ -111,15 +111,20 @@ export async function PATCH(req: NextRequest, { params }: Params) {
       return NextResponse.json(place);
     }
 
-    if (!section) return NextResponse.json({ error: "Bạn không có quyền thực hiện hành động này" }, { status: 403 });
-    const result = await requestDeleteOrHide({
+    // Loai khong co section rieng (RESTAURANT, SALE): chi SUPER_ADMIN duoc an truc tiep.
+    if (!section && admin.role !== "SUPER_ADMIN") {
+      return NextResponse.json({ error: "Bạn không có quyền thực hiện hành động này" }, { status: 403 });
+    }
+    const result = section
+      ? await requestDeleteOrHide({
       admin,
       section,
       action: "hide",
       targetType: "Place",
       targetId: id,
       targetLabel: existing.name,
-    });
+    })
+      : ({ outcome: "direct" } as const);
     if (result.outcome !== "direct") return result.response;
 
     const place = await prisma.place.update({ where: { id }, data: { hidden: true } });
@@ -153,16 +158,21 @@ export async function DELETE(_req: NextRequest, { params }: Params) {
   if (!existing) return NextResponse.json({ error: "Không tìm thấy" }, { status: 404 });
 
   const section = CATEGORY_SECTION[existing.category];
-  if (!section) return NextResponse.json({ error: "Bạn không có quyền thực hiện hành động này" }, { status: 403 });
+  // Loai khong co section rieng (RESTAURANT, SALE): chi SUPER_ADMIN duoc xoa truc tiep.
+  if (!section && admin.role !== "SUPER_ADMIN") {
+    return NextResponse.json({ error: "Bạn không có quyền thực hiện hành động này" }, { status: 403 });
+  }
 
-  const result = await requestDeleteOrHide({
-    admin,
-    section,
-    action: "delete",
-    targetType: "Place",
-    targetId: id,
-    targetLabel: existing.name,
-  });
+  const result = section
+    ? await requestDeleteOrHide({
+        admin,
+        section,
+        action: "delete",
+        targetType: "Place",
+        targetId: id,
+        targetLabel: existing.name,
+      })
+    : ({ outcome: "direct" } as const);
   if (result.outcome !== "direct") return result.response;
 
   await prisma.place.delete({ where: { id } });

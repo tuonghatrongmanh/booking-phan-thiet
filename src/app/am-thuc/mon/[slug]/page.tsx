@@ -22,7 +22,7 @@ type Params = { params: Promise<{ slug: string }> };
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { slug } = await params;
   const food = await prisma.food.findUnique({ where: { slug } });
-  if (!food) return {};
+  if (!food || !food.active) return {};
   const title = food.metaTitle || `${food.name} - ${food.restaurant} | Ẩm Thực Phan Thiết`;
   const description = food.metaDescription || food.description.slice(0, 160);
   const url = `${SITE_URL}/am-thuc/mon/${food.slug}`;

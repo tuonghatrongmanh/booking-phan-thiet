@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import type { Admin } from "@prisma/client";
+import type { Admin, PlaceCategory } from "@prisma/client";
 import { getSectionPermission, type AdminPermissions, type SectionKey } from "@/lib/admin-permissions";
 
 // Lay Admin day du (khong chi thong tin trong JWT) tu session hien tai - can query lai
@@ -152,4 +152,38 @@ export async function requireSuperAdmin(message = "Chỉ SuperAdmin mới có qu
     return { admin: null as Admin | null, error: NextResponse.json({ error: message }, { status: 403 }) };
   }
   return { admin, error: null as NextResponse | null };
+}
+
+// PATCH cua cac muc co cong tat "active": tat hien thi (dang bat -> tat) tinh la "an"
+// (co the phai duyet), moi thay doi khac la "sua". Tra ve null neu duoc lam ngay.
+export async function gateActiveEdit(params: {
+  admin: Admin;
+  section: SectionKey;
+  wasActive: boolean;
+  nextActive: boolean | undefined;
+  targetType: string;
+  targetId: string;
+  targetLabel: string;
+}): Promise<NextResponse | null> {
+  const { admin, section, wasActive, nextActive, targetType, targetId, targetLabel } = params;
+  if (nextActive === false && wasActive) {
+    const r = await requestDeleteOrHide({ admin, section, action: "hide", targetType, targetId, targetLabel });
+    return r.outcome === "direct" ? null : r.response;
+  }
+  return requireCreateOrEdit(admin, section, "edit");
+}
+
+// Anh xa loai Place -> muc quyen (dung cho anh/danh gia gan voi 1 dia diem). Loai khong
+// co muc rieng (RESTAURANT, SALE) chi SUPER_ADMIN duoc sua.
+const PLACE_SECTION: Partial<Record<PlaceCategory, SectionKey>> = {
+  HOMESTAY: "homestay",
+  ATTRACTION: "attractions",
+  CAR_RENTAL: "car-rentals",
+};
+
+export function requirePlaceEdit(admin: Admin, category: PlaceCategory): NextResponse | null {
+  const section = PLACE_SECTION[category];
+  if (section) return requireCreateOrEdit(admin, section, "edit");
+  if (admin.role === "SUPER_ADMIN") return null;
+  return NextResponse.json({ error: "Bạn không có quyền thực hiện hành động này" }, { status: 403 });
 }

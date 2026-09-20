@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { requireAdmin } from "@/lib/require-admin";
+import { requireSuperAdmin } from "@/lib/admin-action";
 import type { Prisma } from "@prisma/client";
 
 const PAGE_SIZE = 10;
@@ -9,7 +9,7 @@ const PAGE_SIZE = 10;
 // bat thuong that, co loc + phan trang, dung cho SecurityAlertTable (client-side,
 // khong reload trang khi doi bo loc).
 export async function GET(req: NextRequest) {
-  const { error } = await requireAdmin();
+  const { error } = await requireSuperAdmin();
   if (error) return error;
 
   const sp = req.nextUrl.searchParams;

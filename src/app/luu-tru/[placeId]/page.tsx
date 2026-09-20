@@ -10,7 +10,7 @@ type Params = { params: Promise<{ placeId: string }> };
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { placeId } = await params;
   const place = await prisma.place.findUnique({ where: { id: placeId } });
-  if (!place || place.category !== "HOMESTAY") return {};
+  if (!place || place.category !== "HOMESTAY" || place.hidden) return {};
   // SEO nhập ở Admin (metaTitle/metaDescription), chưa nhập thì dùng tên + mô tả
   const title = place.metaTitle || `${place.name} | Lưu trú Phan Thiết`;
   const description = place.metaDescription || place.description?.slice(0, 160) || undefined;

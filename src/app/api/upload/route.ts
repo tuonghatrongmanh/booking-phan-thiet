@@ -12,6 +12,17 @@ const CLOUDINARY_CONFIGURED = Boolean(
   process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET
 );
 
+const SAFE_EXT: Record<string, string> = {
+  "image/jpeg": ".jpg",
+  "image/png": ".png",
+  "image/webp": ".webp",
+  "image/gif": ".gif",
+  "image/avif": ".avif",
+  "video/mp4": ".mp4",
+  "video/webm": ".webm",
+  "video/quicktime": ".mov",
+};
+
 // POST /api/upload - upload 1 ảnh lên Cloudinary, tra ve { url }
 // Dung cho toan bo anh: avatar, sale, cover tin tuc, comment mang xa hoi...
 export async function POST(req: NextRequest) {
@@ -27,9 +38,15 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const formData = await req.formData();
+  const formData = await req.formData().catch(() => null);
+  if (!formData) return NextResponse.json({ error: "Dữ liệu tải lên không hợp lệ" }, { status: 400 });
   const file = formData.get("file") as File | null;
-  const folder = (formData.get("folder") as string) || "booking-phan-thiet";
+  // Thư mục do client gửi lên: chỉ giữ các đoạn an toàn (chữ/số/gạch), chặn "../" thoát khỏi public/uploads.
+  const folder =
+    String(formData.get("folder") ?? "")
+      .split("/")
+      .filter((seg) => /^[a-zA-Z0-9_-]{1,40}$/.test(seg))
+      .join("/") || "booking-phan-thiet";
 
   if (!file) {
     return NextResponse.json({ error: "Thiếu file" }, { status: 400 });
@@ -61,7 +78,8 @@ export async function POST(req: NextRequest) {
 
   if (!CLOUDINARY_CONFIGURED) {
     try {
-      const ext = path.extname(file.name) || ".jpg";
+      // Đuôi file theo loại đã kiểm tra chữ ký, không tin tên file do client đặt (tránh lưu .html/.svg giả ảnh).
+      const ext = SAFE_EXT[file.type] ?? (isVideo ? ".mp4" : ".jpg");
       const filename = `${randomUUID()}${ext}`;
       const uploadDir = path.join(process.cwd(), "public", "uploads", folder);
       await mkdir(uploadDir, { recursive: true });

@@ -155,3 +155,43 @@ export const HREF_TO_SECTION: Record<string, import("@/lib/admin-permissions").S
   "/admin/page-seo": "settings",
   "/admin/guide-videos": "guide-videos",
 };
+
+// Cac trang CHI SuperAdmin duoc vao (khong nam trong he thong quyen theo muc). Dung o
+// proxy.ts (chan ca dieu huong mem) va layout. Khop chinh xac hoac theo thu muc con -
+// "/admin/forum" khong duoc khop nham "/admin/forum-comments".
+const SUPER_ONLY_PATHS = [
+  "/admin/staff",
+  "/admin/pending-changes",
+  "/admin/audit-log",
+  "/admin/sheet-sync",
+  "/admin/users",
+  "/admin/forum",
+  "/admin/giao-dien",
+];
+
+export function isSuperOnlyPath(pathname: string): boolean {
+  return SUPER_ONLY_PATHS.some((p) => pathname === p || pathname.startsWith(p + "/"));
+}
+
+// Muc quyen cua 1 duong dan (khop dai nhat truoc), null neu khong thuoc he thong quyen.
+export function sectionForPath(pathname: string): import("@/lib/admin-permissions").SectionKey | null {
+  let best: string | null = null;
+  for (const href of Object.keys(HREF_TO_SECTION)) {
+    if ((pathname === href || pathname.startsWith(href + "/")) && (!best || href.length > best.length)) best = href;
+  }
+  return best ? HREF_TO_SECTION[best] : null;
+}
+
+// Trang dau tien nhan vien duoc phep vao (dung khi bi chuyen huong ra khoi trang khong co quyen).
+export function firstAccessibleHref(
+  hasAccess: (section: import("@/lib/admin-permissions").SectionKey) => boolean
+): string {
+  for (const item of NAV) {
+    const links = isGroup(item) ? item.children : [item];
+    for (const link of links) {
+      const section = HREF_TO_SECTION[link.href];
+      if (section && hasAccess(section)) return link.href;
+    }
+  }
+  return "/admin/account";
+}

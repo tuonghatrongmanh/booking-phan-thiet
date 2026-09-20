@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { requireAdmin } from "@/lib/require-admin";
+import { requireSuperAdmin } from "@/lib/admin-action";
 import { parseSheetUrl } from "@/lib/sheet-sync";
 
 const createSchema = z.object({
@@ -11,7 +11,7 @@ const createSchema = z.object({
 });
 
 export async function GET() {
-  const { error } = await requireAdmin();
+  const { error } = await requireSuperAdmin();
   if (error) return error;
 
   const sources = await prisma.sheetSyncSource.findMany({
@@ -22,7 +22,7 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
-  const { error } = await requireAdmin();
+  const { error } = await requireSuperAdmin();
   if (error) return error;
 
   const body = await req.json().catch(() => ({}));

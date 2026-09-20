@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { requireAdmin } from "@/lib/require-admin";
+import { requireSuperAdmin } from "@/lib/admin-action";
 import { z } from "zod";
 
 const schema = z.object({ ip: z.string().min(1), reason: z.string().optional() });
@@ -8,7 +8,7 @@ const schema = z.object({ ip: z.string().min(1), reason: z.string().optional() }
 // POST - chan 1 IP (server.ts doc lai cache moi 30s va tra ve 403 ngay tu tang HTTP,
 // khong de lot vao Next.js/API routes).
 export async function POST(req: NextRequest) {
-  const { error } = await requireAdmin();
+  const { error } = await requireSuperAdmin();
   if (error) return error;
 
   const body = await req.json();
@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
 
 // DELETE ?ip=... - go chan
 export async function DELETE(req: NextRequest) {
-  const { error } = await requireAdmin();
+  const { error } = await requireSuperAdmin();
   if (error) return error;
 
   const ip = req.nextUrl.searchParams.get("ip");

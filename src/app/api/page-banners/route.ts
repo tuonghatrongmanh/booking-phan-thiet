@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { requireAdmin } from "@/lib/require-admin";
+import { requireAdminSession, requireCreateOrEdit } from "@/lib/admin-action";
 import { z } from "zod";
 import { imagePathSchema } from "@/lib/validation";
 
@@ -24,8 +24,10 @@ export async function GET(req: NextRequest) {
 // diem, tu dong tat cac row active cu cung slot truoc khi tao row moi (don gian hoa
 // UI quan tri: chi can 1 form "luu la thay", khong can quan ly danh sach nhieu row).
 export async function POST(req: NextRequest) {
-  const { error } = await requireAdmin();
-  if (error) return error;
+  const { admin, error } = await requireAdminSession();
+  if (error || !admin) return error!;
+  const permError = requireCreateOrEdit(admin, "luu-tru-settings", "edit");
+  if (permError) return permError;
 
   const body = await req.json();
   const parsed = schema.safeParse(body);

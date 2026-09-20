@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { requireSectionAccess } from "@/lib/admin-action";
+import { requireSectionAccess, requireCreateOrEdit } from "@/lib/admin-action";
 import { z } from "zod";
 
 const updateSchema = z.object({
@@ -11,8 +11,10 @@ const updateSchema = z.object({
 type Params = { params: Promise<{ id: string }> };
 
 export async function PATCH(req: NextRequest, { params }: Params) {
-  const { error } = await requireSectionAccess("sale-agents");
-  if (error) return error;
+  const { admin, error } = await requireSectionAccess("sale-agents");
+  if (error || !admin) return error!;
+  const permError = requireCreateOrEdit(admin, "sale-agents", "edit");
+  if (permError) return permError;
 
   const { id } = await params;
   const body = await req.json().catch(() => null);
@@ -52,7 +54,8 @@ export async function PATCH(req: NextRequest, { params }: Params) {
       return updated;
     });
     return NextResponse.json(application);
-  } catch {
-    return NextResponse.json({ error: "Không tìm thấy" }, { status: 404 });
+  } catch (err) {
+    console.error("[sale-applications] cập nhật thất bại", err);
+    return NextResponse.json({ error: "Không thể cập nhật đơn (có thể số điện thoại đã trùng với hồ sơ khác)" }, { status: 500 });
   }
 }

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { requireAdmin } from "@/lib/require-admin";
+import { requireAdminSession, requestUpdate } from "@/lib/admin-action";
 import { getLuuTruPageSettings, updateLuuTruPageSettings } from "@/lib/luu-tru-settings";
 
 const settingsSchema = z.object({
@@ -20,8 +20,8 @@ export async function GET() {
 }
 
 export async function PATCH(req: NextRequest) {
-  const { error } = await requireAdmin();
-  if (error) return error;
+  const { admin, error } = await requireAdminSession();
+  if (error || !admin) return error!;
 
   const body = await req.json().catch(() => null);
   const parsed = settingsSchema.safeParse(body);
@@ -32,6 +32,16 @@ export async function PATCH(req: NextRequest) {
   const data = Object.fromEntries(
     Object.entries(parsed.data).map(([key, value]) => [key, value === "" ? null : value])
   );
+
+  const result = await requestUpdate({
+    admin,
+    section: "luu-tru-settings",
+    targetType: "LuuTruPageSettings",
+    targetId: "singleton",
+    targetLabel: "Tổng quan Lưu trú",
+    payload: data,
+  });
+  if (result.outcome !== "direct") return result.response;
 
   const updated = await updateLuuTruPageSettings(data);
   return NextResponse.json(updated);

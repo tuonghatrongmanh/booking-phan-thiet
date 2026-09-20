@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { requireAdmin } from "@/lib/require-admin";
+import { requireSuperAdmin } from "@/lib/admin-action";
 import { syncSheetSource } from "@/lib/sheet-sync";
 
 type Params = { params: Promise<{ id: string }> };
@@ -7,7 +7,7 @@ type Params = { params: Promise<{ id: string }> };
 // POST /api/admin/sheet-sync/[id]/sync - dong bo ngay theo yeu cau (ngoai vong lap
 // dinh ky trong server.ts), dung khi admin vua sua anh xa xong muon thay ket qua lien.
 export async function POST(_req: Request, { params }: Params) {
-  const { error } = await requireAdmin();
+  const { error } = await requireSuperAdmin();
   if (error) return error;
 
   const { id } = await params;

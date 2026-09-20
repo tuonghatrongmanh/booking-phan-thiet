@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { requireAdmin } from "@/lib/require-admin";
+import { requireSuperAdmin } from "@/lib/admin-action";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -21,7 +21,7 @@ const saveSchema = z.object({
 // POST /api/admin/sheet-sync/[id]/mappings - luu toan bo anh xa villa/xe -> cot cho 1
 // nguon (ghi de danh sach cu) - dung khi admin thiet lap/chinh sua anh xa.
 export async function POST(req: NextRequest, { params }: Params) {
-  const { error } = await requireAdmin();
+  const { error } = await requireSuperAdmin();
   if (error) return error;
 
   const { id } = await params;
