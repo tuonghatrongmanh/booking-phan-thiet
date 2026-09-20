@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
 
@@ -50,6 +51,7 @@ export default function UserNotificationBell({
   const [items, setItems] = useState<NotificationItem[]>([]);
   const [open, setOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [mounted, setMounted] = useState(false);
   const boxRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -70,12 +72,22 @@ export default function UserNotificationBell({
   }, []);
 
   useEffect(() => {
-    function onClickOutside(e: MouseEvent) {
-      if (boxRef.current && !boxRef.current.contains(e.target as Node)) setOpen(false);
-    }
-    document.addEventListener("mousedown", onClickOutside);
-    return () => document.removeEventListener("mousedown", onClickOutside);
+    const t = setTimeout(() => setMounted(true), 0);
+    return () => clearTimeout(t);
   }, []);
+
+  // Mở khung tài khoản: khóa cuộn trang phía sau, Esc để đóng
+  useEffect(() => {
+    if (!open) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = prev;
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [open]);
 
   function markAllRead() {
     try {
@@ -119,60 +131,94 @@ export default function UserNotificationBell({
         )}
       </button>
 
-      {open && (
-        // Điện thoại: hộp cố định trong khung màn hình (không bị cắt bên trái); máy tính: thả xuống ngay dưới avatar
-        <div className="fixed inset-x-3 top-[80px] sm:absolute sm:inset-x-auto sm:right-0 sm:top-full sm:mt-2 z-50 sm:w-80 bg-white rounded-2xl shadow-2xl border border-slate-100 overflow-hidden">
-          <div className="p-3 border-b border-slate-100 space-y-2">
-            <Link
-              href={saleProfileId ? `/sale/${saleProfileId}` : "/tai-khoan"}
+      {mounted &&
+        createPortal(
+          <>
+            <div
+              className={`fixed inset-0 z-[70] bg-black/45 transition-opacity duration-300 ${open ? "opacity-100" : "opacity-0 pointer-events-none"}`}
               onClick={() => setOpen(false)}
-              className="flex items-center gap-3 rounded-xl bg-brand-blue text-white p-3 hover:brightness-95 transition"
+              aria-hidden="true"
+            />
+            <aside
+              role="dialog"
+              aria-modal="true"
+              aria-label="Tài khoản của tôi"
+              inert={!open}
+              className={`fixed inset-y-0 right-0 z-[71] w-[86vw] max-w-[380px] bg-white shadow-[-12px_0_32px_rgba(0,30,80,0.3)] flex flex-col transition-transform duration-300 ease-out ${
+                open ? "translate-x-0" : "translate-x-full"
+              }`}
             >
-              <Image src={avatar} alt="" width={40} height={40} className="w-10 h-10 rounded-full object-cover ring-2 ring-white/60 shrink-0" />
-              <span className="min-w-0 flex-1">
-                <span className="block font-bold text-[15px] truncate">{name || "Tài khoản"}</span>
-                <span className="block text-xs text-white/85">{saleProfileId ? "Xem hồ sơ Sale của tôi" : "Xem trang cá nhân"}</span>
-              </span>
-              <i className="fa-solid fa-chevron-right text-xs" aria-hidden="true" />
-            </Link>
-            <div className="flex gap-2">
-              {saleProfileId && (
-                <Link href="/tai-khoan" onClick={() => setOpen(false)} className="flex-1 text-center text-xs font-bold text-brand-blue border border-brand-blueMid rounded-full py-2 hover:bg-brand-tint">
-                  Thông tin tài khoản
-                </Link>
-              )}
-              <button type="button" onClick={() => signOut({ callbackUrl: "/" })} className="flex-1 text-center text-xs font-bold text-slate-600 border border-slate-200 rounded-full py-2 hover:bg-slate-50">
-                Đăng xuất
-              </button>
-            </div>
-          </div>
-          <p className="px-4 pt-3 pb-1 font-bold text-sm text-slate-800">Thông báo</p>
-          <div className="max-h-[50vh] sm:max-h-80 overflow-y-auto scrollbar-none">
-            {items.length === 0 ? (
-              <p className="p-6 text-sm text-slate-400 text-center">Chưa có thông báo nào.</p>
-            ) : (
-              items.map((n) => (
-                <button
-                  key={n.id}
-                  type="button"
-                  onClick={() => {
-                    router.push(n.href);
-                    setOpen(false);
-                  }}
-                  className="w-full text-left flex items-start gap-2.5 px-4 py-3 border-b border-slate-50 hover:bg-slate-50 transition"
+              <div className="bg-navbar-gradient text-white px-5 pt-5 pb-4 shrink-0">
+                <div className="flex items-start justify-between">
+                  <Image src={avatar} alt="" width={64} height={64} className="w-16 h-16 rounded-full object-cover ring-2 ring-white/70" />
+                  <button type="button" onClick={() => setOpen(false)} aria-label="Đóng" className="w-9 h-9 rounded-full hover:bg-white/15 flex items-center justify-center">
+                    <i className="fa-solid fa-xmark text-lg" aria-hidden="true" />
+                  </button>
+                </div>
+                <p className="font-display font-bold text-xl mt-2.5 truncate">{name || "Tài khoản"}</p>
+                <p className="text-sm text-white/80">{saleProfileId ? "Sale uy tín" : "Thành viên"}</p>
+              </div>
+
+              <div className="px-4 py-3 space-y-2 shrink-0 border-b border-slate-100">
+                <Link
+                  href={saleProfileId ? `/sale/${saleProfileId}` : "/tai-khoan"}
+                  onClick={() => setOpen(false)}
+                  className="flex items-center gap-3 rounded-xl bg-brand-blue text-white px-4 py-3 font-bold hover:brightness-95 transition"
                 >
-                  <span className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${TYPE_DOT[n.type]}`} />
-                  <div className="min-w-0">
-                    <p className="text-sm font-semibold text-slate-700 truncate">{n.title}</p>
-                    <p className="text-xs text-slate-400 truncate">{n.description}</p>
-                    <p className="text-[11px] text-slate-300 mt-0.5">{timeAgo(n.createdAt)}</p>
-                  </div>
+                  <i className={`fa-solid ${saleProfileId ? "fa-id-badge" : "fa-user"} w-5 text-center`} aria-hidden="true" />
+                  <span className="flex-1">{saleProfileId ? "Hồ sơ Sale của tôi" : "Trang cá nhân"}</span>
+                  <i className="fa-solid fa-chevron-right text-xs" aria-hidden="true" />
+                </Link>
+                {saleProfileId && (
+                  <Link
+                    href="/tai-khoan"
+                    onClick={() => setOpen(false)}
+                    className="flex items-center gap-3 rounded-xl bg-brand-tint text-brand-blue px-4 py-2.5 text-sm font-bold hover:bg-brand-sky transition"
+                  >
+                    <i className="fa-solid fa-gear w-5 text-center" aria-hidden="true" /> Thông tin tài khoản
+                  </Link>
+                )}
+              </div>
+
+              <p className="px-5 pt-3 pb-1 font-bold text-sm text-slate-800 shrink-0">Thông báo</p>
+              <div className="flex-1 min-h-0 overflow-y-auto scrollbar-none">
+                {items.length === 0 ? (
+                  <p className="p-6 text-sm text-slate-400 text-center">Chưa có thông báo nào.</p>
+                ) : (
+                  items.map((n) => (
+                    <button
+                      key={n.id}
+                      type="button"
+                      onClick={() => {
+                        router.push(n.href);
+                        setOpen(false);
+                      }}
+                      className="w-full text-left flex items-start gap-3 px-5 py-3 border-b border-slate-50 hover:bg-slate-50 transition"
+                    >
+                      <span className={`w-2.5 h-2.5 rounded-full mt-1.5 shrink-0 ${TYPE_DOT[n.type]}`} />
+                      <div className="min-w-0">
+                        <p className="text-sm font-semibold text-slate-700">{n.title}</p>
+                        <p className="text-xs text-slate-400 truncate">{n.description}</p>
+                        <p className="text-[11px] text-slate-300 mt-0.5">{timeAgo(n.createdAt)}</p>
+                      </div>
+                    </button>
+                  ))
+                )}
+              </div>
+
+              <div className="p-4 shrink-0 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => signOut({ callbackUrl: "/" })}
+                  className="w-full flex items-center justify-center gap-2 rounded-full border border-slate-300 text-slate-600 font-bold py-2.5 hover:bg-slate-50 transition"
+                >
+                  <i className="fa-solid fa-right-from-bracket" aria-hidden="true" /> Đăng xuất
                 </button>
-              ))
-            )}
-          </div>
-        </div>
-      )}
+              </div>
+            </aside>
+          </>,
+          document.body
+        )}
     </div>
   );
 }

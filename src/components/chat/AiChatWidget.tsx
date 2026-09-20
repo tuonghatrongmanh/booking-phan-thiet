@@ -202,8 +202,26 @@ export default function AiChatWidget() {
     setInput("");
   }
 
-  // Khách có thể ẩn hẳn trợ lý (nút × trên robot hoặc Cài đặt trong menu)
-  if (pathname.startsWith("/admin") || !aiVisible) return null;
+  if (pathname.startsWith("/admin")) return null;
+
+  // Khách bấm × thì robot THU GỌN thành hình tròn nhỏ ở đúng góc đó (không biến mất) - bấm vào để mở lại
+  if (!aiVisible) {
+    return (
+      <button
+        type="button"
+        onClick={() => {
+          setPref("ai", true);
+          setOpen(true);
+        }}
+        aria-label="Mở trợ lý AI"
+        title="Trợ lý AI"
+        className="fixed z-[45] right-3 sm:right-5 bottom-[60px] sm:bottom-[86px] w-11 h-11 rounded-full bg-white ring-2 ring-brand-blue shadow-lg hover:scale-105 active:scale-95 transition-transform"
+        style={{ backgroundImage: `url(${customRobot || "/images/ai-robot.png"})`, backgroundSize: "170%", backgroundPosition: "-9px 2px", backgroundRepeat: "no-repeat" }}
+      >
+        <span className="absolute -top-0.5 -right-0.5 w-3 h-3 rounded-full bg-brand-green ring-2 ring-white" aria-hidden="true" />
+      </button>
+    );
+  }
 
   const onlyWelcome = messages.length === 1 && messages[0].welcome;
 

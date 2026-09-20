@@ -19,10 +19,10 @@ function Switch({ on, onChange, label }: { on: boolean; onChange: (v: boolean) =
   );
 }
 
-export default function ClientSettingsPanel({ tone = "dark" }: { tone?: "dark" | "light" }) {
+export default function ClientSettingsPanel({ tone = "dark", compact = false }: { tone?: "dark" | "light"; compact?: boolean }) {
   const prefs = usePrefs();
   const dark = tone === "dark";
-  const row = `flex items-center gap-3 py-2.5 ${dark ? "text-white" : "text-slate-700"}`;
+  const row = `flex items-center gap-3 ${compact ? "py-1.5" : "py-2.5"} ${dark ? "text-white" : "text-slate-700"}`;
   const sub = dark ? "text-white/60" : "text-slate-400";
 
   return (
@@ -35,7 +35,7 @@ export default function ClientSettingsPanel({ tone = "dark" }: { tone?: "dark" |
         <i className={`fa-solid ${prefs.sound ? "fa-volume-high" : "fa-volume-xmark"} w-5 text-center text-lg`} aria-hidden="true" />
         <div className="flex-1 min-w-0">
           <p className="text-[15px] font-bold leading-tight">Âm thanh</p>
-          <p className={`text-xs ${sub}`}>{prefs.sound ? "Đang bật" : "Đang tắt"}</p>
+          {!compact && <p className={`text-xs ${sub}`}>{prefs.sound ? "Đang bật" : "Đang tắt"}</p>}
         </div>
         <Switch on={prefs.sound} onChange={(v) => setPref("sound", v)} label="Bật hoặc tắt âm thanh" />
       </div>
@@ -44,11 +44,12 @@ export default function ClientSettingsPanel({ tone = "dark" }: { tone?: "dark" |
         <i className="fa-solid fa-robot w-5 text-center text-lg" aria-hidden="true" />
         <div className="flex-1 min-w-0">
           <p className="text-[15px] font-bold leading-tight">Trợ lý AI</p>
-          <p className={`text-xs ${sub}`}>{prefs.ai ? "Đang hiện" : "Đang ẩn"}</p>
+          {!compact && <p className={`text-xs ${sub}`}>{prefs.ai ? "Đang mở rộng" : "Đang thu gọn"}</p>}
         </div>
         <Switch on={prefs.ai} onChange={(v) => setPref("ai", v)} label="Hiện hoặc ẩn trợ lý AI" />
       </div>
 
+      {!compact && (
       <div className={`${row} !items-start`}>
         <i className="fa-solid fa-language w-5 text-center text-lg mt-0.5" aria-hidden="true" />
         <div className="flex-1 min-w-0">
@@ -82,6 +83,7 @@ export default function ClientSettingsPanel({ tone = "dark" }: { tone?: "dark" |
           </div>
         </div>
       </div>
+      )}
     </div>
   );
 }
