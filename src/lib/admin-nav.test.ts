@@ -50,3 +50,10 @@ describe("báo cáo & lịch đặt", () => {
     expect(sectionForPath("/admin/lich-dat")).toBe("homestay");
   });
 });
+
+describe("hoa hồng Sale & yêu cầu đối tác", () => {
+  it("chỉ SuperAdmin được vào (có tiền và dữ liệu khách)", () => {
+    expect(isSuperOnlyPath("/admin/hoa-hong")).toBe(true);
+    expect(isSuperOnlyPath("/admin/yeu-cau-doi-tac")).toBe(true);
+  });
+});

@@ -6,6 +6,8 @@ import PlaceImagesManager from "@/components/admin/PlaceImagesManager";
 import SocialCommentsManager from "@/components/admin/SocialCommentsManager";
 import ReviewsManager from "@/components/admin/ReviewsManager";
 import PlaceBookingOptionsManager from "@/components/admin/PlaceBookingOptionsManager";
+import { PlaceOwnerPanel } from "@/components/admin/PartnerAdminControls";
+import { getCurrentAdmin } from "@/lib/current-admin";
 
 export const dynamic = "force-dynamic";
 
@@ -18,8 +20,10 @@ export default async function PlaceDetailPage({ params }: { params: Promise<{ id
       socialComments: { orderBy: { createdAt: "desc" } },
       reviews: { orderBy: { createdAt: "desc" }, include: { images: true } },
       bookingOptions: { orderBy: { sortOrder: "asc" } },
+      partnerUser: { select: { name: true, email: true } },
     },
   });
+  const isSuper = (await getCurrentAdmin())?.role === "SUPER_ADMIN";
   const [stayTypes, amenities] = await Promise.all([
     prisma.stayTypeSetting.findMany({ orderBy: { sortOrder: "asc" } }),
     prisma.stayAmenity.findMany({ orderBy: { sortOrder: "asc" } }),
@@ -52,6 +56,7 @@ export default async function PlaceDetailPage({ params }: { params: Promise<{ id
           }))}
         />
       )}
+      {isSuper && (place.category === "HOMESTAY" || place.category === "CAR_RENTAL") && <PlaceOwnerPanel placeId={place.id} current={place.partnerUser} />}
       <PlaceImagesManager placeId={place.id} images={place.images} />
       <SocialCommentsManager placeId={place.id} comments={place.socialComments} />
       <ReviewsManager placeId={place.id} reviews={place.reviews} />

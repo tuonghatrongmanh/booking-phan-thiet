@@ -26,7 +26,7 @@ export async function GET() {
 
   const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
 
-  const [redemptions, rentalInquiries, stayInquiries, saleTasks, commissions] = await Promise.all([
+  const [redemptions, rentalInquiries, stayInquiries, saleTasks, commissions, partnerRequests] = await Promise.all([
     prisma.redemption.findMany({
       where: { userId: actor.id, status: { in: ["FULFILLED", "CANCELLED"] }, updatedAt: { gte: since } },
       orderBy: { updatedAt: "desc" },
@@ -66,6 +66,13 @@ export async function GET() {
       orderBy: { createdAt: "desc" },
       take: 10,
       select: { id: true, status: true, amount: true, salePlaceId: true, paidAt: true, createdAt: true },
+    }),
+    // Đối tác: yêu cầu chỉnh sửa vừa được duyệt / từ chối
+    prisma.placeChangeRequest.findMany({
+      where: { userId: actor.id, status: { in: ["APPROVED", "REJECTED"] }, reviewedAt: { gte: since } },
+      orderBy: { reviewedAt: "desc" },
+      take: 10,
+      select: { id: true, status: true, adminNote: true, reviewedAt: true, updatedAt: true, place: { select: { name: true } } },
     }),
   ]);
 
@@ -124,7 +131,16 @@ export async function GET() {
     createdAt: c.status === "PAID" ? (c.paidAt ?? c.createdAt) : c.createdAt,
   }));
 
-  const items = [...redemptionItems, ...rentalItems, ...stayItems, ...taskItems, ...commissionItems].sort(
+  const partnerItems = partnerRequests.map((r) => ({
+    id: `partner-request:${r.id}:${r.status}`,
+    type: r.status === "APPROVED" ? ("system" as const) : ("warning" as const),
+    title: r.status === "APPROVED" ? "Yêu cầu chỉnh sửa đã được duyệt" : "Yêu cầu chỉnh sửa bị từ chối",
+    description: `${r.place.name}${r.adminNote ? ` — ${r.adminNote}` : ""}`,
+    href: "/doi-tac",
+    createdAt: r.reviewedAt ?? r.updatedAt,
+  }));
+
+  const items = [...redemptionItems, ...rentalItems, ...stayItems, ...taskItems, ...commissionItems, ...partnerItems].sort(
     (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
   );
 

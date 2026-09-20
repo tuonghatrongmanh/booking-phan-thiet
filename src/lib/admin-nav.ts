@@ -24,6 +24,7 @@ export const NAV: NavEntry[] = [
       { href: "/admin/places", label: "Địa điểm / Homestay", icon: "M12 2 3 14h7l-1 8 11-13h-7l1-7z" },
       { href: "/admin/lich-dat", label: "Lịch đặt phòng & xe", icon: "M8 2v4M16 2v4M3 9h18M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z" },
       { href: "/admin/stay-booking-inquiries", label: "Yêu cầu đặt phòng", icon: "M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 14l2 2 4-4" },
+      { href: "/admin/yeu-cau-doi-tac", label: "Yêu cầu từ đối tác", icon: "M17 20h5v-2a4 4 0 0 0-4-4h-1M9 20H4v-2a4 4 0 0 1 4-4h1m0-4a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" },
       { href: "/admin/stay-areas", label: "Khu vực", icon: "M12 2 3 14h7l-1 8 11-13h-7l1-7z" },
       { href: "/admin/stay-amenities", label: "Tiện ích", icon: "M4 6h16M4 12h16M4 18h16" },
       { href: "/admin/stay-types", label: "Danh mục chỗ ở", icon: "M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z" },
@@ -172,6 +173,7 @@ const SUPER_ONLY_PATHS = [
   "/admin/forum",
   "/admin/giao-dien",
   "/admin/hoa-hong", // tiền hoa hồng Sale: chỉ SuperAdmin
+  "/admin/yeu-cau-doi-tac", // duyệt thay đổi của đối tác: chỉ SuperAdmin
   "/admin/bao-cao", // doanh thu + xuất danh sách khách: chỉ SuperAdmin
 ];
 

@@ -41,11 +41,13 @@ export default function UserNotificationBell({
   name,
   warned,
   saleProfileId = null,
+  partnerCount = 0,
 }: {
   avatar: string;
   name: string | null;
   warned: boolean;
   saleProfileId?: string | null;
+  partnerCount?: number;
 }) {
   const router = useRouter();
   const [items, setItems] = useState<NotificationItem[]>([]);
@@ -169,6 +171,15 @@ export default function UserNotificationBell({
                   <span className="flex-1">{saleProfileId ? "Hồ sơ Sale của tôi" : "Trang cá nhân"}</span>
                   <i className="fa-solid fa-chevron-right text-xs" aria-hidden="true" />
                 </Link>
+                {partnerCount > 0 && (
+                  <Link
+                    href="/doi-tac"
+                    onClick={() => setOpen(false)}
+                    className="flex items-center gap-3 rounded-xl bg-amber-50 text-amber-800 px-4 py-2.5 text-sm font-bold hover:bg-amber-100 transition"
+                  >
+                    <i className="fa-solid fa-handshake w-5 text-center" aria-hidden="true" /> Cổng đối tác
+                  </Link>
+                )}
                 {saleProfileId && (
                   <Link
                     href="/tai-khoan"

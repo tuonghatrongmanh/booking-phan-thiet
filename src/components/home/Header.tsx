@@ -31,6 +31,9 @@ export default async function Header() {
     ? await prisma.place.findFirst({ where: { userId: (session!.user as { id: string }).id, category: "SALE", hidden: false }, select: { id: true } })
     : null;
 
+  // Chủ homestay/xe được admin gán: menu avatar có thêm lối vào Cổng đối tác
+  const partnerCount = user ? await prisma.place.count({ where: { partnerUserId: (session!.user as { id: string }).id, category: { in: ["HOMESTAY", "CAR_RENTAL"] } } }) : 0;
+
   return (
     <header className="bg-navbar-gradient header-ocean-sheen sticky top-0 z-50 shadow-[0_2px_12px_rgba(0,59,149,0.10)]">
       {theme.headerImage && (
@@ -55,7 +58,7 @@ export default async function Header() {
             <span className="hidden xl:block w-px h-7 bg-white/25" aria-hidden="true" />
             {user && <HeaderCoinBadge initialCoins={user.coins} avatar={user.avatar || "/images/avatar-world.png"} name={user.name} />}
             {user ? (
-              <UserNotificationBell avatar={user.avatar || "/images/avatar-world.png"} name={user.name} warned={Boolean(user.warnedAt)} saleProfileId={saleProfile?.id ?? null} />
+              <UserNotificationBell avatar={user.avatar || "/images/avatar-world.png"} name={user.name} warned={Boolean(user.warnedAt)} saleProfileId={saleProfile?.id ?? null} partnerCount={partnerCount} />
             ) : (
               <Link
                 href="/dang-nhap"

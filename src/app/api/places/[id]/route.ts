@@ -157,6 +157,12 @@ export async function DELETE(_req: NextRequest, { params }: Params) {
   const existing = await prisma.place.findUnique({ where: { id } });
   if (!existing) return NextResponse.json({ error: "Không tìm thấy" }, { status: 404 });
 
+  // Sale con hoa hong chua tra: xoa ho so se xoa luon so hoa hong -> chan, buoc tra/huy truoc
+  if (existing.category === "SALE") {
+    const owed = await prisma.saleCommission.count({ where: { salePlaceId: id, status: "PENDING" } });
+    if (owed > 0) return NextResponse.json({ error: "Sale này còn hoa hồng chưa trả - hãy trả xong (Hoa hồng Sale) rồi mới xóa hồ sơ" }, { status: 409 });
+  }
+
   const section = CATEGORY_SECTION[existing.category];
   // Loai khong co section rieng (RESTAURANT, SALE): chi SUPER_ADMIN duoc xoa truc tiep.
   if (!section && admin.role !== "SUPER_ADMIN") {

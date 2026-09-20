@@ -80,7 +80,20 @@ export async function GET() {
     createdAt: r.customerReportedPaidAt ?? new Date(0),
   });
 
+  const isSuper = (session!.user as { role?: string }).role === "SUPER_ADMIN";
+  const partnerReqs = isSuper
+    ? await prisma.placeChangeRequest.findMany({ where: { status: "PENDING" }, orderBy: { createdAt: "desc" }, take: 5, select: { id: true, createdAt: true, place: { select: { name: true } } } })
+    : [];
+
   const items = [
+    ...partnerReqs.map((r) => ({
+      id: `partner-req-${r.id}`,
+      type: "important" as const,
+      title: "Đối tác gửi yêu cầu chỉnh sửa",
+      description: r.place.name,
+      href: "/admin/yeu-cau-doi-tac",
+      createdAt: r.createdAt,
+    })),
     ...reportedRentals.map((r) => paidItem("rental", r)),
     ...reportedStays.map((r) => paidItem("stay", r)),
     ...newRentals.map((r) => ({
