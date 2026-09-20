@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import StayDetailView from "@/components/places/StayDetailView";
-import { SITE_URL, absoluteUrl } from "@/lib/site-url";
+import { SITE_URL } from "@/lib/site-url";
+import { ogImages } from "@/lib/og-image";
 
 export const dynamic = "force-dynamic";
 
@@ -19,7 +20,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
     title,
     description,
     alternates: { canonical: url },
-    openGraph: { title, description, url, type: "website", locale: "vi_VN", ...(place.avatar ? { images: [absoluteUrl(place.avatar)!] } : {}) },
+    openGraph: { title, description, url, type: "website", locale: "vi_VN", images: ogImages(place.avatar) },
   };
 }
 

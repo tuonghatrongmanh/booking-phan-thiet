@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import { ogImages } from "@/lib/og-image";
 import { prisma } from "@/lib/prisma";
 import Header from "@/components/home/Header";
 import Footer from "@/components/home/Footer";
@@ -54,7 +55,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     openGraph: {
       title,
       description,
-      images: [article.coverImage],
+      images: ogImages(article.coverImage),
       type: "article",
       publishedTime: article.createdAt.toISOString(),
     },

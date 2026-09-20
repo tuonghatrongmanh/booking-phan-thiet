@@ -1,11 +1,12 @@
 import Image from "next/image";
 import type { Metadata } from "next";
+import { ogImages } from "@/lib/og-image";
 import Header from "@/components/home/Header";
 import Footer from "@/components/home/Footer";
 import { prisma } from "@/lib/prisma";
 import { getSiteSettings } from "@/lib/settings";
 import { collectSameAs, FOUNDER_ID, ORG_ID } from "@/lib/site-jsonld";
-import { SITE_URL, absoluteUrl } from "@/lib/site-url";
+import { SITE_URL } from "@/lib/site-url";
 
 export const dynamic = "force-dynamic";
 
@@ -19,7 +20,7 @@ export async function generateMetadata(): Promise<Metadata> {
       ? s.founderBio.slice(0, 155)
       : `Tìm hiểu về ${org}: hệ thống tra cứu và đánh giá homestay, quán ăn, dịch vụ thuê xe uy tín tại Phan Thiết.`,
     alternates: { canonical: `${SITE_URL}/gioi-thieu` },
-    openGraph: { type: "profile", url: `${SITE_URL}/gioi-thieu`, ...(s.founderPhoto ? { images: [absoluteUrl(s.founderPhoto)!] } : {}) },
+    openGraph: { type: "profile", url: `${SITE_URL}/gioi-thieu`, images: ogImages(s.founderPhoto) },
   };
 }
 

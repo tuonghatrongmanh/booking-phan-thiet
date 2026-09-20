@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { SITE_URL } from "@/lib/site-url";
+import { ogImages } from "@/lib/og-image";
 
 // SEO cho các TRANG danh sách (không phải bài chi tiết). Admin sửa ở Admin > SEO các trang;
 // chưa sửa thì dùng giá trị mặc định dưới đây.
@@ -69,6 +70,6 @@ export async function buildPageMetadata(key: string): Promise<Metadata> {
     title: seo.metaTitle,
     description: seo.metaDescription,
     alternates: { canonical: url },
-    openGraph: { title: seo.metaTitle, description: seo.metaDescription, url, type: "website", locale: "vi_VN" },
+    openGraph: { title: seo.metaTitle, description: seo.metaDescription, url, type: "website", locale: "vi_VN", images: ogImages() },
   };
 }

@@ -1,6 +1,8 @@
 "use client";
 
+import { useState } from "react";
 import { setPref, usePrefs } from "@/lib/client-prefs";
+import { promptInstall, usePwaInstall } from "@/lib/pwa-install";
 
 // Cài đặt dành cho khách (đặt cuối menu hamburger và trong nút bánh răng trên máy tính): công tắc lớn,
 // chữ rõ, dễ thao tác cho người lớn tuổi. Lưu trên thiết bị, có hiệu lực ngay.
@@ -16,6 +18,34 @@ function Switch({ on, onChange, label }: { on: boolean; onChange: (v: boolean) =
     >
       <span className={`absolute top-0.5 left-0.5 w-6 h-6 rounded-full bg-white shadow transition-transform ${on ? "translate-x-5" : ""}`} />
     </button>
+  );
+}
+
+// Dòng "Cài ứng dụng": ẩn khi đã cài rồi hoặc trình duyệt không hỗ trợ cài.
+function InstallRow({ rowClass, sub, dark, compact }: { rowClass: string; sub: string; dark: boolean; compact: boolean }) {
+  const { canPrompt, installed, ios } = usePwaInstall();
+  const [help, setHelp] = useState(false);
+  if (installed || (!canPrompt && !ios)) return null;
+  return (
+    <div className={rowClass + " flex-wrap"}>
+      <i className="fa-solid fa-mobile-screen-button w-5 text-center text-lg" aria-hidden="true" />
+      <div className="flex-1 min-w-0">
+        <p className="text-[15px] font-bold leading-tight">Cài ứng dụng</p>
+        {!compact && <p className={`text-xs ${sub}`}>Mở nhanh như app trên điện thoại</p>}
+      </div>
+      <button
+        type="button"
+        onClick={() => (canPrompt ? void promptInstall() : setHelp((v) => !v))}
+        className={`shrink-0 rounded-full px-4 py-1.5 text-sm font-bold ${dark ? "bg-[#FFD23F] text-brand-blue" : "bg-brand-blue text-white"}`}
+      >
+        Cài
+      </button>
+      {help && (
+        <p className={`basis-full text-xs leading-snug ${sub}`}>
+          Bấm nút <b>Chia sẻ</b> <i className="fa-solid fa-arrow-up-from-bracket" aria-hidden="true" /> của Safari, chọn <b>&ldquo;Thêm vào Màn hình chính&rdquo;</b>.
+        </p>
+      )}
+    </div>
   );
 }
 
@@ -48,6 +78,8 @@ export default function ClientSettingsPanel({ tone = "dark", compact = false }: 
         </div>
         <Switch on={prefs.ai} onChange={(v) => setPref("ai", v)} label="Hiện hoặc ẩn trợ lý AI" />
       </div>
+
+      <InstallRow rowClass={row} sub={sub} dark={dark} compact={compact} />
 
       {!compact && (
       <div className={`${row} !items-start`}>

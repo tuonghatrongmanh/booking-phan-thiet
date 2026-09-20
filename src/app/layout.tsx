@@ -14,10 +14,13 @@ import UiSounds from "@/components/ui/UiSounds";
 import ExitGuard from "@/components/ui/ExitGuard";
 import SiteTranslator from "@/components/ui/SiteTranslator";
 import { SITE_URL } from "@/lib/site-url";
+import { ogImages } from "@/lib/og-image";
 import { getActiveTheme } from "@/lib/site-theme";
 import { getUiSlots } from "@/lib/ui-slots";
 import { UiSlotsProvider } from "@/components/ui/UiSlots";
 import { connection } from "next/server";
+import PwaRegister from "@/components/ui/PwaRegister";
+import InstallAppBanner from "@/components/ui/InstallAppBanner";
 
 // Day la metadata MAC DINH cho toan site - trang nao khong tu khai bao metadata rieng
 // (vd trang chu page.tsx) se dung nguyen bo nay, nen "SEO trang chu" trong admin Cai
@@ -40,7 +43,10 @@ export async function generateMetadata(): Promise<Metadata> {
       locale: "vi_VN",
       title: settings.homeSeoTitle,
       description: settings.homeSeoDescription,
+      url: SITE_URL,
+      images: ogImages(),
     },
+    twitter: { card: "summary_large_image", title: settings.homeSeoTitle, description: settings.homeSeoDescription, images: ogImages().map((i) => i.url) },
   };
 }
 
@@ -86,6 +92,8 @@ export default async function RootLayout({
           <AiChatWidget />
           <NoPinchZoom />
           <UiSounds />
+        <PwaRegister />
+        <InstallAppBanner />
           <ExitGuard />
           <SiteTranslator />
           </UiSlotsProvider>

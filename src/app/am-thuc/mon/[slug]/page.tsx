@@ -13,6 +13,7 @@ import FoodGallery from "@/components/food/FoodGallery";
 import FoodSaveShareButtons from "@/components/food/FoodSaveShareButtons";
 import FoodDetailTabs from "@/components/food/FoodDetailTabs";
 
+import { ogImages } from "@/lib/og-image";
 export const dynamic = "force-dynamic";
 
 const RATING_LABELS = ["Rất tệ", "Tệ", "Bình thường", "Tốt", "Rất tuyệt vời"];
@@ -30,7 +31,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
     title,
     description,
     alternates: { canonical: url },
-    openGraph: { title, description, url, type: "article", locale: "vi_VN", ...(food.image ? { images: [absoluteUrl(food.image)!] } : {}) },
+    openGraph: { title, description, url, type: "article", locale: "vi_VN", images: ogImages(food.image) },
   };
 }
 

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import { ogImages } from "@/lib/og-image";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { toDisplayHtml } from "@/lib/sanitize-html";
@@ -29,7 +30,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
     title,
     description,
     alternates: { canonical: url },
-    openGraph: { title, description, url, type: "website", locale: "vi_VN", ...(place.avatar ? { images: [absoluteUrl(place.avatar)!] } : {}) },
+    openGraph: { title, description, url, type: "website", locale: "vi_VN", images: ogImages(place.avatar) },
   };
 }
 
