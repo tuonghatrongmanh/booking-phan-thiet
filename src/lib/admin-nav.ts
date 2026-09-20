@@ -13,6 +13,7 @@ export function isGroup(item: NavEntry): item is NavGroup {
 // breadcrumb, khong lap du lieu 2 noi.
 export const NAV: NavEntry[] = [
   { href: "/admin", label: "Tổng quan", icon: "M4 13h6V4H4v9zm0 7h6v-5H4v5zm10 0h6V11h-6v9zm0-16v5h6V4h-6z" },
+  { href: "/admin/bao-cao", label: "Báo cáo & doanh thu", icon: "M4 20V10M10 20V4M16 20v-8M22 20H2" },
   { href: "/admin/messages", label: "Tin nhắn", icon: "M4 4h16v16H4zM4 4l8 8 8-8" },
   { href: "/admin/news", label: "Tin tức", icon: "M4 4h16v16H4zM8 8h8M8 12h8M8 16h5" },
   {
@@ -21,6 +22,7 @@ export const NAV: NavEntry[] = [
     children: [
       { href: "/admin/luu-tru", label: "Tổng quan Lưu trú", icon: "M4 13h6V4H4v9zm0 7h6v-5H4v5zm10 0h6V11h-6v9zm0-16v5h6V4h-6z" },
       { href: "/admin/places", label: "Địa điểm / Homestay", icon: "M12 2 3 14h7l-1 8 11-13h-7l1-7z" },
+      { href: "/admin/lich-dat", label: "Lịch đặt phòng & xe", icon: "M8 2v4M16 2v4M3 9h18M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z" },
       { href: "/admin/stay-booking-inquiries", label: "Yêu cầu đặt phòng", icon: "M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 14l2 2 4-4" },
       { href: "/admin/stay-areas", label: "Khu vực", icon: "M12 2 3 14h7l-1 8 11-13h-7l1-7z" },
       { href: "/admin/stay-amenities", label: "Tiện ích", icon: "M4 6h16M4 12h16M4 18h16" },
@@ -126,6 +128,7 @@ export const HREF_TO_SECTION: Record<string, import("@/lib/admin-permissions").S
   "/admin/luu-tru": "luu-tru-settings",
   "/admin/places": "homestay",
   "/admin/stay-booking-inquiries": "homestay",
+  "/admin/lich-dat": "homestay",
   "/admin/stay-areas": "stay-areas",
   "/admin/stay-amenities": "stay-amenities",
   "/admin/stay-types": "stay-types",
@@ -167,6 +170,7 @@ const SUPER_ONLY_PATHS = [
   "/admin/users",
   "/admin/forum",
   "/admin/giao-dien",
+  "/admin/bao-cao", // doanh thu + xuất danh sách khách: chỉ SuperAdmin
 ];
 
 export function isSuperOnlyPath(pathname: string): boolean {

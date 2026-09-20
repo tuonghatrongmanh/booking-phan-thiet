@@ -42,3 +42,11 @@ describe("firstAccessibleHref", () => {
     expect(firstAccessibleHref(() => false)).toBe("/admin/account");
   });
 });
+
+describe("báo cáo & lịch đặt", () => {
+  it("báo cáo doanh thu chỉ dành cho SuperAdmin, lịch đặt theo quyền Lưu trú", () => {
+    expect(isSuperOnlyPath("/admin/bao-cao")).toBe(true);
+    expect(isSuperOnlyPath("/admin/lich-dat")).toBe(false);
+    expect(sectionForPath("/admin/lich-dat")).toBe("homestay");
+  });
+});
