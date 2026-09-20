@@ -1,0 +1,39 @@
+name: CI
+
+# Mỗi lần push lên main hoặc mở Pull Request: tự kiểm tra kiểu, chạy test và thử build.
+# Nếu có dấu ❌ nghĩa là bản đó có lỗi - xem chi tiết trong tab Actions của GitHub.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      # Giá trị giả chỉ để build/test chạy được - CI không kết nối database thật
+      DATABASE_URL: postgresql://ci:ci@localhost:5432/ci
+      NEXTAUTH_SECRET: ci-secret-khong-dung-o-production
+      NEXTAUTH_URL: http://localhost:3000
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Cài thư viện
+        run: npm ci
+      - name: Kiểm tra kiểu (TypeScript)
+        run: npx tsc --noEmit
+      - name: Chạy test
+        run: npx vitest run
+      - name: Lint (chưa chặn - còn cảnh báo cũ cần dọn dần)
+        run: npm run lint
+        continue-on-error: true
+      - name: Thử build production
+        run: npm run build

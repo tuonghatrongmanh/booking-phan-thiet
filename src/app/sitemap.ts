@@ -6,12 +6,15 @@ import { FORUM_CATEGORIES, enumToSlug } from "@/lib/forum";
 // Liet ke toan bo URL cong khai that su co the doc duoc de Google/Bing... crawl+index
 // day du va nhanh hon, thay vi phai tu do tim lan tung lien ket - dieu kien can de
 // noi dung co co hoi duoc Google AI Overview/Gemini trich dan (xem tra loi cho user).
+// Tạo mới mỗi lần Google/Bing gọi (không đóng băng lúc build) để bài mới, homestay mới lên sitemap ngay.
+export const dynamic = "force-dynamic";
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [foods, homestays, attractions, saleAgents, news, forumPosts] = await Promise.all([
     prisma.food.findMany({ where: { active: true }, select: { slug: true, updatedAt: true } }),
-    prisma.place.findMany({ where: { category: "HOMESTAY" }, select: { id: true, updatedAt: true } }),
-    prisma.place.findMany({ where: { category: "ATTRACTION" }, select: { id: true, updatedAt: true } }),
-    prisma.place.findMany({ where: { category: "SALE" }, select: { id: true, updatedAt: true } }),
+    prisma.place.findMany({ where: { category: "HOMESTAY", hidden: false }, select: { id: true, updatedAt: true } }),
+    prisma.place.findMany({ where: { category: "ATTRACTION", hidden: false }, select: { id: true, updatedAt: true } }),
+    prisma.place.findMany({ where: { category: "SALE", hidden: false }, select: { id: true, updatedAt: true } }),
     prisma.news.findMany({ where: { published: true }, select: { slug: true, updatedAt: true } }),
     prisma.forumPost.findMany({ select: { id: true, category: true, updatedAt: true } }),
   ]);
