@@ -4,7 +4,8 @@ import Header from "@/components/home/Header";
 import Footer from "@/components/home/Footer";
 import { prisma } from "@/lib/prisma";
 import { getPartnerContext } from "@/lib/partner";
-import { vnDay } from "@/lib/booking-report";
+import { addDays, canMarkArrived, vnDay } from "@/lib/booking-report";
+import PartnerOrderActions from "@/components/partner/PartnerOrderActions";
 
 export const metadata = { title: "Cổng đối tác | Booking Phan Thiết", robots: { index: false, follow: false } };
 export const dynamic = "force-dynamic";
@@ -44,12 +45,13 @@ export default async function PartnerPage() {
   ]);
 
   const orders = [
-    ...stay.map((r) => ({ id: r.id, kind: "Đặt phòng", placeName: r.place.name, customer: r.customerName, phone: r.customerPhone, from: r.checkinDate, to: r.checkoutDate, qty: r.quantity, label: r.optionLabel, status: r.status, deposit: r.depositStatus, created: r.createdAt })),
-    ...rental.map((r) => ({ id: r.id, kind: "Thuê xe", placeName: r.place.name, customer: r.customerName, phone: r.customerPhone, from: r.pickupDate, to: r.returnDate, qty: r.quantity, label: null as string | null, status: r.status, deposit: r.depositStatus, created: r.createdAt })),
+    ...stay.map((r) => ({ id: r.id, kindKey: "stay" as const, arrivedAt: r.arrivedAt, kind: "Đặt phòng", placeName: r.place.name, customer: r.customerName, phone: r.customerPhone, from: r.checkinDate, to: r.checkoutDate, qty: r.quantity, label: r.optionLabel, status: r.status, deposit: r.depositStatus, created: r.createdAt })),
+    ...rental.map((r) => ({ id: r.id, kindKey: "rental" as const, arrivedAt: r.arrivedAt, kind: "Thuê xe", placeName: r.place.name, customer: r.customerName, phone: r.customerPhone, from: r.pickupDate, to: r.returnDate, qty: r.quantity, label: null as string | null, status: r.status, deposit: r.depositStatus, created: r.createdAt })),
   ].sort((a, b) => b.created.getTime() - a.created.getTime()).slice(0, 40);
 
   const thisMonth = orders.filter((o) => o.created >= monthStart && o.status !== "CANCELLED").length;
   const paid = orders.filter((o) => o.deposit === "PAID" && o.status !== "CANCELLED");
+  const arrivedCount = orders.filter((o) => o.arrivedAt).length;
   const upcoming = paid.filter((o) => o.from >= new Date(now.getTime() - 86400000) && o.from <= soon).length;
   const hasCar = ctx.places.some((p) => p.category === "CAR_RENTAL");
 
@@ -67,8 +69,8 @@ export default async function PartnerPage() {
           </Link>
         </div>
 
-        <div className="grid grid-cols-3 gap-3">
-          {([["Đơn mới tháng này", thisMonth], ["Đã nhận cọc", paid.length], ["Khách đến trong 7 ngày", upcoming]] as const).map(([label, value]) => (
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          {([["Đơn mới tháng này", thisMonth], ["Đã nhận cọc", paid.length], ["Khách đến trong 7 ngày", upcoming], ["Khách đã đến", arrivedCount]] as const).map(([label, value]) => (
             <div key={label} className="bg-white rounded-2xl shadow-card p-4">
               <p className="text-xs font-semibold text-slate-500 mb-1">{label}</p>
               <p className="font-display font-extrabold text-2xl text-slate-800">{value}</p>
@@ -118,6 +120,7 @@ export default async function PartnerPage() {
                     </div>
                   </div>
                   <a href={`tel:${o.phone}`} className="inline-block mt-2 text-sm font-bold text-brand-blue"><i className="fa-solid fa-phone mr-1.5" aria-hidden="true" />{o.phone}</a>
+                  <PartnerOrderActions kind={o.kindKey} id={o.id} status={o.status} deposit={o.deposit} arrived={Boolean(o.arrivedAt)} canArrive={canMarkArrived(vnDay(now), vnDay(o.from))} arriveFrom={addDays(vnDay(o.from), -1).split("-").reverse().join("/")} />
                 </li>
               ))}
             </ul>

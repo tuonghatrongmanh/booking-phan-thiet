@@ -27,7 +27,7 @@ export default function SaleReferralCard({ data }: { data: SaleReferralData }) {
       <div className="bg-white rounded-2xl p-5 border border-slate-100">
         <p className="font-bold text-slate-800 mb-1">Link giới thiệu của bạn</p>
         <p className="text-sm text-slate-500 mb-3">
-          Gửi link này cho khách. Khách đặt phòng/thuê xe qua link và <b>đã đặt cọc thành công</b> thì bạn nhận <b className="text-brand-blue">{data.percent}% tiền cọc</b> làm hoa hồng (link ghi nhớ 30 ngày trên máy khách).
+          Gửi link này cho khách. Khách đặt phòng/thuê xe qua link và <b>đã đặt cọc thành công</b> thì bạn nhận <b className="text-brand-blue">{data.percent}% tiền cọc</b> làm hoa hồng (link ghi nhớ 30 ngày trên máy khách). Lượt bấm tính 1 lần mỗi ngày cho mỗi thiết bị.
         </p>
         <div className="flex gap-2">
           <input id="sale-ref-link" readOnly value={data.link} onFocus={(e) => e.currentTarget.select()} className="flex-1 min-w-0 border border-slate-200 rounded-xl px-3 py-2.5 text-sm bg-slate-50 font-mono" />
@@ -38,8 +38,10 @@ export default function SaleReferralCard({ data }: { data: SaleReferralData }) {
         <p className="text-xs text-slate-400 mt-2">Mã của bạn: <b className="font-mono text-slate-600">{data.code}</b></p>
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
         {[
+          ["Lượt bấm link (30 ngày)", String(data.visits30), "fa-solid fa-computer-mouse"],
+          ["Tỉ lệ chốt đơn", data.conversionPercent === null ? "—" : `${data.conversionPercent}%`, "fa-solid fa-bullseye"],
           ["Đơn qua link", String(data.referredOrders), "fa-solid fa-link"],
           ["Đơn đã cọc", String(data.paidOrders), "fa-solid fa-circle-check"],
           ["Hoa hồng chờ trả", vnd(data.pendingAmount), "fa-solid fa-hourglass-half"],

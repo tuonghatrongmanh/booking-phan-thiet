@@ -72,6 +72,7 @@ export default async function AdminRentalInquiriesPage({
               chips={[
                 { icon: "fa-regular fa-calendar", text: `${formatDateOnly(r.pickupDate)} → ${formatDateOnly(r.returnDate)}` },
                 ...(r.quantity > 1 ? [{ icon: "fa-solid fa-motorcycle", text: `${r.quantity} xe`, tone: "blue" as const }] : []),
+                ...(r.arrivedAt ? [{ icon: "fa-solid fa-person-walking-luggage", text: `Khách đã đến ${formatDateOnly(r.arrivedAt)}`, tone: "blue" as const }] : []),
               ]}
               locationLabel="Nhận xe tại"
               location={r.pickupLocation}

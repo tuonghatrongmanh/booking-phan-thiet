@@ -11,6 +11,17 @@ export default function RefCapture() {
     if (!code) return;
     const secure = window.location.protocol === "https:" ? "; Secure" : "";
     document.cookie = `${REF_COOKIE}=${code}; max-age=${REF_COOKIE_DAYS * 86400}; path=/; SameSite=Lax${secure}`;
+
+    // Đếm 1 lượt bấm link (tối đa 1 lần / ngày / mã trên mỗi trình duyệt để F5 không làm tăng số liệu)
+    try {
+      const today = new Date().toISOString().slice(0, 10);
+      const key = `bpt_ref_seen_${code}`;
+      if (localStorage.getItem(key) === today) return;
+      localStorage.setItem(key, today);
+    } catch {
+      // trình duyệt chặn localStorage: vẫn báo 1 lần cho lượt tải trang này
+    }
+    void fetch("/api/referral/visit", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ code }), keepalive: true }).catch(() => {});
   }, []);
   return null;
 }

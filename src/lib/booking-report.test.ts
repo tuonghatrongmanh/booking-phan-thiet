@@ -63,3 +63,18 @@ describe("csv", () => {
     expect(toCsv(["a", "b"], [[1, null], ["x", "y"]])).toBe("a,b\r\n1,\r\nx,y");
   });
 });
+
+import { canMarkArrived } from "./booking-report";
+
+describe("canMarkArrived", () => {
+  it("chỉ cho bấm 'khách đã đến' từ 1 ngày trước ngày nhận", () => {
+    expect(canMarkArrived("2026-09-20", "2026-09-22")).toBe(false);
+    expect(canMarkArrived("2026-09-21", "2026-09-22")).toBe(true);
+    expect(canMarkArrived("2026-09-22", "2026-09-22")).toBe(true);
+    expect(canMarkArrived("2026-09-25", "2026-09-22")).toBe(true);
+  });
+  it("qua ranh giới tháng/năm", () => {
+    expect(canMarkArrived("2026-12-31", "2027-01-01")).toBe(true);
+    expect(canMarkArrived("2026-12-30", "2027-01-01")).toBe(false);
+  });
+});

@@ -5,7 +5,7 @@ import { todayInVietnam } from "@/lib/theme-schedule";
 
 export const vnDay = (d: Date) => todayInVietnam(d);
 
-const addDays = (key: string, n: number): string => {
+export const addDays = (key: string, n: number): string => {
   const [y, m, d] = key.split("-").map(Number);
   const t = new Date(Date.UTC(y, m - 1, d + n));
   return t.toISOString().slice(0, 10);
@@ -76,6 +76,11 @@ export function csvEscape(value: unknown): string {
 
 export function toCsv(headers: string[], rows: unknown[][]): string {
   return [headers, ...rows].map((r) => r.map(csvEscape).join(",")).join("\r\n");
+}
+
+// Chủ nhà chỉ được bấm "Khách đã đến" từ trước ngày nhận 1 ngày (chống bấm nhầm/bấm khống từ rất sớm).
+export function canMarkArrived(todayKey: string, startKey: string): boolean {
+  return todayKey >= addDays(startKey, -1);
 }
 
 export const vnd = (n: number) => `${Math.round(n).toLocaleString("vi-VN")}đ`;

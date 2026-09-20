@@ -75,6 +75,7 @@ export default async function AdminStayBookingInquiriesPage({
                   { icon: "fa-regular fa-calendar", text: `${formatDateOnly(r.checkinDate)} → ${formatDateOnly(r.checkoutDate)}` },
                   ...(r.guestCount ? [{ icon: "fa-solid fa-user-group", text: `${r.guestCount} khách` }] : []),
                   ...(detail ? [{ icon: "fa-solid fa-bed", text: detail, tone: "blue" as const }] : []),
+                  ...(r.arrivedAt ? [{ icon: "fa-solid fa-person-walking-luggage", text: `Khách đã đến ${formatDateOnly(r.arrivedAt)}`, tone: "blue" as const }] : []),
                 ]}
                 note={r.note}
                 sentAt={formatDateTime(r.createdAt)}

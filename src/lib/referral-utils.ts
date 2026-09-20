@@ -21,6 +21,11 @@ export function normalizeRefCode(raw: string | null | undefined): string | null 
   return REF_RE.test(code) ? code : null;
 }
 
+// Tỉ lệ áp dụng cho 1 Sale: mức riêng (nếu admin đặt) hoặc mức chung. 0% là giá trị hợp lệ (Sale không nhận hoa hồng).
+export function effectivePercent(override: number | null | undefined, globalPercent: number): number {
+  return typeof override === "number" && Number.isFinite(override) ? override : globalPercent;
+}
+
 export function computeCommission(depositAmount: number, percent: number): number {
   if (!Number.isFinite(depositAmount) || depositAmount <= 0 || percent <= 0) return 0;
   return Math.round((depositAmount * percent) / 100);

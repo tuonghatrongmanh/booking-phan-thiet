@@ -615,6 +615,8 @@ model Place {
   // Ma gioi thieu cua Sale (?ref=MA) - khach vao qua link co ma va dat coc thanh cong thi Sale duoc hoa hong.
   referralCode String?          @unique
   commissions  SaleCommission[] @relation("SaleCommissions")
+  commissionPercent Int? // ti le hoa hong RIENG cua Sale nay (%); null = dung ti le chung SiteSettings.saleCommissionPercent
+  referralVisits    ReferralVisit[]
 
   @@index([category, status])
   @@index([partnerUserId])
@@ -670,6 +672,18 @@ model SaleCommission {
   @@index([salePlaceId, status])
 }
 
+// Luot khach bam link gioi thieu cua Sale, gop theo NGAY (gio Viet Nam) - moi trinh duyet toi da 1 lan / ngay / ma.
+model ReferralVisit {
+  id          String   @id @default(cuid())
+  sale        Place    @relation(fields: [salePlaceId], references: [id], onDelete: Cascade)
+  salePlaceId String
+  day         String // "YYYY-MM-DD"
+  visits      Int      @default(1)
+  updatedAt   DateTime @updatedAt
+
+  @@unique([salePlaceId, day])
+}
+
 // Yeu cau thue xe khach gui tu widget "Dat thue" o trang /thue-xe (category CAR_RENTAL).
 // KHONG phai don dat cho tu dong xac nhan thuc su (khong co he thong tinh trang lich
 // theo ngay) - day la 1 "lead" de nhan vien lien he lai xac nhan, giong luong Redemption
@@ -701,6 +715,7 @@ model RentalInquiry {
   depositStatus  DepositStatus @default(NONE)
   depositRef     String?       @unique
   depositPaidAt  DateTime?
+  arrivedAt      DateTime? // doi tac/chu nha bam 'Khach da den' (chi don da nhan coc)
   referralSalePlaceId String? // Place.id cua Sale gioi thieu (tu cookie ?ref=), dung tinh hoa hong khi nhan coc
 
   createdAt      DateTime @default(now())
@@ -744,6 +759,7 @@ model StayBookingInquiry {
   depositStatus  DepositStatus @default(NONE)
   depositRef     String?       @unique
   depositPaidAt  DateTime?
+  arrivedAt      DateTime? // doi tac/chu nha bam 'Khach da den' (chi don da nhan coc)
   referralSalePlaceId String? // Place.id cua Sale gioi thieu (tu cookie ?ref=), dung tinh hoa hong khi nhan coc
 
   createdAt      DateTime @default(now())

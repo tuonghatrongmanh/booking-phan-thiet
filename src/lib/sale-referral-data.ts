@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { SITE_URL } from "@/lib/site-url";
 import { ensureReferralCode, getCommissionPercent } from "@/lib/referral";
 import { maskName, referralLink } from "@/lib/referral-utils";
+import { addDays, vnDay } from "@/lib/booking-report";
 
 // Dữ liệu tab "Giới thiệu & hoa hồng" của Sale (chỉ dữ liệu thuần để truyền xuống component client).
 export type SaleReferralData = {
@@ -10,6 +11,9 @@ export type SaleReferralData = {
   percent: number;
   referredOrders: number; // số đơn khách đặt qua link của bạn
   paidOrders: number; // số đơn đã nhận cọc (tính hoa hồng)
+  visits30: number; // lượt khách bấm link trong 30 ngày qua
+  orders30: number; // đơn đã cọc trong 30 ngày qua
+  conversionPercent: number | null; // đơn đã cọc / lượt bấm (null khi chưa có lượt bấm)
   pendingAmount: number;
   paidAmount: number;
   items: { id: string; createdAt: string; kind: "stay" | "rental"; placeName: string; customer: string; depositAmount: number; amount: number; status: "PENDING" | "PAID" | "CANCELLED" }[];
@@ -25,14 +29,19 @@ const monthStartVn = () => {
 export async function loadSaleReferral(placeId: string): Promise<SaleReferralData> {
   const code = await ensureReferralCode(placeId);
   const monthStart = monthStartVn();
-  const [percent, stayCount, rentalCount, commissions, sums, board] = await Promise.all([
-    getCommissionPercent(),
+  const from30 = addDays(vnDay(new Date()), -29);
+  const since30 = new Date(Date.now() - 30 * 86400000);
+  const [percent, stayCount, rentalCount, commissions, sums, board, visitAgg, orders30] = await Promise.all([
+    getCommissionPercent(placeId),
     prisma.stayBookingInquiry.count({ where: { referralSalePlaceId: placeId } }),
     prisma.rentalInquiry.count({ where: { referralSalePlaceId: placeId } }),
     prisma.saleCommission.findMany({ where: { salePlaceId: placeId }, orderBy: { createdAt: "desc" }, take: 30 }),
     prisma.saleCommission.groupBy({ by: ["status"], where: { salePlaceId: placeId }, _sum: { amount: true }, _count: true }),
     prisma.saleCommission.groupBy({ by: ["salePlaceId"], where: { status: { not: "CANCELLED" }, createdAt: { gte: monthStart } }, _count: true, orderBy: { _count: { salePlaceId: "desc" } }, take: 5 }),
+    prisma.referralVisit.aggregate({ where: { salePlaceId: placeId, day: { gte: from30 } }, _sum: { visits: true } }),
+    prisma.saleCommission.count({ where: { salePlaceId: placeId, status: { not: "CANCELLED" }, createdAt: { gte: since30 } } }),
   ]);
+  const visits30 = visitAgg._sum.visits ?? 0;
 
   const stayIds = commissions.filter((c) => c.kind === "stay").map((c) => c.inquiryId);
   const rentalIds = commissions.filter((c) => c.kind === "rental").map((c) => c.inquiryId);
@@ -57,6 +66,9 @@ export async function loadSaleReferral(placeId: string): Promise<SaleReferralDat
     percent,
     referredOrders: stayCount + rentalCount,
     paidOrders,
+    visits30,
+    orders30,
+    conversionPercent: visits30 > 0 ? Math.min(100, Math.round((orders30 / visits30) * 100)) : null,
     pendingAmount: sum("PENDING"),
     paidAmount: sum("PAID"),
     items: commissions.map((c) => {

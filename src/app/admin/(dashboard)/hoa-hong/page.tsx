@@ -1,18 +1,28 @@
 import { prisma } from "@/lib/prisma";
 import { getCommissionPercent } from "@/lib/referral";
 import { vnd, vnDay } from "@/lib/booking-report";
-import { PayButton, RateForm } from "@/components/admin/CommissionControls";
+import { PayButton, RateForm, SaleRateControl } from "@/components/admin/CommissionControls";
+import { addDays } from "@/lib/booking-report";
 
 export const dynamic = "force-dynamic";
+
+const daysAgo = (n: number) => new Date(Date.now() - n * 86400000);
 
 const STATUS = { PENDING: ["Chờ trả", "bg-amber-100 text-amber-700"], PAID: ["Đã trả", "bg-emerald-100 text-emerald-700"], CANCELLED: ["Đơn đã hủy", "bg-slate-100 text-slate-500"] } as const;
 
 export default async function CommissionsPage() {
-  const [percent, rows, bySale] = await Promise.all([
+  const from30 = addDays(vnDay(new Date()), -29);
+  const [percent, rows, bySale, sales, visitAgg, orderAgg] = await Promise.all([
     getCommissionPercent(),
     prisma.saleCommission.findMany({ orderBy: { createdAt: "desc" }, take: 100, include: { sale: { select: { id: true, name: true, phone: true } } } }),
     prisma.saleCommission.groupBy({ by: ["salePlaceId"], where: { status: "PENDING" }, _sum: { amount: true }, _count: true }),
+    prisma.place.findMany({ where: { category: "SALE" }, select: { id: true, name: true, referralCode: true, commissionPercent: true, hidden: true }, orderBy: { name: "asc" }, take: 200 }),
+    prisma.referralVisit.groupBy({ by: ["salePlaceId"], where: { day: { gte: from30 } }, _sum: { visits: true } }),
+    prisma.saleCommission.groupBy({ by: ["salePlaceId"], where: { status: { not: "CANCELLED" }, createdAt: { gte: daysAgo(30) } }, _count: true }),
   ]);
+  const visitsOf = new Map(visitAgg.map((v) => [v.salePlaceId, v._sum.visits ?? 0]));
+  const ordersOf = new Map(orderAgg.map((o) => [o.salePlaceId, o._count]));
+  const saleRows = [...sales].sort((a, b) => (visitsOf.get(b.id) ?? 0) - (visitsOf.get(a.id) ?? 0) || a.name.localeCompare(b.name));
 
   const stayIds = rows.filter((r) => r.kind === "stay").map((r) => r.inquiryId);
   const rentalIds = rows.filter((r) => r.kind === "rental").map((r) => r.inquiryId);
@@ -37,6 +47,41 @@ export default async function CommissionsPage() {
         <RateForm initial={percent} />
         <p className="text-xs text-slate-400 mt-3">Đổi tỉ lệ chỉ áp dụng cho các đơn được xác nhận cọc từ bây giờ. Hoa hồng đã ghi giữ nguyên tỉ lệ lúc ghi. Sale bị cấm/đình chỉ không nhận hoa hồng mới.</p>
       </div>
+
+      <section className="bg-white rounded-2xl shadow-card overflow-x-auto">
+        <h2 className="font-display font-bold text-lg text-slate-800 p-5 pb-1">Theo từng Sale</h2>
+        <p className="px-5 pb-3 text-xs text-slate-400">Ô tỉ lệ để trống = dùng mức chung ({percent}%). Đặt riêng để thưởng thêm cho Sale giỏi hoặc ưu đãi đối tác lớn. Lượt bấm tính 1 lần/ngày/thiết bị, 30 ngày gần nhất.</p>
+        {saleRows.length === 0 ? (
+          <p className="px-5 pb-6 text-sm text-slate-400">Chưa có Sale nào.</p>
+        ) : (
+          <table className="w-full text-sm min-w-[640px]">
+            <thead className="bg-slate-50 text-slate-500 text-left">
+              <tr>
+                <th className="px-5 py-2.5 font-semibold">Sale</th>
+                <th className="px-3 py-2.5 font-semibold text-right">Lượt bấm (30 ngày)</th>
+                <th className="px-3 py-2.5 font-semibold text-right">Đơn đã cọc (30 ngày)</th>
+                <th className="px-3 py-2.5 font-semibold text-right">Chốt</th>
+                <th className="px-5 py-2.5 font-semibold">Hoa hồng %</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {saleRows.map((s) => {
+                const v = visitsOf.get(s.id) ?? 0;
+                const o = ordersOf.get(s.id) ?? 0;
+                return (
+                  <tr key={s.id}>
+                    <td className="px-5 py-2.5"><span className="font-semibold text-slate-700">{s.name}</span>{s.hidden && <span className="text-xs text-slate-400"> · đang ẩn</span>}<span className="block text-[11px] font-mono text-slate-400">{s.referralCode ?? "chưa có mã"}</span></td>
+                    <td className="px-3 py-2.5 text-right text-slate-600">{v}</td>
+                    <td className="px-3 py-2.5 text-right text-slate-600">{o}</td>
+                    <td className="px-3 py-2.5 text-right text-slate-500">{v > 0 ? `${Math.min(100, Math.round((o / v) * 100))}%` : "—"}</td>
+                    <td className="px-5 py-2.5"><SaleRateControl saleId={s.id} custom={s.commissionPercent} globalPercent={percent} /></td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        )}
+      </section>
 
       <section className="bg-white rounded-2xl shadow-card p-5">
         <div className="flex flex-wrap items-baseline justify-between gap-2 mb-3">

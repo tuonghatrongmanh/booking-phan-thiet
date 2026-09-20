@@ -58,3 +58,36 @@ export function PayButton({ ids, salePlaceId, label, message }: { ids?: string[]
     </button>
   );
 }
+
+// Tỉ lệ hoa hồng RIÊNG cho 1 Sale: để trống = dùng mức chung
+export function SaleRateControl({ saleId, custom, globalPercent }: { saleId: string; custom: number | null; globalPercent: number }) {
+  const router = useRouter();
+  const { toast } = useDialog();
+  const [value, setValue] = useState(custom === null ? "" : String(custom));
+  const [busy, setBusy] = useState(false);
+  const dirty = value !== (custom === null ? "" : String(custom));
+
+  async function save(next: number | null) {
+    setBusy(true);
+    const res = await fetch(`/api/admin/commissions/sale/${saleId}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ percent: next }) });
+    const data = await res.json().catch(() => ({}));
+    setBusy(false);
+    if (!res.ok) return toast(typeof data.error === "string" ? data.error : "Không lưu được", "error");
+    toast(next === null ? "Đã chuyển về mức chung" : `Đã đặt ${next}% cho Sale này`, "success");
+    if (next === null) setValue("");
+    router.refresh();
+  }
+
+  return (
+    <div className="flex items-center gap-1.5">
+      <input type="number" min={0} max={50} value={value} placeholder={`${globalPercent}`} onChange={(e) => setValue(e.target.value)} aria-label="Tỉ lệ hoa hồng riêng (%)" className="w-16 border border-slate-200 rounded-lg px-2 py-1.5 text-sm text-center focus:outline-none focus:ring-2 focus:ring-brand-blue/40" />
+      <span className="text-xs text-slate-400">%</span>
+      {dirty && value !== "" && (
+        <button type="button" disabled={busy} onClick={() => save(Number(value))} className="text-xs font-bold text-white bg-brand-blue rounded-full px-3 py-1.5 disabled:opacity-50">Lưu</button>
+      )}
+      {custom !== null && !dirty && (
+        <button type="button" disabled={busy} onClick={() => save(null)} className="text-xs font-semibold text-slate-400 hover:text-slate-600 underline">Dùng mức chung</button>
+      )}
+    </div>
+  );
+}
